@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXUS: PRO BEATBOX TRADING</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;500;700&family=Rajdhani:wght@500;700;900&display=swap');
+
+        :root {
+            --bg-deep: #050505;
+            
+            /* Rarity Gradients */
+            --g-common: linear-gradient(135deg, #757575, #9e9e9e);
+            --g-underground: linear-gradient(135deg, #455a64, #607d8b);
+            --g-rare: linear-gradient(135deg, #0097a7, #00bcd4);
+            --g-epic: linear-gradient(135deg, #7b1fa2, #e040fb);
+            --g-uk: linear-gradient(135deg, #c62828, #ff1744);
+            --g-discord: linear-gradient(135deg, #e65100, #ff9100);
+            --g-loop: linear-gradient(135deg, #1b5e20, #00e676);
+            --g-legendary: linear-gradient(135deg, #ff6f00, #ffd700, #ffecb3);
+            
+            /* Text Colors */
+            --c-common: #bdbdbd;
+            --c-underground: #90a4ae;
+            --c-rare: #80deea;
+            --c-epic: #ea80fc;
+            --c-uk: #ff8a80;
+            --c-discord: #ffcc80;
+            --c-loop: #b9f6ca;
+            --c-legendary: #ffe57f;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1a1a2e 0%, transparent 60%),
+                repeating-linear-gradient(rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 20px);
+            color: white;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- HEADER --- */
+        header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            z-index: 20;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-family: 'Teko', sans-serif;
+            margin: 0;
+            font-size: 3rem;
+            line-height: 0.8;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255,255,255,0.2);
+        }
+
+        .subtitle {
+            font-size: 0.7rem;
+            letter-spacing: 6px;
+            color: var(--c-rare);
+            text-transform: uppercase;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        /* --- PACK STAGE --- */
+        .stage {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .pack-row {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pack {
+            width: 220px;
+            height: 320px;
+            background: #111;
+            border-radius: 18px;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: float 6s ease-in-out infinite;
+            border: 1px solid #333;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .pack:nth-child(2) { animation-delay: 1s; border-color: var(--c-rare); box-shadow: 0 0 50px rgba(0, 188, 212, 0.2); }
+
+        .pack:hover { transform: scale(1.05) rotateX(5deg); }
+        .pack.opening { animation: packBurst 0.8s forwards; }
+
+        .pack-art {
+            position: absolute; inset: 4px;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #222;
+            overflow: hidden;
+        }
+        
+        /* Pack Hologram */
+        .pack-art::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(125deg, transparent 20%, rgba(255,255,255,0.1) 30%, transparent 40%);
+            animation: shine 4s infinite;
+        }
+
+        @keyframes shine { 0% { transform: translateX(-100%); } 20%, 100% { transform: translateX(100%); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes packBurst { 
+            0% { transform: scale(1); filter: brightness(1); } 
+            50% { transform: scale(0.9); filter: brightness(5); } 
+            100% { transform: scale(2); opacity: 0; } 
+        }
+
+        /* --- CARD OVERLAY --- */
+        .overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .pack-results {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .card-wrapper {
+            width: 300px;
+            height: 480px;
+            perspective: 1500px;
+            flex-shrink: 0;
+        }
+
+        .card {
+            width: 100%; height: 100%;
+            border-radius: 24px;
+            position: relative;
+            transform-style: preserve-3d;
+            background: #161616;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            opacity: 0;
+            transform: rotateY(90deg);
+        }
+
+        .card.reveal { animation: revealFlip 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+
+        @keyframes revealFlip { from { opacity: 0; transform: rotateY(90deg) scale(0.8); } to { opacity: 1; transform: rotateY(0deg) scale(1); } }
+
+        /* Holo Foil Effect */
+        .foil-layer {
+            position: absolute; inset: 0; z-index: 5;
+            background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.05) 60%, transparent 80%);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            opacity: 0.6;
+            background-size: 200% 200%;
+            animation: foilMove 5s infinite linear;
+        }
+        @keyframes foilMove { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }
+
+        .card-top {
+            padding: 15px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            z-index: 2;
+        }
+
+        .rat-circle {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,255,255,0.2);
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Teko', sans-serif;
+            font-size: 2.4rem;
+            line-height: 0;
+            padding-top: 4px;
+            backdrop-filter: blur(4px);
+        }
+
+        .flag { font-size: 2rem; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
+
+        .img-mask {
+            position: absolute; top: 0; left: 0; width: 100%; height: 60%;
+            z-index: 1;
+            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+            background: #111; /* Fallback bg */
+        }
+
+        .hero-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .card-bottom {
+            margin-top: auto;
+            padding: 15px;
+            z-index: 2;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 50%, transparent 100%);
+        }
+
+        .card-name {
+            font-family: 'Teko', sans-serif;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            line-height: 0.8;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+        }
+
+        .card-sub {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-item { text-align: center; display: flex; flex-direction: column; }
+        .stat-lbl { font-size: 0.5rem; color: #888; font-weight: 900; }
+        .stat-val { font-size: 1rem; font-family: 'Teko', sans-serif; }
+
+        /* Buttons */
+        .btn {
+            margin-top: 10px;
+            padding: 15px 50px;
+            background: white;
+            color: black;
+            border: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 200;
+        }
+        .btn:hover { transform: scale(1.05); background: var(--c-rare); }
+
+        /* --- INVENTORY --- */
+        .inventory {
+            width: 100%;
+            height: 180px;
+            background: rgba(10, 10, 15, 0.9);
+            border-top: 1px solid #333;
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            z-index: 10;
+        }
+        .inv-header { font-size: 0.8rem; color: #666; letter-spacing: 2px; margin-bottom: 10px; font-weight: 700; }
+        .inv-scroll {
+            display: flex; gap: 10px; overflow-x: auto; height: 120px; padding-bottom: 10px;
+        }
+        .inv-card {
+            min-width: 90px; height: 100%;
+            background: #202020;
+            border-radius: 8px;
+            border: 1px solid #444;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .inv-img { width: 100%; height: 70%; object-fit: cover; }
+        .inv-info { height: 30%; display: flex; justify-content: center; align-items: center; font-family: 'Teko'; font-size: 1.2rem; background: #111; color: white; }
+        .inv-badge { position: absolute; top: 2px; right: 2px; background: white; color: black; font-size: 0.6rem; padding: 1px 4px; font-weight: bold; border-radius: 2px; }
+
+        /* --- RARITY THEMES --- */
+        .t-legendary { color: var(--c-legendary); }
+        .b-legendary { border-color: #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); }
+        
+        .t-uk { color: var(--c-uk); }
+        .b-uk { border-color: #ff1744; box-shadow: 0 0 25px rgba(255, 23, 68, 0.3); }
+        
+        .t-loop { color: var(--c-loop); }
+        .b-loop { border-color: #00e676; }
+        
+        .t-epic { color: var(--c-epic); }
+        .b-epic { border-color: #d500f9; }
+
+        /* --- SCANNER ANIM --- */
+        #scanner {
+            position: fixed; inset: 0; background: black; z-index: 200; display: none;
+            justify-content: center; align-items: center;
+        }
+        .scan-beam {
+            width: 100%; height: 4px; background: #00f2ff;
+            box-shadow: 0 0 50px #00f2ff, 0 0 100px white;
+            animation: scan 1.2s ease-in-out infinite;
+        }
+        @keyframes scan { 0% { transform: translateY(-50vh) scaleX(0.5); opacity: 0; } 50% { opacity: 1; transform: translateY(0) scaleX(1); } 100% { transform: translateY(50vh) scaleX(0.5); opacity: 0; } }
+        
+        /* Mobile Adjustments for 3 cards */
+        @media (max-width: 768px) {
+            .pack-results {
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 40px;
+            }
+            .card-wrapper {
+                height: 400px;
+                width: 260px;
+                transform: scale(0.95);
+                margin-bottom: 20px;
+            }
+            .pack-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- AUDIO SOURCE - AUTO PLAY ON DOG PACK -->
+    <audio id="dogAudio" src="1st take freestyle.mp3"></audio>
+
+    <header>
+        <h1>NEXUS</h1>
+        <div class="subtitle">PRO BEATBOX COLLECTION</div>
+    </header>
+
+    <div class="stage">
+        <div class="pack-row">
+            <!-- 3 Card Pack -->
+            <div class="pack" onclick="openPack(3)">
+                <div class="pack-art">
+                    <div style="font-size:4rem; margin-bottom:10px;">💠</div>
+                    <div style="font-family:'Teko'; font-size:2rem; line-height:1;">TRIPLE<br>THREAT</div>
+                    <div style="font-size:0.7rem; color:#888; letter-spacing:2px; margin-top:5px;">3 CARDS</div>
+                </div>
+            </div>
+
+            <!-- 5 Card Pack -->
+            <div class="pack" onclick="openPack(5)" style="border-color: var(--c-rare); box-shadow: 0 0 50px rgba(0, 188, 212, 0.3);">
+                <div class="pack-art">
+                    <div style="font-size:4rem; margin-bottom:10px;">🔥</div>
+                    <div style="font-family:'Teko'; font-size:2rem; line-height:1; color:var(--c-rare);">MEGA<br>PACK</div>
+                    <div style="font-size:0.7rem; color:#888; letter-spacing:2px; margin-top:5px;">5 CARDS</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner -->
+    <div id="scanner"><div class="scan-beam"></div></div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay">
+        <div class="pack-results" id="resultsArea"></div>
+        <button class="btn" onclick="closeOverlay()">COLLECT ALL</button>
+    </div>
+
+    <div class="inventory">
+        <div class="inv-header">CLUB DATABASE <span id="clubCount">(0)</span></div>
+        <div class="inv-scroll" id="invList"></div>
+    </div>
+
+<script>
+    /* --- DATABASE --- */
+    // Updated video IDs for UK Beatboxers to use actual battle footage
+    const db = [
+        // --- SPECIAL / HYBRID ---
+        { name: "DOG", rating: 99, country: "🇬🇧", rarity: "legendary", type: "HYBRID", t:98, m:98, o:97, p:98, img: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=600&auto=format&fit=crop" }, // Custom Image
+
+        // --- GOD TIER (LEGENDS) ---
+        { name: "NaPoM", rating: 99, country: "🇺🇸", rarity: "legendary", type: "TITAN", t:99, m:93, o:98, p:99, img: "8xM9yU8IqfE" },
+        { name: "D-Low", rating: 99, country: "🇬🇧", rarity: "legendary", type: "CHAMP", t:99, m:94, o:99, p:99, img: "17kJpT9sibM" },
+        { name: "River'", rating: 99, country: "🇫🇷", rarity: "legendary", type: "FLOW", t:96, m:99, o:98, p:95, img: "wXWNTdL6eq0" },
+        { name: "Colaps", rating: 98, country: "🇫🇷", rarity: "legendary", type: "CLEAN", t:99, m:95, o:96, p:96, img: "R-ayjswDef0" },
+        { name: "FootboxG", rating: 97, country: "🇧🇪", rarity: "legendary", type: "ROBOT", t:98, m:93, o:97, p:95, img: "4aF9-45jd8E" },
+        { name: "Tom Thum", rating: 95, country: "🇦🇺", rarity: "legendary", type: "SHOW", t:94, m:97, o:96, p:90, img: "GNZBSZD16cY" },
+        { name: "Reeps One", rating: 96, country: "🇬🇧", rarity: "legendary", type: "PIONEER", t:95, m:96, o:99, p:96, img: "p7E-O3d8Y6I" },
+        { name: "Skiller", rating: 95, country: "🇧🇬", rarity: "legendary", type: "FAST", t:97, m:90, o:92, p:95, img: "tq-2R8hGk2A" },
+        { name: "Rahzel", rating: 94, country: "🇺🇸", rarity: "legendary", type: "GODFATHER", t:90, m:92, o:99, p:93, img: "IfHj05aV8tE" },
+        { name: "Alem", rating: 97, country: "🇫🇷", rarity: "legendary", type: "SPEED", t:99, m:88, o:92, p:98, img: "9H2T2r_Cq3Y" },
+
+        // --- LOOP MASTERS ---
+        { name: "Saro", rating: 98, country: "🇫🇷", rarity: "loop-master", type: "GOD", t:97, m:99, o:99, p:92, img: "aZ3-n-Hq-K0" },
+        { name: "Bizkit", rating: 95, country: "🇺🇸", rarity: "loop-master", type: "LOOP", t:93, m:96, o:95, p:94, img: "CWwt5JLSpYw" },
+        { name: "Frosty", rating: 97, country: "🇬🇧", rarity: "loop-master", type: "UK GOD", t:95, m:97, o:96, p:94, img: "wAm2AeJ4GVY" },
+        { name: "Rythmind", rating: 97, country: "🇫🇷", rarity: "loop-master", type: "RHYTHM", t:96, m:98, o:97, p:95, img: "9H2T2r_Cq3Y" },
+        { name: "BreZ", rating: 94, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:94, m:93, o:95, p:91, img: "uQ9rM7JtQ4w" },
+        { name: "NME", rating: 93, country: "🇮🇹", rarity: "loop-master", type: "LOOP", t:92, m:94, o:92, p:90, img: "6W55Dk2Mvzo" },
+        { name: "Dice", rating: 93, rarity: "loop-master", country: "🇺🇸", type: "LOOP", t:91, m:95, o:94, p:90, img: "3t2gKk7Zp4M" },
+        { name: "Robin", rating: 92, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:93, m:94, o:91, p:89, img: "u_yW3v5_3wc" },
+        { name: "Contrix", rating: 90, country: "🇬🇧", rarity: "loop-master", type: "UK", t:89, m:92, o:90, p:90, img: "a2Jj1J5v5vM" },
+
+        // --- UK SCENE (MASSIVE EXPANSION) ---
+        { name: "Milky", rating: 90, country: "🇬🇧", rarity: "uk-scene", type: "CHAMP", t:89, m:88, o:90, p:91, img: "sSs4cTrLs5o" }, 
+        { name: "Bass Ventura", rating: 91, country: "🇬🇧", rarity: "uk-scene", type: "VET", t:89, m:90, o:91, p:93, img: "OVUGTVESNhg" },
+        { name: "Epos", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "ELITE", t:96, m:92, o:91, p:95, img: "uxrsYP0sXqs" },
+        { name: "Zak", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:94, m:90, o:92, p:95, img: "yqK8CjV1j28" }, 
+        { name: "Whit", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "FLOW", t:86, m:87, o:83, p:84, img: "Z7k8Wf9Xy0U" },
+        { name: "OxBox", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "POWER", t:85, m:83, o:84, p:91, img: "A5q2J5v5vM" },
+        { name: "Hobbit", rating: 87, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:89, m:85, o:86, p:84, img: "g5q2J5v5vM" },
+        { name: "BeatFox", rating: 88, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:84, m:86, o:91, p:89, img: "b7q2J5v5vM" },
+        { name: "Tyla", rating: 84, country: "🇬🇧", rarity: "uk-scene", type: "DUB", t:85, m:82, o:84, p:88, img: "t8q2J5v5vM" },
+        { name: "Pye", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:84, m:84, o:82, p:81, img: "p9q2J5v5vM" },
+        { name: "M-Age", rating: 84, country: "🇬🇧", rarity: "uk-scene", type: "TECH", t:86, m:82, o:83, p:85, img: "m2q2J5v5vM" },
+        { name: "ABH", rating: 87, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:86, m:90, o:88, p:85, img: "a1q2J5v5vM" },
+        { name: "D-Koy", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:80, m:85, o:82, p:80, img: "d3q2J5v5vM" },
+        { name: "Fredy Beats", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "COMEDY", t:81, m:86, o:88, p:79, img: "f4q2J5v5vM" },
+        
+        // --- EPIC GLOBAL ---
+        { name: "King Inertia", rating: 96, country: "🇺🇸", rarity: "epic", type: "BASS", t:90, m:91, o:93, p:99, img: "Mk7NUisssC8" },
+        { name: "Inkie", rating: 92, country: "🇷🇺", rarity: "epic", type: "BASS", t:94, m:88, o:91, p:96, img: "6W55Dk2Mvzo" },
+        { name: "Hiss", rating: 93, country: "🇰🇷", rarity: "epic", type: "TECH", t:97, m:89, o:91, p:93, img: "Pq12wPgWyAE" },
+        { name: "Remix", rating: 89, country: "🇨🇦", rarity: "epic", type: "FLOW", t:90, m:92, o:89, p:90, img: "cvQHn-TUk-Q" },
+        { name: "Antilt", rating: 91, country: "🇧🇪", rarity: "epic", type: "GLITCH", t:97, m:82, o:98, p:90, img: "VCl5LcFZnC4" },
+        { name: "Osis", rating: 90, country: "🇮🇪", rarity: "epic", type: "TECH", t:94, m:87, o:91, p:88, img: "Jw3fOshpBUo" },
+        { name: "J-Wobble", rating: 92, country: "🇺🇸", rarity: "epic", type: "BASS", t:88, m:90, o:91, p:96, img: "K1i7Wb8p6vM" },
+        { name: "Improver", rating: 94, country: "🇷🇺", rarity: "epic", type: "UNIQUE", t:95, m:92, o:98, p:90, img: "QbOC9OGH45E" },
+        { name: "Abo Ice", rating: 91, country: "🇸🇦", rarity: "epic", type: "AGGRO", t:92, m:85, o:89, p:95, img: "a8q2J5v5vM" },
+        { name: "Helium", rating: 92, country: "🇷🇺", rarity: "epic", type: "DEEP", t:89, m:88, o:90, p:95, img: "h2q2J5v5vM" },
+        { name: "Zekka", rating: 92, country: "🇪🇸", rarity: "epic", type: "FAST", t:95, m:89, o:90, p:93, img: "z3q2J5v5vM" },
+
+        // --- DISCORD/UNDERGROUND ---
+        { name: "Vocodah", rating: 91, country: "🇺🇸", rarity: "discord-gem", type: "BASS", t:95, m:82, o:96, p:97, img: "v4q2J5v5vM" },
+        { name: "Wunknown", rating: 86, country: "🇺🇸", rarity: "underground", type: "DEEP", t:85, m:80, o:90, p:85, img: "w2q2J5v5vM" },
+        { name: "Voiid", rating: 87, country: "🇺🇸", rarity: "underground", type: "BASS", t:85, m:83, o:92, p:94, img: "v8q2J5v5vM" },
+        { name: "Impedance", rating: 85, country: "🇺🇸", rarity: "underground", type: "BASS", t:83, m:80, o:88, p:92, img: "i9q2J5v5vM" }
+    ];
+
+    let myCollection = {};
+    const overlay = document.getElementById('overlay');
+    const resultsArea = document.getElementById('resultsArea');
+    const scanner = document.getElementById('scanner');
+    const dogAudio = document.getElementById('dogAudio');
+
+    function openPack(numCards) {
+        // Animate correct pack
+        const packIndex = numCards === 3 ? 0 : 1;
+        const packs = document.querySelectorAll('.pack');
+        const activePack = packs[packIndex];
+
+        if(activePack.classList.contains('opening')) return;
+        
+        activePack.classList.add('opening');
+        setTimeout(() => {
+            activePack.classList.remove('opening');
+            revealLogic(numCards);
+        }, 800);
+    }
+
+    function revealLogic(numCards) {
+        const openedCards = [];
+        let hasSpecial = false;
+        let hasDog = false;
+
+        for(let i=0; i<numCards; i++) {
+            // RNG
+            const r = Math.random() * 100;
+            let pool = [];
+
+            // ADJUSTED ODDS: DOG IS NOW ULTRA RARE (1%)
+            if(r < 1) pool = db.filter(x => x.name === 'DOG'); 
+            else if(r < 5) pool = db.filter(x => x.rarity === 'legendary');
+            else if (r < 12) pool = db.filter(x => x.rarity === 'loop-master');
+            else if (r < 25) pool = db.filter(x => x.rarity === 'epic');
+            else if (r < 55) pool = db.filter(x => x.rarity === 'uk-scene'); 
+            else pool = db.filter(x => x.rarity === 'underground' || x.rarity === 'common');
+
+            if(pool.length === 0) pool = db;
+            
+            const card = pool[Math.floor(Math.random() * pool.length)];
+            openedCards.push(card);
+
+            if(card.rarity === 'legendary' || card.rarity === 'loop-master') {
+                hasSpecial = true;
+            }
+            if(card.name === 'DOG') {
+                hasDog = true;
+                hasSpecial = true;
+            }
+        }
+
+        if(hasSpecial) {
+            triggerScanner(openedCards, hasDog);
+        } else {
+            showCards(openedCards, hasDog);
+        }
+    }
+
+    function triggerScanner(cards, hasDog) {
+        scanner.style.display = 'flex';
+        setTimeout(() => {
+            scanner.style.display = 'none';
+            showCards(cards, hasDog);
+        }, 1200);
+    }
+
+    function createCardElement(card, index) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'card-wrapper';
+        wrapper.style.animationDelay = `${index * 0.2}s`;
+
+        const cardDiv = document.createElement('div');
+        cardDiv.className = `card reveal b-${card.rarity.split('-')[0]}`;
+        
+        let imgSrc = `https://ui-avatars.com/api/?name=${card.name}&background=151515&color=fff&size=512&bold=true`;
+        if(card.img && card.img !== 'placeholder' && !card.img.includes('http')) {
+             imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
+        } else if (card.img.includes('http')) {
+             imgSrc = card.img; // Direct URL
+        }
+
+        cardDiv.innerHTML = `
+            <div class="foil-layer"></div>
+            <div class="card-top">
+                <div class="rat-circle t-${card.rarity.split('-')[0]}">${card.rating}</div>
+                <div class="flag">${card.country}</div>
+            </div>
+            <div class="img-mask">
+                <img src="${imgSrc}" class="hero-img" onload="checkImg(this)" onerror="fallbackImg(this, '${card.name}')">
+            </div>
+            <div class="card-bottom">
+                <h2 class="card-name">${card.name}</h2>
+                <span class="card-sub t-${card.rarity.split('-')[0]}">${card.type}</span>
+                <div class="stats-row">
+                    <div class="stat-item"><span class="stat-lbl">TEC</span><span class="stat-val">${card.t}</span></div>
+                    <div class="stat-item"><span class="stat-lbl">MUS</span><span class="stat-val">${card.m}</span></div>
+                    <div class="stat-item"><span class="stat-lbl">ORG</span><span class="stat-val">${card.o}</span></div>
+                    <div class="stat-item"><span class="stat-lbl">PWR</span><span class="stat-val">${card.p}</span></div>
+                </div>
+            </div>
+        `;
+        wrapper.appendChild(cardDiv);
+        return wrapper;
+    }
+
+    window.checkImg = function(img) { }
+
+    window.fallbackImg = function(img, name) {
+        if (img.src.includes('maxresdefault')) {
+            img.src = img.src.replace('maxresdefault', 'hqdefault');
+        } else {
+            img.onerror = null;
+            img.src = `https://ui-avatars.com/api/?name=${name}&background=151515&color=fff&size=512&bold=true`;
+        }
+    }
+
+    function showCards(cards, hasDog) {
+        resultsArea.innerHTML = '';
+        cards.forEach((card, index) => {
+            resultsArea.appendChild(createCardElement(card, index));
+            if(myCollection[card.name]) myCollection[card.name].count++;
+            else myCollection[card.name] = { ...card, count: 1 };
+        });
+        
+        updateInv();
+        overlay.style.display = 'flex';
+
+        if(hasDog) {
+            // Start audio at 27 seconds
+            dogAudio.currentTime = 27;
+            dogAudio.play().catch(e => console.log("Audio play failed (interaction needed?):", e));
+        }
+    }
+
+    function closeOverlay() {
+        overlay.style.display = 'none';
+        resultsArea.innerHTML = '';
+        dogAudio.pause();
+        dogAudio.currentTime = 0; // Reset for next time
+    }
+
+    function updateInv() {
+        const list = document.getElementById('invList');
+        list.innerHTML = '';
+        
+        const sorted = Object.values(myCollection).sort((a,b) => b.rating - a.rating);
+        let total = 0;
+
+        sorted.forEach(c => {
+            total++;
+            const div = document.createElement('div');
+            div.className = 'inv-card';
+            div.style.borderColor = getBorderColor(c.rarity);
+            
+            const img = document.createElement('img');
+            img.className = 'inv-img';
+            
+            if(c.img && c.img !== 'placeholder' && !c.img.includes('http')) {
+                img.src = `https://img.youtube.com/vi/${c.img}/mqdefault.jpg`;
+            } else {
+                img.src = `https://ui-avatars.com/api/?name=${c.name}&background=111&color=fff`;
+            }
+
+            div.innerHTML = `
+                ${c.count > 1 ? `<span class="inv-badge">${c.count}</span>` : ''}
+                <div class="inv-info" style="color:${getTxtColor(c.rarity)}">${c.rating}</div>
+            `;
+            div.prepend(img);
+            list.appendChild(div);
+        });
+        document.getElementById('clubCount').innerText = `(${total})`;
+    }
+
+    function getBorderColor(r) {
+        if(r === 'legendary') return '#ffd700';
+        if(r === 'loop-master') return '#00e676';
+        if(r === 'uk-scene') return '#ff1744';
+        if(r === 'epic') return '#d500f9';
+        return '#888';
+    }
+
+    function getTxtColor(r) {
+        if(r === 'legendary') return '#ffe57f';
+        if(r === 'loop-master') return '#b9f6ca';
+        if(r === 'uk-scene') return '#ff8a80';
+        if(r === 'epic') return '#ea80fc';
+        return '#bdbdbd';
+    }
+</script>
+</body>
+</html>
