@@ -384,6 +384,15 @@
 
     <div class="stage">
         <div class="pack-row">
+            <!-- 1 Card Pack -->
+            <div class="pack" onclick="openPack(1)" style="border-color: #888; box-shadow: 0 0 30px rgba(136, 136, 136, 0.2);">
+                <div class="pack-art">
+                    <div style="font-size:4rem; margin-bottom:10px;">👤</div>
+                    <div style="font-family:'Teko'; font-size:2rem; line-height:1;">SOLO<br>DRAFT</div>
+                    <div style="font-size:0.7rem; color:#888; letter-spacing:2px; margin-top:5px;">1 CARD</div>
+                </div>
+            </div>
+
             <!-- 3 Card Pack -->
             <div class="pack" onclick="openPack(3)">
                 <div class="pack-art">
@@ -423,7 +432,7 @@
     // Updated video IDs for UK Beatboxers to use actual battle footage
     const db = [
         // --- SPECIAL / HYBRID ---
-        { name: "DOG", rating: 99, country: "🇬🇧", rarity: "legendary", type: "HYBRID", t:98, m:98, o:97, p:98, img: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=600&auto=format&fit=crop" }, // Custom Image
+        { name: "DOG", rating: 99, country: "🇬🇧", rarity: "legendary", type: "HYBRID", t:98, m:98, o:97, p:98, img: "dog.png" }, // Custom Local Image
 
         // --- GOD TIER (LEGENDS) ---
         { name: "NaPoM", rating: 99, country: "🇺🇸", rarity: "legendary", type: "TITAN", t:99, m:93, o:98, p:99, img: "8xM9yU8IqfE" },
@@ -452,7 +461,7 @@
         { name: "Milky", rating: 90, country: "🇬🇧", rarity: "uk-scene", type: "CHAMP", t:89, m:88, o:90, p:91, img: "sSs4cTrLs5o" }, 
         { name: "Bass Ventura", rating: 91, country: "🇬🇧", rarity: "uk-scene", type: "VET", t:89, m:90, o:91, p:93, img: "OVUGTVESNhg" },
         { name: "Epos", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "ELITE", t:96, m:92, o:91, p:95, img: "uxrsYP0sXqs" },
-        { name: "Zak", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:94, m:90, o:92, p:95, img: "yqK8CjV1j28" }, 
+        { name: "Zak", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:94, m:90, o:92, p:95, img: "zak.png" }, // Custom Local Image
         { name: "Whit", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "FLOW", t:86, m:87, o:83, p:84, img: "Z7k8Wf9Xy0U" },
         { name: "OxBox", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "POWER", t:85, m:83, o:84, p:91, img: "A5q2J5v5vM" },
         { name: "Hobbit", rating: 87, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:89, m:85, o:86, p:84, img: "g5q2J5v5vM" },
@@ -492,7 +501,10 @@
 
     function openPack(numCards) {
         // Animate correct pack
-        const packIndex = numCards === 3 ? 0 : 1;
+        let packIndex = 0;
+        if (numCards === 3) packIndex = 1;
+        if (numCards === 5) packIndex = 2;
+
         const packs = document.querySelectorAll('.pack');
         const activePack = packs[packIndex];
 
@@ -561,10 +573,14 @@
         cardDiv.className = `card reveal b-${card.rarity.split('-')[0]}`;
         
         let imgSrc = `https://ui-avatars.com/api/?name=${card.name}&background=151515&color=fff&size=512&bold=true`;
-        if(card.img && card.img !== 'placeholder' && !card.img.includes('http')) {
-             imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
-        } else if (card.img.includes('http')) {
-             imgSrc = card.img; // Direct URL
+        
+        // Revised Logic for Custom Local Files vs YouTube
+        if(card.img && card.img !== 'placeholder') {
+            if (card.img.includes('http') || card.img.includes('.png') || card.img.includes('.jpg')) {
+                imgSrc = card.img; // Direct URL or Local File
+            } else {
+                imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`; // YouTube ID
+            }
         }
 
         cardDiv.innerHTML = `
@@ -643,8 +659,13 @@
             const img = document.createElement('img');
             img.className = 'inv-img';
             
-            if(c.img && c.img !== 'placeholder' && !c.img.includes('http')) {
-                img.src = `https://img.youtube.com/vi/${c.img}/mqdefault.jpg`;
+            // Same logic for inventory
+            if(c.img && c.img !== 'placeholder') {
+                if (c.img.includes('http') || c.img.includes('.png') || c.img.includes('.jpg')) {
+                    img.src = c.img;
+                } else {
+                    img.src = `https://img.youtube.com/vi/${c.img}/mqdefault.jpg`;
+                }
             } else {
                 img.src = `https://ui-avatars.com/api/?name=${c.name}&background=111&color=fff`;
             }
