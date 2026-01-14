@@ -553,7 +553,6 @@
     <div id="settingsModal">
         <div class="modal-box">
             <div class="modal-title">SETTINGS</div>
-            <!-- Audio Toggle Removed per instruction -->
             <button class="btn btn-red setting-btn" onclick="resetProgress()">RESET PROGRESS</button>
             <button class="btn setting-btn" onclick="toggleSettings()">CLOSE</button>
         </div>
@@ -573,19 +572,67 @@
 <script>
     // --- OPTIMIZED SOUND ENGINE ---
     const SoundFX = {
-        // ... existing sound code ...
+        ctx: null,
+        init: function() {
+            if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            if(this.ctx.state === 'suspended') this.ctx.resume();
+        },
+        play: function(type) {
+            if(!this.ctx) this.init();
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            if (type === 'click') {
+                osc.frequency.setValueAtTime(600, t);
+                gain.gain.setValueAtTime(0.05, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+                osc.start(t);
+                osc.stop(t + 0.1);
+            } else if (type === 'charge') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(100, t);
+                osc.frequency.exponentialRampToValueAtTime(800, t + 0.5);
+                gain.gain.setValueAtTime(0.05, t);
+                gain.gain.linearRampToValueAtTime(0.2, t + 0.4);
+                gain.gain.linearRampToValueAtTime(0, t + 0.5);
+                osc.start(t);
+                osc.stop(t + 0.5);
+            } else if (type === 'burst') {
+                const bSize = this.ctx.sampleRate * 0.5;
+                const b = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
+                const d = b.getChannelData(0);
+                for(let i=0;i<bSize;i++) d[i] = Math.random() * 2 - 1;
+                const src = this.ctx.createBufferSource();
+                src.buffer = b;
+                const filt = this.ctx.createBiquadFilter();
+                filt.type = 'lowpass';
+                filt.frequency.value = 800;
+                src.connect(filt);
+                filt.connect(gain);
+                gain.connect(this.ctx.destination);
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+                src.start(t);
+            } else if (type === 'reveal') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, t);
+                osc.frequency.exponentialRampToValueAtTime(600, t + 0.15);
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+                osc.start(t);
+                osc.stop(t + 0.2);
+            }
+        }
     };
 
     /* --- DATABASE --- */
-    // REVERTED TO YOUTUBE IDS FOR STABILITY ON WEBSITES
-    // Fandom Wiki blocks hotlinking, causing images to break on live sites.
     const db = [
-        // --- SPECIAL / HYBRID ---
         { name: "DOG", rating: 99, country: "🇬🇧", rarity: "legendary", type: "HYBRID", t:98, m:98, o:97, p:98, img: "dog.png" }, 
-
-        // --- GOD TIER (LEGENDS) ---
-        { name: "NaPoM", rating: 97, country: "🇺🇸", rarity: "legendary", type: "TITAN", t:98, m:92, o:96, p:98, img: "8xM9yU8IqfE" }, // GBB 2017
-        { name: "D-Low", rating: 98, country: "🇬🇧", rarity: "legendary", type: "CHAMP", t:98, m:93, o:97, p:96, img: "17kJpT9sibM" }, // GBB 19
+        { name: "NaPoM", rating: 97, country: "🇺🇸", rarity: "legendary", type: "TITAN", t:98, m:92, o:96, p:98, img: "8xM9yU8IqfE" },
+        { name: "D-Low", rating: 98, country: "🇬🇧", rarity: "legendary", type: "CHAMP", t:98, m:93, o:97, p:96, img: "17kJpT9sibM" },
         { name: "River'", rating: 97, country: "🇫🇷", rarity: "legendary", type: "FLOW", t:95, m:98, o:97, p:92, img: "wXWNTdL6eq0" },
         { name: "Colaps", rating: 97, country: "🇫🇷", rarity: "legendary", type: "CLEAN", t:98, m:94, o:95, p:95, img: "R-ayjswDef0" },
         { name: "FootboxG", rating: 96, country: "🇧🇪", rarity: "legendary", type: "ROBOT", t:97, m:91, o:95, p:94, img: "4aF9-45jd8E" },
@@ -594,8 +641,6 @@
         { name: "Skiller", rating: 93, country: "🇧🇬", rarity: "legendary", type: "FAST", t:95, m:88, o:90, p:93, img: "tq-2R8hGk2A" },
         { name: "Rahzel", rating: 91, country: "🇺🇸", rarity: "legendary", type: "GODFATHER", t:88, m:90, o:97, p:90, img: "IfHj05aV8tE" },
         { name: "Alem", rating: 95, country: "🇫🇷", rarity: "legendary", type: "SPEED", t:98, m:85, o:90, p:96, img: "9H2T2r_Cq3Y" },
-
-        // --- LOOP MASTERS ---
         { name: "Saro", rating: 96, country: "🇫🇷", rarity: "loop-master", type: "GOD", t:95, m:98, o:97, p:90, img: "aZ3-n-Hq-K0" },
         { name: "Bizkit", rating: 94, country: "🇺🇸", rarity: "loop-master", type: "LOOP", t:92, m:95, o:94, p:92, img: "CWwt5JLSpYw" },
         { name: "Frosty", rating: 95, country: "🇬🇧", rarity: "loop-master", type: "UK GOD", t:93, m:96, o:94, p:92, img: "wAm2AeJ4GVY" },
@@ -605,8 +650,6 @@
         { name: "Dice", rating: 91, rarity: "loop-master", country: "🇺🇸", type: "LOOP", t:89, m:93, o:92, p:88, img: "3t2gKk7Zp4M" },
         { name: "Robin", rating: 90, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:91, m:92, o:90, p:87, img: "u_yW3v5_3wc" },
         { name: "Contrix", rating: 89, country: "🇬🇧", rarity: "loop-master", type: "UK", t:88, m:90, o:89, p:88, img: "a2Jj1J5v5vM" },
-
-        // --- UK SCENE ---
         { name: "Milky", rating: 88, country: "🇬🇧", rarity: "uk-scene", type: "CHAMP", t:87, m:86, o:88, p:89, img: "sSs4cTrLs5o" }, 
         { name: "Bass Ventura", rating: 89, country: "🇬🇧", rarity: "uk-scene", type: "VET", t:88, m:89, o:90, p:91, img: "OVUGTVESNhg" },
         { name: "Epos", rating: 93, country: "🇬🇧", rarity: "uk-scene", type: "ELITE", t:94, m:90, o:89, p:93, img: "uxrsYP0sXqs" },
@@ -625,8 +668,6 @@
         { name: "Deity", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:82, m:84, o:89, p:87, img: "Z7k8Wf9Xy0U" },
         { name: "Lucid", rating: 81, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:79, m:84, o:81, p:79, img: "yqK8CjV1j28" },
         { name: "Chucid", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "COMEDY", t:80, m:85, o:87, p:78, img: "gQ1q8y6y6cI" },
-        
-        // --- EPIC GLOBAL ---
         { name: "King Inertia", rating: 95, country: "🇺🇸", rarity: "epic", type: "BASS", t:89, m:90, o:92, p:98, img: "Mk7NUisssC8" },
         { name: "Inkie", rating: 93, country: "🇷🇺", rarity: "epic", type: "BASS", t:94, m:88, o:91, p:96, img: "6W55Dk2Mvzo" },
         { name: "Hiss", rating: 92, country: "🇰🇷", rarity: "epic", type: "TECH", t:96, m:88, o:90, p:92, img: "Pq12wPgWyAE" },
@@ -638,8 +679,6 @@
         { name: "Abo Ice", rating: 89, country: "🇸🇦", rarity: "epic", type: "AGGRO", t:91, m:84, o:88, p:94, img: "a8q2J5v5vM" },
         { name: "Helium", rating: 90, country: "🇷🇺", rarity: "epic", type: "DEEP", t:88, m:87, o:89, p:94, img: "h2q2J5v5vM" },
         { name: "Zekka", rating: 91, country: "🇪🇸", rarity: "epic", type: "FAST", t:94, m:88, o:89, p:92, img: "z3q2J5v5vM" },
-
-        // --- DISCORD/UNDERGROUND ---
         { name: "Vocodah", rating: 90, country: "🇺🇸", rarity: "discord-gem", type: "BASS", t:94, m:81, o:95, p:96, img: "v4q2J5v5vM" }
     ];
 
@@ -647,16 +686,97 @@
     let totalOpened = parseInt(localStorage.getItem('totalOpened')) || 0;
     let viewMode = 'owned';
     
-    // ... (rest of variable declarations) ...
+    // --- ELEMENTS ---
+    const overlay = document.getElementById('overlay');
+    const resultsArea = document.getElementById('resultsArea');
+    const scanner = document.getElementById('scanner');
+    const dogAudio = document.getElementById('dogAudio');
+    const closeBtn = document.getElementById('closeBtn');
+    const totalDisplay = document.getElementById('totalOpenedDisplay');
+    const settingsModal = document.getElementById('settingsModal');
 
+    // --- INIT ---
     function initApp() {
-        // ... existing init code ...
+        document.body.addEventListener('click', () => { SoundFX.init(); }, { once: true });
         totalDisplay.innerText = totalOpened;
         checkUnlocks();
         updateInv();
     }
 
-    // ... (checkUnlocks, openPack, revealLogic, triggerScanner functions) ...
+    function checkUnlocks() {
+        if (totalOpened >= 10) document.getElementById('pack3').classList.remove('locked');
+        else document.getElementById('pack3').classList.add('locked');
+        if (totalOpened >= 25) document.getElementById('pack5').classList.remove('locked');
+        else document.getElementById('pack5').classList.add('locked');
+    }
+
+    function openPack(numCards) {
+        if ((numCards === 3 && totalOpened < 10) || (numCards === 5 && totalOpened < 25)) return;
+        
+        SoundFX.play('click');
+        const packIndex = numCards === 1 ? 0 : (numCards === 3 ? 1 : 2);
+        const activePack = document.querySelectorAll('.pack')[packIndex];
+
+        if(activePack.classList.contains('opening')) return;
+        
+        activePack.classList.add('opening');
+        SoundFX.play('charge');
+
+        setTimeout(() => {
+            activePack.classList.remove('opening');
+            SoundFX.play('burst');
+            revealLogic(numCards);
+        }, 600);
+    }
+
+    function revealLogic(numCards) {
+        const openedCards = [];
+        let hasSpecial = false;
+        let hasDog = false;
+
+        for(let i=0; i<numCards; i++) {
+            totalOpened++;
+            const r = Math.random() * 100;
+            let pool = [];
+
+            if(r < 1) pool = db.filter(x => x.name === 'DOG'); 
+            else if(r < 5) pool = db.filter(x => x.rarity === 'legendary');
+            else if (r < 12) pool = db.filter(x => x.rarity === 'loop-master');
+            else if (r < 25) pool = db.filter(x => x.rarity === 'epic');
+            else if (r < 55) pool = db.filter(x => x.rarity === 'uk-scene'); 
+            else pool = db.filter(x => x.rarity === 'underground' || x.rarity === 'common');
+
+            if(pool.length === 0) pool = db;
+            const card = pool[Math.floor(Math.random() * pool.length)];
+            openedCards.push(card);
+
+            if(myCollection[card.name]) myCollection[card.name].count++;
+            else myCollection[card.name] = { ...card, count: 1 };
+
+            if(card.rarity === 'legendary' || card.rarity === 'loop-master') hasSpecial = true;
+            if(card.name === 'DOG') hasDog = true;
+        }
+
+        localStorage.setItem('myCollection', JSON.stringify(myCollection));
+        localStorage.setItem('totalOpened', totalOpened);
+        totalDisplay.innerText = totalOpened;
+        checkUnlocks();
+
+        if(hasSpecial) {
+            triggerScanner(openedCards, hasDog);
+        } else {
+            showCards(openedCards, hasDog);
+        }
+    }
+
+    function triggerScanner(cards, hasDog) {
+        scanner.style.display = 'flex';
+        // Simulate scanner sound loop or effect here if desired
+        setTimeout(() => {
+            scanner.style.display = 'none';
+            showCards(cards, hasDog);
+        }, 1200);
+    }
 
     function createCardElement(card, index, isInspection = false) {
         const wrapper = document.createElement('div');
@@ -667,19 +787,24 @@
         cardDiv.className = isInspection ? `card inspect` : `card reveal`;
         cardDiv.style.borderColor = getBorderColor(card.rarity);
         
-        // --- SMART IMAGE ENGINE (WEBSITE COMPATIBLE) ---
+        // --- SMART IMAGE ENGINE ---
         let imgSrc = '';
-        
-        // 1. Check for local file (.png, .jpg) or full URL
-        if (card.img && (card.img.includes('.png') || card.img.includes('.jpg') || card.img.includes('http'))) {
-            imgSrc = card.img; 
-        } 
-        // 2. Otherwise assume it's a YouTube ID
-        else if (card.img) {
-            // Use standard quality as default, it is safest
-            imgSrc = `https://img.youtube.com/vi/${card.img}/mqdefault.jpg`;
+        if (card.img && (card.img.includes('http') || card.img.includes('.png') || card.img.includes('.jpg'))) {
+            // Local file or direct full URL (e.g. Wiki or local)
+            if (card.img.includes('youtube.com')) {
+                // If it is a full URL to an image, use it.
+                imgSrc = card.img;
+            } else if (!card.img.includes('http')) {
+                // It is a video ID
+                imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
+            } else {
+                imgSrc = card.img; // Direct URL (Wiki or Local)
+            }
+        } else if (card.img && !card.img.includes('placeholder')) {
+             // It's a video ID
+             imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
         } else {
-            // Fallback
+            // Placeholder fallback
             imgSrc = `https://ui-avatars.com/api/?name=${card.name}&background=151515&color=fff&size=512&bold=true`;
         }
 
@@ -692,8 +817,7 @@
                 <div class="flag">${card.country}</div>
             </div>
             <div class="img-mask">
-                <img src="${imgSrc}" class="hero-img" 
-                     onerror="smartFallback(this, '${card.img}', '${card.name}')">
+                <img src="${imgSrc}" class="hero-img" onerror="smartFallback(this, '${card.name}')">
             </div>
             <div class="card-bottom">
                 <h2 class="card-name">${card.name}</h2>
@@ -715,25 +839,22 @@
         return wrapper;
     }
 
-    // --- FALLBACK HANDLER ---
-    // If standard quality fails or image breaks, try high quality or placeholder
-    window.smartFallback = function(img, id, name) {
-        if (id && !id.includes('.') && !img.src.includes('hqdefault')) {
-            // Try HQ if MQ failed
-            img.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+    window.smartFallback = function(img, name) {
+        // Fallback chain: MaxRes -> HQ -> Avatar
+        if (img.src.includes('maxresdefault')) {
+            img.src = img.src.replace('maxresdefault', 'hqdefault');
         } else {
-            // Final fallback to silhouette
-            img.onerror = null; 
+            img.onerror = null;
             img.src = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=600&auto=format&fit=crop";
         }
     }
 
-    // ... (rest of the functions: showCards, inspectCard, closeOverlay, setView, updateInv, toggleSettings, resetProgress, color helpers) ...
     function showCards(cards, hasDog) {
         overlay.classList.add('active');
         overlay.style.display = 'flex';
         resultsArea.innerHTML = '';
         
+        // Efficient DOM insertion
         const frag = document.createDocumentFragment();
         cards.forEach((card, index) => {
             frag.appendChild(createCardElement(card, index));
@@ -780,6 +901,7 @@
 
     function updateInv() {
         const list = document.getElementById('invList');
+        // Simple wipe is fine for this scale, can optimize if thousands of items
         list.innerHTML = '';
         
         let cardsToShow = [];
@@ -805,19 +927,18 @@
             const img = document.createElement('img');
             img.className = 'inv-img';
             
-            // Image logic for inventory
+            // Image logic repeated for consistency
             if (c.img && (c.img.includes('.png') || c.img.includes('.jpg'))) {
-                img.src = c.img;
+                if (c.img.includes('http')) img.src = c.img; // Wiki/External
+                else img.src = c.img; // Local
             } else if (c.img && !c.img.includes('placeholder')) {
                 img.src = `https://img.youtube.com/vi/${c.img}/mqdefault.jpg`;
             } else {
                 img.src = `https://ui-avatars.com/api/?name=${c.name}&background=111&color=fff`;
             }
-            
-            // Fallback for inventory
             img.onerror = function() {
-               this.onerror = null;
-               this.src = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=200&auto=format&fit=crop";
+               if(this.src.includes('mqdefault')) this.src = this.src.replace('mqdefault', 'default');
+               else { this.onerror = null; this.src = "https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=200&auto=format&fit=crop"; }
             };
 
             const ratingDisplay = c.isLocked ? "??" : c.rating;
@@ -863,6 +984,7 @@
         return '#bdbdbd';
     }
 
+    // START
     initApp();
 
 </script>
