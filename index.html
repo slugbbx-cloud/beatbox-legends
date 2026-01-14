@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEXUS: PRO BEATBOX TRADING</title>
+    <title>BEATBOX LEGENDS: LEGACY</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;500;700&family=Rajdhani:wght@500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;600;700&family=Rajdhani:wght@500;700&display=swap');
 
         :root {
-            --bg-deep: #050505;
+            /* Premium Dark Palette */
+            --bg: #050505;
+            --surface: #0a0a0a;
+            --surface-highlight: #141414;
+            --border: #222;
+            --text-main: #f0f0f0;
+            --text-muted: #666;
             
-            /* Rarity Gradients */
-            --g-common: linear-gradient(135deg, #757575, #9e9e9e);
-            --g-underground: linear-gradient(135deg, #455a64, #607d8b);
-            --g-rare: linear-gradient(135deg, #0097a7, #00bcd4);
-            --g-epic: linear-gradient(135deg, #7b1fa2, #e040fb);
-            --g-uk: linear-gradient(135deg, #c62828, #ff1744);
-            --g-discord: linear-gradient(135deg, #e65100, #ff9100);
-            --g-loop: linear-gradient(135deg, #1b5e20, #00e676);
-            --g-legendary: linear-gradient(135deg, #ff6f00, #ffd700, #ffecb3);
+            /* Accents */
+            --gold: #FFD700;
+            --gold-dim: #b39700;
+            --red: #E63946;
             
-            /* Text Colors */
-            --c-common: #bdbdbd;
-            --c-underground: #90a4ae;
-            --c-rare: #80deea;
-            --c-epic: #ea80fc;
-            --c-uk: #ff8a80;
-            --c-discord: #ffcc80;
-            --c-loop: #b9f6ca;
-            --c-legendary: #ffe57f;
+            /* Rarity Colors */
+            --c-common: #9e9e9e;
+            --c-underground: #607d8b;
+            --c-rare: #00bcd4;
+            --c-epic: #d500f9;
+            --c-uk: #ff1744;
+            --c-discord: #ff9100;
+            --c-loop: #00e676;
+            --c-legendary: #ffd700;
+
+            /* Shadows & Effects */
+            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.8);
+            --shadow-hard: 0 20px 60px -10px rgba(0,0,0,0.9);
+            --glow-gold: 0 0 20px rgba(255, 215, 0, 0.15);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Rajdhani', sans-serif;
-            background-color: var(--bg-deep);
+            background-color: var(--bg);
+            /* Premium Noise Texture & Vignette */
             background-image: 
-                radial-gradient(circle at 50% 0%, #1a1a2e 0%, transparent 60%),
-                repeating-linear-gradient(rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 20px);
-            color: white;
+                radial-gradient(circle at 50% 0%, #1a1a2e 0%, transparent 80%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            color: var(--text-main);
             margin: 0;
             height: 100vh;
             display: flex;
@@ -52,34 +59,68 @@
         /* --- HEADER --- */
         header {
             width: 100%;
-            padding: 20px;
-            text-align: center;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             z-index: 20;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
+            background: linear-gradient(to bottom, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0) 100%);
         }
 
-        h1 {
+        .brand h1 {
             font-family: 'Teko', sans-serif;
             margin: 0;
-            font-size: 3rem;
-            line-height: 0.8;
+            font-size: 2.5rem;
+            line-height: 0.9;
             letter-spacing: 2px;
-            background: linear-gradient(to right, #fff, #aaa);
+            background: linear-gradient(to right, #fff, #888);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(255,255,255,0.2);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
         }
 
         .subtitle {
             font-size: 0.7rem;
-            letter-spacing: 6px;
-            color: var(--c-rare);
+            letter-spacing: 4px;
+            color: var(--gold);
             text-transform: uppercase;
-            margin-top: 5px;
+            font-weight: 700;
             opacity: 0.8;
         }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .stat-pill {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 5px 15px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+            backdrop-filter: blur(5px);
+        }
+        .stat-pill span { font-size: 0.55rem; color: var(--text-muted); margin-bottom: 2px; letter-spacing: 1px; }
+
+        .settings-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 42px; height: 42px;
+            border-radius: 8px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+        }
+        .settings-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.05); }
 
         /* --- PACK STAGE --- */
         .stage {
@@ -88,8 +129,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
+            perspective: 1200px;
             position: relative;
+            padding-bottom: 40px; /* Space for reflection */
         }
 
         .pack-row {
@@ -101,273 +143,345 @@
 
         .pack {
             width: 220px;
-            height: 320px;
-            background: #111;
-            border-radius: 18px;
+            height: 330px;
+            background: #0a0a0a;
+            border-radius: 16px;
             position: relative;
             transform-style: preserve-3d;
             cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: float 6s ease-in-out infinite;
-            border: 1px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-soft);
+            will-change: transform;
         }
 
-        .pack:nth-child(2) { animation-delay: 1s; border-color: var(--c-rare); box-shadow: 0 0 50px rgba(0, 188, 212, 0.2); }
+        /* Pack Hover Effect */
+        .pack:not(.locked):hover { 
+            transform: translateY(-15px) scale(1.02) rotateX(5deg); 
+            box-shadow: var(--shadow-hard), 0 0 20px rgba(255,255,255,0.05);
+            border-color: #444;
+        }
+        
+        .pack.opening { animation: packBurst 0.7s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards; pointer-events: none; }
 
-        .pack:hover { transform: scale(1.05) rotateX(5deg); }
-        .pack.opening { animation: packBurst 0.8s forwards; }
+        .pack.locked {
+            filter: grayscale(100%) opacity(0.4);
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+        .pack.locked:hover { transform: none; box-shadow: none; }
 
-        .pack-art {
+        .pack-inner {
             position: absolute; inset: 4px;
-            background: linear-gradient(135deg, #1a1a1a, #000);
-            border-radius: 14px;
+            background: linear-gradient(145deg, #161616, #080808);
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 1px solid #222;
+            border: 1px solid #1a1a1a;
             overflow: hidden;
         }
         
-        /* Pack Hologram */
-        .pack-art::after {
+        /* Premium Holographic Sheen */
+        .pack-inner::before {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(125deg, transparent 20%, rgba(255,255,255,0.1) 30%, transparent 40%);
-            animation: shine 4s infinite;
+            background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 55%, transparent 60%);
+            background-size: 200% 200%;
+            animation: holoShift 4s infinite linear;
+            pointer-events: none;
         }
 
-        @keyframes shine { 0% { transform: translateX(-100%); } 20%, 100% { transform: translateX(100%); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes holoShift { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         @keyframes packBurst { 
             0% { transform: scale(1); filter: brightness(1); } 
-            50% { transform: scale(0.9); filter: brightness(5); } 
-            100% { transform: scale(2); opacity: 0; } 
+            40% { transform: scale(0.95) rotateZ(-2deg); filter: brightness(1.5); } 
+            100% { transform: scale(1.5); opacity: 0; filter: brightness(2); } 
         }
+
+        .pack-icon { font-size: 4rem; margin-bottom: 15px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); transition: transform 0.3s; }
+        .pack:hover .pack-icon { transform: scale(1.1); }
+        
+        .pack-title { font-family: 'Teko', sans-serif; font-size: 2.2rem; line-height: 0.9; color: var(--text-main); letter-spacing: 1px; }
+        .pack-sub { font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; margin-top: 8px; font-weight: 700; opacity: 0.9; }
+
+        .lock-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            border-radius: 12px;
+            z-index: 10;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
+        .pack.locked .lock-overlay { display: flex; }
+        .lock-msg { font-size: 0.7rem; color: #888; margin-top: 10px; width: 80%; text-align: center; font-weight: 600; letter-spacing: 1px; }
 
         /* --- CARD OVERLAY --- */
         .overlay {
             position: fixed; inset: 0;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.92);
             z-index: 100;
             display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             padding: 20px;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
+        .overlay.active { opacity: 1; }
 
         .pack-results {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             align-items: center;
             justify-content: center;
             width: 100%;
             height: 100%;
             overflow-x: auto;
-            padding: 20px 0;
+            overflow-y: hidden;
+            padding: 40px 0;
+            perspective: 1500px;
         }
 
         .card-wrapper {
             width: 300px;
             height: 480px;
-            perspective: 1500px;
             flex-shrink: 0;
+            transform-style: preserve-3d;
         }
 
+        /* Optimized Card */
         .card {
             width: 100%; height: 100%;
-            border-radius: 24px;
+            border-radius: 20px;
             position: relative;
             transform-style: preserve-3d;
-            background: #161616;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #0c0c0c;
+            box-shadow: var(--shadow-hard);
+            border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
             display: flex; flex-direction: column;
             opacity: 0;
-            transform: rotateY(90deg);
+            transform: rotateY(90deg) translateZ(-100px);
+            will-change: transform, opacity;
         }
+        
+        .card.inspect { opacity: 1; transform: rotateY(0deg) translateZ(0); }
+        .card.reveal { animation: revealFlip 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
 
-        .card.reveal { animation: revealFlip 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
-
-        @keyframes revealFlip { from { opacity: 0; transform: rotateY(90deg) scale(0.8); } to { opacity: 1; transform: rotateY(0deg) scale(1); } }
-
-        /* Holo Foil Effect */
-        .foil-layer {
-            position: absolute; inset: 0; z-index: 5;
-            background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.05) 60%, transparent 80%);
-            mix-blend-mode: overlay;
-            pointer-events: none;
-            opacity: 0.6;
-            background-size: 200% 200%;
-            animation: foilMove 5s infinite linear;
+        @keyframes revealFlip { 
+            0% { opacity: 0; transform: rotateY(90deg) translateZ(-100px); } 
+            100% { opacity: 1; transform: rotateY(0deg) translateZ(0); } 
         }
-        @keyframes foilMove { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }
 
         .card-top {
-            padding: 15px;
+            padding: 20px;
             display: flex; justify-content: space-between; align-items: flex-start;
             z-index: 2;
         }
 
         .rat-circle {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid rgba(255,255,255,0.2);
+            width: 54px; height: 54px;
+            border-bottom: 3px solid currentColor;
             display: flex; justify-content: center; align-items: center;
             font-family: 'Teko', sans-serif;
-            font-size: 2.4rem;
+            font-size: 2.8rem;
             line-height: 0;
-            padding-top: 4px;
+            padding-top: 6px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            background: linear-gradient(180deg, rgba(0,0,0,0.4), transparent);
+            border-radius: 50%;
             backdrop-filter: blur(4px);
         }
 
-        .flag { font-size: 2rem; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
+        .flag { font-size: 2.2rem; filter: grayscale(0.2) drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
 
         .img-mask {
-            position: absolute; top: 0; left: 0; width: 100%; height: 60%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 65%;
             z-index: 1;
-            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-            background: #111; /* Fallback bg */
+            /* Smoother fade to black */
+            mask-image: linear-gradient(to bottom, black 50%, transparent 95%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 95%);
+            background: #080808; 
         }
 
         .hero-img {
             width: 100%; height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            transition: transform 0.5s ease-out;
         }
+        .card:hover .hero-img { transform: scale(1.05); }
 
         .card-bottom {
             margin-top: auto;
-            padding: 15px;
+            padding: 20px;
             z-index: 2;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 50%, transparent 100%);
+            background: linear-gradient(to top, #050505 10%, transparent);
         }
 
         .card-name {
             font-family: 'Teko', sans-serif;
-            font-size: 2.5rem;
+            font-size: 3.2rem;
             text-transform: uppercase;
             line-height: 0.8;
             margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            color: #fff;
+            text-shadow: 0 4px 20px rgba(0,0,0,1);
         }
 
         .card-sub {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            opacity: 0.8;
-            margin-bottom: 10px;
+            color: var(--gold);
+            margin-bottom: 15px;
             display: block;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
 
         .stats-row {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
+            gap: 8px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 12px;
         }
-        .stat-item { text-align: center; display: flex; flex-direction: column; }
-        .stat-lbl { font-size: 0.5rem; color: #888; font-weight: 900; }
-        .stat-val { font-size: 1rem; font-family: 'Teko', sans-serif; }
+        .stat-item { text-align: center; }
+        .stat-lbl { font-size: 0.6rem; color: #666; font-weight: 700; display: block; margin-bottom: 2px; }
+        .stat-val { font-size: 1.2rem; font-family: 'Teko', sans-serif; color: #eee; line-height: 1; }
 
         /* Buttons */
         .btn {
-            margin-top: 10px;
-            padding: 15px 50px;
-            background: white;
-            color: black;
+            background: var(--text-main);
+            color: var(--bg);
             border: none;
+            padding: 14px 50px;
             font-family: 'Rajdhani', sans-serif;
-            font-weight: 900;
-            font-size: 1.2rem;
+            font-weight: 700;
+            font-size: 1.1rem;
             text-transform: uppercase;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            letter-spacing: 2px;
             cursor: pointer;
-            transition: transform 0.2s;
-            z-index: 200;
+            border-radius: 6px;
+            margin-top: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 5px 20px rgba(255,255,255,0.1);
         }
-        .btn:hover { transform: scale(1.05); background: var(--c-rare); }
+        .btn:hover { 
+            background: var(--gold); 
+            color: #000; 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+        .btn:active { transform: translateY(0); }
+        
+        .btn-red { background: var(--red); color: white; box-shadow: 0 5px 20px rgba(230, 57, 70, 0.2); }
+        .btn-red:hover { background: #ff5252; box-shadow: 0 10px 30px rgba(230, 57, 70, 0.4); }
 
         /* --- INVENTORY --- */
         .inventory {
             width: 100%;
-            height: 180px;
-            background: rgba(10, 10, 15, 0.9);
-            border-top: 1px solid #333;
-            backdrop-filter: blur(10px);
-            padding: 15px;
+            height: 240px;
+            background: rgba(10, 10, 10, 0.9);
+            border-top: 1px solid var(--border);
+            padding: 20px 30px;
             z-index: 10;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
-        .inv-header { font-size: 0.8rem; color: #666; letter-spacing: 2px; margin-bottom: 10px; font-weight: 700; }
+        .inv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .inv-title { font-size: 0.85rem; color: var(--gold); letter-spacing: 2px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+        
+        .inv-toggles { display: flex; gap: 8px; }
+        .toggle-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            font-family: 'Rajdhani';
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .toggle-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
+        .toggle-btn.active { background: var(--text-main); color: var(--bg); border-color: var(--text-main); box-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+
         .inv-scroll {
-            display: flex; gap: 10px; overflow-x: auto; height: 120px; padding-bottom: 10px;
+            display: flex; gap: 12px; overflow-x: auto; height: 100%; padding-bottom: 10px;
+            /* Smooth scroll */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
+        .inv-scroll::-webkit-scrollbar { height: 6px; }
+        .inv-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .inv-scroll::-webkit-scrollbar-track { background: transparent; }
+
         .inv-card {
-            min-width: 90px; height: 100%;
-            background: #202020;
+            min-width: 110px; height: 100%;
+            background: #111;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            border: 1px solid #444;
             display: flex; flex-direction: column;
             overflow: hidden;
             position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            will-change: transform;
         }
-        .inv-img { width: 100%; height: 70%; object-fit: cover; }
-        .inv-info { height: 30%; display: flex; justify-content: center; align-items: center; font-family: 'Teko'; font-size: 1.2rem; background: #111; color: white; }
-        .inv-badge { position: absolute; top: 2px; right: 2px; background: white; color: black; font-size: 0.6rem; padding: 1px 4px; font-weight: bold; border-radius: 2px; }
+        .inv-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .inv-card.locked { opacity: 0.4; filter: grayscale(100%); pointer-events: none; border-style: dashed; }
+        
+        .inv-img { width: 100%; height: 75%; object-fit: cover; background: #080808; }
+        .inv-info { height: 25%; display: flex; justify-content: center; align-items: center; font-family: 'Teko'; font-size: 1.2rem; color: #fff; background: #0a0a0a; border-top: 1px solid rgba(255,255,255,0.05); }
+        .inv-badge { position: absolute; top: 4px; right: 4px; background: var(--gold); color: #000; font-size: 0.65rem; padding: 2px 5px; font-weight: 800; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
-        /* --- RARITY THEMES --- */
-        .t-legendary { color: var(--c-legendary); }
-        .b-legendary { border-color: #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); }
-        
-        .t-uk { color: var(--c-uk); }
-        .b-uk { border-color: #ff1744; box-shadow: 0 0 25px rgba(255, 23, 68, 0.3); }
-        
-        .t-loop { color: var(--c-loop); }
-        .b-loop { border-color: #00e676; }
-        
-        .t-epic { color: var(--c-epic); }
-        .b-epic { border-color: #d500f9; }
+        /* --- SETTINGS MODAL --- */
+        #settingsModal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none;
+            justify-content: center; align-items: center; flex-direction: column;
+            backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: #111;
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 16px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .modal-title { font-family: 'Teko'; font-size: 2.2rem; margin-bottom: 25px; color: var(--text-main); letter-spacing: 2px; }
+        .setting-btn { width: 100%; margin-top: 15px; padding: 12px; }
 
         /* --- SCANNER ANIM --- */
         #scanner {
-            position: fixed; inset: 0; background: black; z-index: 200; display: none;
+            position: fixed; inset: 0; background: black; z-index: 150; display: none;
             justify-content: center; align-items: center;
         }
         .scan-beam {
-            width: 100%; height: 4px; background: #00f2ff;
-            box-shadow: 0 0 50px #00f2ff, 0 0 100px white;
+            width: 100%; height: 2px; background: var(--gold);
+            box-shadow: 0 0 50px var(--gold), 0 0 100px white;
             animation: scan 1.2s ease-in-out infinite;
         }
         @keyframes scan { 0% { transform: translateY(-50vh) scaleX(0.5); opacity: 0; } 50% { opacity: 1; transform: translateY(0) scaleX(1); } 100% { transform: translateY(50vh) scaleX(0.5); opacity: 0; } }
         
-        /* Mobile Adjustments for 3 cards */
+        /* Mobile */
         @media (max-width: 768px) {
-            .pack-results {
-                flex-direction: column;
-                justify-content: flex-start;
-                padding-top: 40px;
-            }
-            .card-wrapper {
-                height: 400px;
-                width: 260px;
-                transform: scale(0.95);
-                margin-bottom: 20px;
-            }
-            .pack-row {
-                flex-direction: column;
-                gap: 20px;
-            }
+            .pack-results { flex-direction: column; justify-content: flex-start; padding-top: 60px; }
+            .card-wrapper { height: 380px; width: 240px; margin-bottom: 30px; transform: none; }
+            .pack-row { flex-direction: column; gap: 30px; }
+            .pack { width: 180px; height: 260px; }
+            h1 { font-size: 2.2rem; }
+            .stats-bar span { display: none; }
         }
 
     </style>
@@ -378,143 +492,241 @@
     <audio id="dogAudio" src="1st take freestyle.mp3"></audio>
 
     <header>
-        <h1>NEXUS</h1>
-        <div class="subtitle">PRO BEATBOX COLLECTION</div>
+        <div class="brand">
+            <h1>BEATBOX LEGENDS</h1>
+            <div class="subtitle">LEGACY COLLECTION</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-pill">
+                <div id="totalOpenedDisplay" style="color:var(--text-main); font-size:1.2rem;">0</div>
+            </div>
+            <button class="settings-btn" onclick="toggleSettings()">⚙</button>
+        </div>
     </header>
 
     <div class="stage">
         <div class="pack-row">
-            <!-- 1 Card Pack -->
-            <div class="pack" onclick="openPack(1)" style="border-color: #888; box-shadow: 0 0 30px rgba(136, 136, 136, 0.2);">
-                <div class="pack-art">
-                    <div style="font-size:4rem; margin-bottom:10px;">👤</div>
-                    <div style="font-family:'Teko'; font-size:2rem; line-height:1;">SOLO<br>DRAFT</div>
-                    <div style="font-size:0.7rem; color:#888; letter-spacing:2px; margin-top:5px;">1 CARD</div>
+            <!-- 1 Card Pack (Always Unlocked) -->
+            <div class="pack" onclick="openPack(1)">
+                <div class="pack-inner">
+                    <div class="pack-icon">👤</div>
+                    <div class="pack-title">SOLO</div>
+                    <div class="pack-sub">1 CARD</div>
                 </div>
             </div>
 
-            <!-- 3 Card Pack -->
-            <div class="pack" onclick="openPack(3)">
-                <div class="pack-art">
-                    <div style="font-size:4rem; margin-bottom:10px;">💠</div>
-                    <div style="font-family:'Teko'; font-size:2rem; line-height:1;">TRIPLE<br>THREAT</div>
-                    <div style="font-size:0.7rem; color:#888; letter-spacing:2px; margin-top:5px;">3 CARDS</div>
+            <!-- 3 Card Pack (Unlock @ 10) -->
+            <div class="pack" id="pack3" onclick="openPack(3)">
+                <div class="lock-overlay">
+                    <div style="font-size:2rem; margin-bottom:5px;">🔒</div>
+                    <div class="lock-msg">OPEN 10 CARDS</div>
+                </div>
+                <div class="pack-inner">
+                    <div class="pack-icon">💠</div>
+                    <div class="pack-title">TRIPLE</div>
+                    <div class="pack-sub">3 CARDS</div>
                 </div>
             </div>
 
-            <!-- 5 Card Pack -->
-            <div class="pack" onclick="openPack(5)" style="border-color: var(--c-rare); box-shadow: 0 0 50px rgba(0, 188, 212, 0.3);">
-                <div class="pack-art">
-                    <div style="font-size:4rem; margin-bottom:10px;">🔥</div>
-                    <div style="font-family:'Teko'; font-size:2rem; line-height:1; color:var(--c-rare);">MEGA<br>PACK</div>
-                    <div style="font-size:0.7rem; color:#888; letter-spacing:2px; margin-top:5px;">5 CARDS</div>
+            <!-- 5 Card Pack (Unlock @ 25) -->
+            <div class="pack" id="pack5" onclick="openPack(5)" style="border-color: var(--gold); box-shadow:var(--glow-gold);">
+                <div class="lock-overlay">
+                    <div style="font-size:2rem; margin-bottom:5px;">🔒</div>
+                    <div class="lock-msg">OPEN 25 CARDS</div>
+                </div>
+                <div class="pack-inner">
+                    <div class="pack-icon" style="color:var(--gold)">🔥</div>
+                    <div class="pack-title" style="color:var(--gold)">MEGA</div>
+                    <div class="pack-sub">5 CARDS</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scanner -->
     <div id="scanner"><div class="scan-beam"></div></div>
 
-    <!-- Overlay -->
     <div class="overlay" id="overlay">
         <div class="pack-results" id="resultsArea"></div>
-        <button class="btn" onclick="closeOverlay()">COLLECT ALL</button>
+        <button class="btn" id="closeBtn" onclick="closeOverlay()">COLLECT ALL</button>
+    </div>
+
+    <div id="settingsModal">
+        <div class="modal-box">
+            <div class="modal-title">SETTINGS</div>
+            <!-- Audio Toggle Removed per instruction -->
+            <button class="btn btn-red setting-btn" onclick="resetProgress()">RESET PROGRESS</button>
+            <button class="btn setting-btn" onclick="toggleSettings()">CLOSE</button>
+        </div>
     </div>
 
     <div class="inventory">
-        <div class="inv-header">CLUB DATABASE <span id="clubCount">(0)</span></div>
+        <div class="inv-header">
+            <div class="inv-title">COLLECTION <span id="clubCount" style="color:var(--text-muted); margin-left:5px;">(0)</span></div>
+            <div class="inv-toggles">
+                <button class="toggle-btn active" id="btnOwned" onclick="setView('owned')">OWNED</button>
+                <button class="toggle-btn" id="btnIndex" onclick="setView('all')">INDEX</button>
+            </div>
+        </div>
         <div class="inv-scroll" id="invList"></div>
     </div>
 
 <script>
+    // --- OPTIMIZED SOUND ENGINE ---
+    const SoundFX = {
+        ctx: null,
+        init: function() {
+            if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            if(this.ctx.state === 'suspended') this.ctx.resume();
+        },
+        play: function(type) {
+            if(!this.ctx) this.init();
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            if (type === 'click') {
+                osc.frequency.setValueAtTime(600, t);
+                gain.gain.setValueAtTime(0.05, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+                osc.start(t);
+                osc.stop(t + 0.1);
+            } else if (type === 'charge') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(100, t);
+                osc.frequency.exponentialRampToValueAtTime(800, t + 0.5);
+                gain.gain.setValueAtTime(0.05, t);
+                gain.gain.linearRampToValueAtTime(0.2, t + 0.4);
+                gain.gain.linearRampToValueAtTime(0, t + 0.5);
+                osc.start(t);
+                osc.stop(t + 0.5);
+            } else if (type === 'burst') {
+                // Synthesized noise burst
+                const bSize = this.ctx.sampleRate * 0.5;
+                const b = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
+                const d = b.getChannelData(0);
+                for(let i=0;i<bSize;i++) d[i] = Math.random() * 2 - 1;
+                const src = this.ctx.createBufferSource();
+                src.buffer = b;
+                const filt = this.ctx.createBiquadFilter();
+                filt.type = 'lowpass';
+                filt.frequency.value = 800;
+                src.connect(filt);
+                filt.connect(gain);
+                gain.connect(this.ctx.destination);
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+                src.start(t);
+            } else if (type === 'reveal') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, t);
+                osc.frequency.exponentialRampToValueAtTime(600, t + 0.15);
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+                osc.start(t);
+                osc.stop(t + 0.2);
+            }
+        }
+    };
+
     /* --- DATABASE --- */
-    // Updated video IDs for UK Beatboxers to use actual battle footage
     const db = [
-        // --- SPECIAL / HYBRID ---
-        { name: "DOG", rating: 99, country: "🇬🇧", rarity: "legendary", type: "HYBRID", t:98, m:98, o:97, p:98, img: "dog.png" }, // Custom Local Image
-
-        // --- GOD TIER (LEGENDS) ---
-        { name: "NaPoM", rating: 99, country: "🇺🇸", rarity: "legendary", type: "TITAN", t:99, m:93, o:98, p:99, img: "8xM9yU8IqfE" },
-        { name: "D-Low", rating: 99, country: "🇬🇧", rarity: "legendary", type: "CHAMP", t:99, m:94, o:99, p:99, img: "17kJpT9sibM" },
-        { name: "River'", rating: 99, country: "🇫🇷", rarity: "legendary", type: "FLOW", t:96, m:99, o:98, p:95, img: "wXWNTdL6eq0" },
-        { name: "Colaps", rating: 98, country: "🇫🇷", rarity: "legendary", type: "CLEAN", t:99, m:95, o:96, p:96, img: "R-ayjswDef0" },
-        { name: "FootboxG", rating: 97, country: "🇧🇪", rarity: "legendary", type: "ROBOT", t:98, m:93, o:97, p:95, img: "4aF9-45jd8E" },
-        { name: "Tom Thum", rating: 95, country: "🇦🇺", rarity: "legendary", type: "SHOW", t:94, m:97, o:96, p:90, img: "GNZBSZD16cY" },
-        { name: "Reeps One", rating: 96, country: "🇬🇧", rarity: "legendary", type: "PIONEER", t:95, m:96, o:99, p:96, img: "p7E-O3d8Y6I" },
-        { name: "Skiller", rating: 95, country: "🇧🇬", rarity: "legendary", type: "FAST", t:97, m:90, o:92, p:95, img: "tq-2R8hGk2A" },
-        { name: "Rahzel", rating: 94, country: "🇺🇸", rarity: "legendary", type: "GODFATHER", t:90, m:92, o:99, p:93, img: "IfHj05aV8tE" },
-        { name: "Alem", rating: 97, country: "🇫🇷", rarity: "legendary", type: "SPEED", t:99, m:88, o:92, p:98, img: "9H2T2r_Cq3Y" },
-
-        // --- LOOP MASTERS ---
-        { name: "Saro", rating: 98, country: "🇫🇷", rarity: "loop-master", type: "GOD", t:97, m:99, o:99, p:92, img: "aZ3-n-Hq-K0" },
-        { name: "Bizkit", rating: 95, country: "🇺🇸", rarity: "loop-master", type: "LOOP", t:93, m:96, o:95, p:94, img: "CWwt5JLSpYw" },
-        { name: "Frosty", rating: 97, country: "🇬🇧", rarity: "loop-master", type: "UK GOD", t:95, m:97, o:96, p:94, img: "wAm2AeJ4GVY" },
-        { name: "Rythmind", rating: 97, country: "🇫🇷", rarity: "loop-master", type: "RHYTHM", t:96, m:98, o:97, p:95, img: "9H2T2r_Cq3Y" },
-        { name: "BreZ", rating: 94, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:94, m:93, o:95, p:91, img: "uQ9rM7JtQ4w" },
-        { name: "NME", rating: 93, country: "🇮🇹", rarity: "loop-master", type: "LOOP", t:92, m:94, o:92, p:90, img: "6W55Dk2Mvzo" },
-        { name: "Dice", rating: 93, rarity: "loop-master", country: "🇺🇸", type: "LOOP", t:91, m:95, o:94, p:90, img: "3t2gKk7Zp4M" },
-        { name: "Robin", rating: 92, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:93, m:94, o:91, p:89, img: "u_yW3v5_3wc" },
-        { name: "Contrix", rating: 90, country: "🇬🇧", rarity: "loop-master", type: "UK", t:89, m:92, o:90, p:90, img: "a2Jj1J5v5vM" },
-
-        // --- UK SCENE (MASSIVE EXPANSION) ---
-        { name: "Milky", rating: 90, country: "🇬🇧", rarity: "uk-scene", type: "CHAMP", t:89, m:88, o:90, p:91, img: "sSs4cTrLs5o" }, 
-        { name: "Bass Ventura", rating: 91, country: "🇬🇧", rarity: "uk-scene", type: "VET", t:89, m:90, o:91, p:93, img: "OVUGTVESNhg" },
-        { name: "Epos", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "ELITE", t:96, m:92, o:91, p:95, img: "uxrsYP0sXqs" },
-        { name: "Zak", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:94, m:90, o:92, p:95, img: "zak.png" }, // Custom Local Image
-        { name: "Whit", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "FLOW", t:86, m:87, o:83, p:84, img: "Z7k8Wf9Xy0U" },
-        { name: "OxBox", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "POWER", t:85, m:83, o:84, p:91, img: "A5q2J5v5vM" },
-        { name: "Hobbit", rating: 87, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:89, m:85, o:86, p:84, img: "g5q2J5v5vM" },
-        { name: "BeatFox", rating: 88, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:84, m:86, o:91, p:89, img: "b7q2J5v5vM" },
-        { name: "Tyla", rating: 84, country: "🇬🇧", rarity: "uk-scene", type: "DUB", t:85, m:82, o:84, p:88, img: "t8q2J5v5vM" },
-        { name: "Pye", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:84, m:84, o:82, p:81, img: "p9q2J5v5vM" },
-        { name: "M-Age", rating: 84, country: "🇬🇧", rarity: "uk-scene", type: "TECH", t:86, m:82, o:83, p:85, img: "m2q2J5v5vM" },
-        { name: "ABH", rating: 87, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:86, m:90, o:88, p:85, img: "a1q2J5v5vM" },
-        { name: "D-Koy", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:80, m:85, o:82, p:80, img: "d3q2J5v5vM" },
-        { name: "Fredy Beats", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "COMEDY", t:81, m:86, o:88, p:79, img: "f4q2J5v5vM" },
-        
-        // --- EPIC GLOBAL ---
-        { name: "King Inertia", rating: 96, country: "🇺🇸", rarity: "epic", type: "BASS", t:90, m:91, o:93, p:99, img: "Mk7NUisssC8" },
-        { name: "Inkie", rating: 92, country: "🇷🇺", rarity: "epic", type: "BASS", t:94, m:88, o:91, p:96, img: "6W55Dk2Mvzo" },
-        { name: "Hiss", rating: 93, country: "🇰🇷", rarity: "epic", type: "TECH", t:97, m:89, o:91, p:93, img: "Pq12wPgWyAE" },
-        { name: "Remix", rating: 89, country: "🇨🇦", rarity: "epic", type: "FLOW", t:90, m:92, o:89, p:90, img: "cvQHn-TUk-Q" },
-        { name: "Antilt", rating: 91, country: "🇧🇪", rarity: "epic", type: "GLITCH", t:97, m:82, o:98, p:90, img: "VCl5LcFZnC4" },
-        { name: "Osis", rating: 90, country: "🇮🇪", rarity: "epic", type: "TECH", t:94, m:87, o:91, p:88, img: "Jw3fOshpBUo" },
-        { name: "J-Wobble", rating: 92, country: "🇺🇸", rarity: "epic", type: "BASS", t:88, m:90, o:91, p:96, img: "K1i7Wb8p6vM" },
-        { name: "Improver", rating: 94, country: "🇷🇺", rarity: "epic", type: "UNIQUE", t:95, m:92, o:98, p:90, img: "QbOC9OGH45E" },
-        { name: "Abo Ice", rating: 91, country: "🇸🇦", rarity: "epic", type: "AGGRO", t:92, m:85, o:89, p:95, img: "a8q2J5v5vM" },
-        { name: "Helium", rating: 92, country: "🇷🇺", rarity: "epic", type: "DEEP", t:89, m:88, o:90, p:95, img: "h2q2J5v5vM" },
-        { name: "Zekka", rating: 92, country: "🇪🇸", rarity: "epic", type: "FAST", t:95, m:89, o:90, p:93, img: "z3q2J5v5vM" },
-
-        // --- DISCORD/UNDERGROUND ---
-        { name: "Vocodah", rating: 91, country: "🇺🇸", rarity: "discord-gem", type: "BASS", t:95, m:82, o:96, p:97, img: "v4q2J5v5vM" },
-        { name: "Wunknown", rating: 86, country: "🇺🇸", rarity: "underground", type: "DEEP", t:85, m:80, o:90, p:85, img: "w2q2J5v5vM" },
-        { name: "Voiid", rating: 87, country: "🇺🇸", rarity: "underground", type: "BASS", t:85, m:83, o:92, p:94, img: "v8q2J5v5vM" },
-        { name: "Impedance", rating: 85, country: "🇺🇸", rarity: "underground", type: "BASS", t:83, m:80, o:88, p:92, img: "i9q2J5v5vM" }
+        { name: "DOG", rating: 99, country: "🇬🇧", rarity: "legendary", type: "HYBRID", t:98, m:98, o:97, p:98, img: "dog.png" }, 
+        { name: "NaPoM", rating: 97, country: "🇺🇸", rarity: "legendary", type: "TITAN", t:98, m:92, o:96, p:98 },
+        { name: "D-Low", rating: 98, country: "🇬🇧", rarity: "legendary", type: "CHAMP", t:98, m:93, o:97, p:96, img: "https://beatbox.fandom.com/wiki/Special:FilePath/D-Low.jpg" },
+        { name: "River'", rating: 97, country: "🇫🇷", rarity: "legendary", type: "FLOW", t:95, m:98, o:97, p:92 },
+        { name: "Colaps", rating: 97, country: "🇫🇷", rarity: "legendary", type: "CLEAN", t:98, m:94, o:95, p:95 },
+        { name: "FootboxG", rating: 96, country: "🇧🇪", rarity: "legendary", type: "ROBOT", t:97, m:91, o:95, p:94 },
+        { name: "Tom Thum", rating: 93, country: "🇦🇺", rarity: "legendary", type: "SHOW", t:92, m:96, o:95, p:88 },
+        { name: "Reeps One", rating: 94, country: "🇬🇧", rarity: "legendary", type: "PIONEER", t:93, m:95, o:98, p:94 },
+        { name: "Skiller", rating: 93, country: "🇧🇬", rarity: "legendary", type: "FAST", t:95, m:88, o:90, p:93 },
+        { name: "Rahzel", rating: 91, country: "🇺🇸", rarity: "legendary", type: "GODFATHER", t:88, m:90, o:97, p:90 },
+        { name: "Alem", rating: 95, country: "🇫🇷", rarity: "legendary", type: "SPEED", t:98, m:85, o:90, p:96 },
+        { name: "Saro", rating: 96, country: "🇫🇷", rarity: "loop-master", type: "GOD", t:95, m:98, o:97, p:90 },
+        { name: "Bizkit", rating: 94, country: "🇺🇸", rarity: "loop-master", type: "LOOP", t:92, m:95, o:94, p:92 },
+        { name: "Frosty", rating: 95, country: "🇬🇧", rarity: "loop-master", type: "UK GOD", t:93, m:96, o:94, p:92 },
+        { name: "Rythmind", rating: 95, country: "🇫🇷", rarity: "loop-master", type: "RHYTHM", t:94, m:96, o:95, p:93 },
+        { name: "BreZ", rating: 92, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:93, m:92, o:93, p:90 },
+        { name: "NME", rating: 91, country: "🇮🇹", rarity: "loop-master", type: "LOOP", t:90, m:93, o:91, p:89 },
+        { name: "Dice", rating: 91, rarity: "loop-master", country: "🇺🇸", type: "LOOP", t:89, m:93, o:92, p:88 },
+        { name: "Robin", rating: 90, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:91, m:92, o:90, p:87 },
+        { name: "Contrix", rating: 89, country: "🇬🇧", rarity: "loop-master", type: "UK", t:88, m:90, o:89, p:88 },
+        { name: "Milky", rating: 88, country: "🇬🇧", rarity: "uk-scene", type: "CHAMP", t:87, m:86, o:88, p:89 }, 
+        { name: "Bass Ventura", rating: 89, country: "🇬🇧", rarity: "uk-scene", type: "VET", t:88, m:89, o:90, p:91 },
+        { name: "Epos", rating: 93, country: "🇬🇧", rarity: "uk-scene", type: "ELITE", t:94, m:90, o:89, p:93 },
+        { name: "Zak", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:93, m:88, o:89, p:93, img: "zak.png" }, 
+        { name: "Whit", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "FLOW", t:85, m:86, o:82, p:83 },
+        { name: "OxBox", rating: 84, country: "🇬🇧", rarity: "uk-scene", type: "POWER", t:83, m:81, o:82, p:89 },
+        { name: "Hobbit", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:87, m:83, o:84, p:82 },
+        { name: "BeatFox", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:82, m:84, o:89, p:87 },
+        { name: "Tyla", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "DUB", t:84, m:81, o:83, p:86 },
+        { name: "Pye", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:83, m:83, o:81, p:80 },
+        { name: "M-Age", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "TECH", t:85, m:81, o:82, p:84 },
+        { name: "ABH", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:84, m:88, o:86, p:83 },
+        { name: "D-Koy", rating: 80, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:78, m:83, o:80, p:78 },
+        { name: "Fredy Beats", rating: 81, country: "🇪🇸", rarity: "uk-scene", type: "COMEDY", t:79, m:84, o:86, p:77 },
+        { name: "Izen", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:87, m:83, o:84, p:82 }, 
+        { name: "Deity", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:82, m:84, o:89, p:87 },
+        { name: "Lucid", rating: 81, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:79, m:84, o:81, p:79 },
+        { name: "Chucid", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "COMEDY", t:80, m:85, o:87, p:78 },
+        { name: "King Inertia", rating: 95, country: "🇺🇸", rarity: "epic", type: "BASS", t:89, m:90, o:92, p:98 },
+        { name: "Inkie", rating: 93, country: "🇷🇺", rarity: "epic", type: "BASS", t:94, m:88, o:91, p:96 },
+        { name: "Hiss", rating: 92, country: "🇰🇷", rarity: "epic", type: "TECH", t:96, m:88, o:90, p:92 },
+        { name: "Remix", rating: 88, country: "🇨🇦", rarity: "epic", type: "FLOW", t:89, m:91, o:88, p:89 },
+        { name: "Antilt", rating: 90, country: "🇧🇪", rarity: "epic", type: "GLITCH", t:96, m:81, o:97, p:89 },
+        { name: "Osis", rating: 89, country: "🇮🇪", rarity: "epic", type: "TECH", t:93, m:86, o:90, p:87 },
+        { name: "J-Wobble", rating: 90, country: "🇺🇸", rarity: "epic", type: "BASS", t:87, m:89, o:90, p:95 },
+        { name: "Improver", rating: 92, country: "🇷🇺", rarity: "epic", type: "UNIQUE", t:94, m:91, o:97, p:89 },
+        { name: "Abo Ice", rating: 89, country: "🇸🇦", rarity: "epic", type: "AGGRO", t:91, m:84, o:88, p:94 },
+        { name: "Helium", rating: 90, country: "🇷🇺", rarity: "epic", type: "DEEP", t:88, m:87, o:89, p:94 },
+        { name: "Zekka", rating: 91, country: "🇪🇸", rarity: "epic", type: "FAST", t:94, m:88, o:89, p:92 },
+        { name: "Vocodah", rating: 90, country: "🇺🇸", rarity: "discord-gem", type: "BASS", t:94, m:81, o:95, p:96 }
     ];
 
-    let myCollection = {};
+    let myCollection = JSON.parse(localStorage.getItem('myCollection')) || {};
+    let totalOpened = parseInt(localStorage.getItem('totalOpened')) || 0;
+    let viewMode = 'owned';
+    
     const overlay = document.getElementById('overlay');
     const resultsArea = document.getElementById('resultsArea');
     const scanner = document.getElementById('scanner');
     const dogAudio = document.getElementById('dogAudio');
+    const closeBtn = document.getElementById('closeBtn');
+    const totalDisplay = document.getElementById('totalOpenedDisplay');
+    const settingsModal = document.getElementById('settingsModal');
+
+    function initApp() {
+        document.body.addEventListener('click', () => { SoundFX.init(); }, { once: true });
+        totalDisplay.innerText = totalOpened;
+        checkUnlocks();
+        updateInv();
+    }
+
+    function checkUnlocks() {
+        if (totalOpened >= 10) document.getElementById('pack3').classList.remove('locked');
+        else document.getElementById('pack3').classList.add('locked');
+        if (totalOpened >= 25) document.getElementById('pack5').classList.remove('locked');
+        else document.getElementById('pack5').classList.add('locked');
+    }
 
     function openPack(numCards) {
-        // Animate correct pack
-        let packIndex = 0;
-        if (numCards === 3) packIndex = 1;
-        if (numCards === 5) packIndex = 2;
-
-        const packs = document.querySelectorAll('.pack');
-        const activePack = packs[packIndex];
+        if ((numCards === 3 && totalOpened < 10) || (numCards === 5 && totalOpened < 25)) return;
+        
+        SoundFX.play('click');
+        const packIndex = numCards === 1 ? 0 : (numCards === 3 ? 1 : 2);
+        const activePack = document.querySelectorAll('.pack')[packIndex];
 
         if(activePack.classList.contains('opening')) return;
         
         activePack.classList.add('opening');
+        SoundFX.play('charge');
+
         setTimeout(() => {
             activePack.classList.remove('opening');
+            SoundFX.play('burst');
             revealLogic(numCards);
-        }, 800);
+        }, 600);
     }
 
     function revealLogic(numCards) {
@@ -523,11 +735,10 @@
         let hasDog = false;
 
         for(let i=0; i<numCards; i++) {
-            // RNG
+            totalOpened++;
             const r = Math.random() * 100;
             let pool = [];
 
-            // ADJUSTED ODDS: DOG IS NOW ULTRA RARE (1%)
             if(r < 1) pool = db.filter(x => x.name === 'DOG'); 
             else if(r < 5) pool = db.filter(x => x.rarity === 'legendary');
             else if (r < 12) pool = db.filter(x => x.rarity === 'loop-master');
@@ -536,18 +747,20 @@
             else pool = db.filter(x => x.rarity === 'underground' || x.rarity === 'common');
 
             if(pool.length === 0) pool = db;
-            
             const card = pool[Math.floor(Math.random() * pool.length)];
             openedCards.push(card);
 
-            if(card.rarity === 'legendary' || card.rarity === 'loop-master') {
-                hasSpecial = true;
-            }
-            if(card.name === 'DOG') {
-                hasDog = true;
-                hasSpecial = true;
-            }
+            if(myCollection[card.name]) myCollection[card.name].count++;
+            else myCollection[card.name] = { ...card, count: 1 };
+
+            if(card.rarity === 'legendary' || card.rarity === 'loop-master') hasSpecial = true;
+            if(card.name === 'DOG') hasDog = true;
         }
+
+        localStorage.setItem('myCollection', JSON.stringify(myCollection));
+        localStorage.setItem('totalOpened', totalOpened);
+        totalDisplay.innerText = totalOpened;
+        checkUnlocks();
 
         if(hasSpecial) {
             triggerScanner(openedCards, hasDog);
@@ -558,43 +771,46 @@
 
     function triggerScanner(cards, hasDog) {
         scanner.style.display = 'flex';
+        // Simulate scanner sound loop or effect here if desired
         setTimeout(() => {
             scanner.style.display = 'none';
             showCards(cards, hasDog);
         }, 1200);
     }
 
-    function createCardElement(card, index) {
+    function createCardElement(card, index, isInspection = false) {
         const wrapper = document.createElement('div');
         wrapper.className = 'card-wrapper';
-        wrapper.style.animationDelay = `${index * 0.2}s`;
+        if(!isInspection) wrapper.style.animationDelay = `${index * 0.1}s`;
 
         const cardDiv = document.createElement('div');
-        cardDiv.className = `card reveal b-${card.rarity.split('-')[0]}`;
+        cardDiv.className = isInspection ? `card inspect` : `card reveal`;
+        cardDiv.style.borderColor = getBorderColor(card.rarity);
         
-        let imgSrc = `https://ui-avatars.com/api/?name=${card.name}&background=151515&color=fff&size=512&bold=true`;
-        
-        // Revised Logic for Custom Local Files vs YouTube
-        if(card.img && card.img !== 'placeholder') {
-            if (card.img.includes('http') || card.img.includes('.png') || card.img.includes('.jpg')) {
-                imgSrc = card.img; // Direct URL or Local File
-            } else {
-                imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`; // YouTube ID
-            }
+        // --- SMART IMAGE ENGINE ---
+        let imgSrc = '';
+        if (card.img && (card.img.includes('http') || card.img.includes('.png') || card.img.includes('.jpg'))) {
+            imgSrc = card.img; // Use local file or manual override URL
+        } else {
+            // Default to Wiki for high quality portrait
+            const safeName = card.name.replace(/ /g, '_');
+            imgSrc = `https://beatbox.fandom.com/wiki/Special:FilePath/${safeName}.jpg`;
         }
+
+        const color = getTxtColor(card.rarity);
 
         cardDiv.innerHTML = `
             <div class="foil-layer"></div>
             <div class="card-top">
-                <div class="rat-circle t-${card.rarity.split('-')[0]}">${card.rating}</div>
+                <div class="rat-circle" style="color:${color}; border-color:${color}">${card.rating}</div>
                 <div class="flag">${card.country}</div>
             </div>
             <div class="img-mask">
-                <img src="${imgSrc}" class="hero-img" onload="checkImg(this)" onerror="fallbackImg(this, '${card.name}')">
+                <img src="${imgSrc}" class="hero-img" onerror="smartFallback(this, '${card.name}')">
             </div>
             <div class="card-bottom">
                 <h2 class="card-name">${card.name}</h2>
-                <span class="card-sub t-${card.rarity.split('-')[0]}">${card.type}</span>
+                <span class="card-sub" style="color:${color}">${card.type}</span>
                 <div class="stats-row">
                     <div class="stat-item"><span class="stat-lbl">TEC</span><span class="stat-val">${card.t}</span></div>
                     <div class="stat-item"><span class="stat-lbl">MUS</span><span class="stat-val">${card.m}</span></div>
@@ -603,81 +819,139 @@
                 </div>
             </div>
         `;
+        
+        if(!isInspection) {
+            setTimeout(() => { SoundFX.play('reveal'); }, index * 100 + 200);
+        }
+
         wrapper.appendChild(cardDiv);
         return wrapper;
     }
 
-    window.checkImg = function(img) { }
-
-    window.fallbackImg = function(img, name) {
-        if (img.src.includes('maxresdefault')) {
-            img.src = img.src.replace('maxresdefault', 'hqdefault');
+    window.smartFallback = function(img, name) {
+        if (img.src.includes('.jpg') && img.src.includes('beatbox.fandom.com')) {
+            img.src = img.src.replace('.jpg', '.png');
         } else {
             img.onerror = null;
-            img.src = `https://ui-avatars.com/api/?name=${name}&background=151515&color=fff&size=512&bold=true`;
+            // Cool Silhouette / Fallback
+            img.src = "https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=600&auto=format&fit=crop";
         }
     }
 
     function showCards(cards, hasDog) {
+        overlay.classList.add('active');
+        overlay.style.display = 'flex';
         resultsArea.innerHTML = '';
+        
+        // Efficient DOM insertion
+        const frag = document.createDocumentFragment();
         cards.forEach((card, index) => {
-            resultsArea.appendChild(createCardElement(card, index));
-            if(myCollection[card.name]) myCollection[card.name].count++;
-            else myCollection[card.name] = { ...card, count: 1 };
+            frag.appendChild(createCardElement(card, index));
         });
+        resultsArea.appendChild(frag);
         
         updateInv();
-        overlay.style.display = 'flex';
 
         if(hasDog) {
-            // Start audio at 27 seconds
             dogAudio.currentTime = 27;
-            dogAudio.play().catch(e => console.log("Audio play failed (interaction needed?):", e));
+            dogAudio.volume = 1.0; 
+            dogAudio.play().catch(e => console.log("Audio autostart prevented"));
         }
     }
 
-    function closeOverlay() {
-        overlay.style.display = 'none';
+    function inspectCard(cardName) {
+        SoundFX.play('click');
+        const card = db.find(c => c.name === cardName);
+        if(!card || (viewMode === 'all' && !myCollection[cardName])) return;
+
+        overlay.classList.add('active');
+        overlay.style.display = 'flex';
         resultsArea.innerHTML = '';
+        resultsArea.appendChild(createCardElement(card, 0, true));
+        closeBtn.innerText = "CLOSE";
+    }
+
+    function closeOverlay() {
+        SoundFX.play('click');
+        overlay.classList.remove('active');
+        setTimeout(() => { overlay.style.display = 'none'; resultsArea.innerHTML = ''; }, 200);
         dogAudio.pause();
-        dogAudio.currentTime = 0; // Reset for next time
+        dogAudio.currentTime = 0;
+        closeBtn.innerText = "COLLECT ALL";
+    }
+
+    function setView(mode) {
+        SoundFX.play('click');
+        viewMode = mode;
+        document.getElementById('btnOwned').className = mode === 'owned' ? 'toggle-btn active' : 'toggle-btn';
+        document.getElementById('btnIndex').className = mode === 'all' ? 'toggle-btn active' : 'toggle-btn';
+        updateInv();
     }
 
     function updateInv() {
         const list = document.getElementById('invList');
+        // Simple wipe is fine for this scale, can optimize if thousands of items
         list.innerHTML = '';
         
-        const sorted = Object.values(myCollection).sort((a,b) => b.rating - a.rating);
-        let total = 0;
+        let cardsToShow = [];
+        if (viewMode === 'owned') {
+            cardsToShow = Object.values(myCollection).sort((a,b) => b.rating - a.rating);
+        } else {
+            cardsToShow = db.map(card => {
+                const owned = myCollection[card.name];
+                return { ...card, count: owned ? owned.count : 0, isLocked: !owned };
+            }).sort((a,b) => b.rating - a.rating);
+        }
 
-        sorted.forEach(c => {
-            total++;
+        const totalOwned = Object.values(myCollection).length;
+        document.getElementById('clubCount').innerText = `(${totalOwned})`;
+
+        const frag = document.createDocumentFragment();
+        cardsToShow.forEach(c => {
             const div = document.createElement('div');
-            div.className = 'inv-card';
+            div.className = c.isLocked ? 'inv-card locked' : 'inv-card';
             div.style.borderColor = getBorderColor(c.rarity);
+            div.onclick = () => inspectCard(c.name);
             
             const img = document.createElement('img');
             img.className = 'inv-img';
             
-            // Same logic for inventory
-            if(c.img && c.img !== 'placeholder') {
-                if (c.img.includes('http') || c.img.includes('.png') || c.img.includes('.jpg')) {
-                    img.src = c.img;
-                } else {
-                    img.src = `https://img.youtube.com/vi/${c.img}/mqdefault.jpg`;
-                }
-            } else {
-                img.src = `https://ui-avatars.com/api/?name=${c.name}&background=111&color=fff`;
+            // Image logic repeated for consistency
+            if (c.img && (c.img.includes('.png') || c.img.includes('.jpg'))) img.src = c.img;
+            else {
+                const safeName = c.name.replace(/ /g, '_');
+                img.src = `https://beatbox.fandom.com/wiki/Special:FilePath/${safeName}.jpg`;
             }
+            img.onerror = function() {
+               if(this.src.includes('.jpg')) this.src = this.src.replace('.jpg', '.png');
+               else { this.onerror = null; this.src = "https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=200&auto=format&fit=crop"; }
+            };
+
+            const ratingDisplay = c.isLocked ? "??" : c.rating;
+            const badgeDisplay = c.count > 1 ? `<span class="inv-badge">${c.count}</span>` : '';
 
             div.innerHTML = `
-                ${c.count > 1 ? `<span class="inv-badge">${c.count}</span>` : ''}
-                <div class="inv-info" style="color:${getTxtColor(c.rarity)}">${c.rating}</div>
+                ${badgeDisplay}
+                <div class="inv-info" style="color:${getTxtColor(c.rarity)}">${ratingDisplay}</div>
             `;
             div.prepend(img);
-            list.appendChild(div);
+            frag.appendChild(div);
         });
-        document.getElementById('clubCount').innerText = `(${total})`;
+        list.appendChild(frag);
+    }
+
+    function toggleSettings() {
+        SoundFX.play('click');
+        const d = settingsModal.style.display;
+        settingsModal.style.display = d === 'flex' ? 'none' : 'flex';
+    }
+
+    function resetProgress() {
+        SoundFX.play('click');
+        if(confirm('Reset entire collection?')) {
+            localStorage.clear();
+            location.reload();
+        }
     }
 
     function getBorderColor(r) {
@@ -695,6 +969,10 @@
         if(r === 'epic') return '#ea80fc';
         return '#bdbdbd';
     }
+
+    // START
+    initApp();
+
 </script>
 </body>
 </html>
