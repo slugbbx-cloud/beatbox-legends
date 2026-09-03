@@ -523,82 +523,129 @@ function youtubeCandidates(c){
   if(!c.img || /^https?:\/\//i.test(String(c.img)) || /\.(png|jpe?g|webp|avif|gif)$/i.test(String(c.img))) return [];
   return ['maxresdefault','sddefault','hqdefault','mqdefault','default'].map(q=>`https://img.youtube.com/vi/${c.img}/${q}.jpg`);
 }
-async function startImageLoad(c,el){
-  if(!el||el.dataset.loading==='1'||el.classList.contains('loaded'))return;
-  el.dataset.loading='1';el.classList.add('loading');
-
-  const cached=imageCache.get(c.name);
-  if(cached){
-    const img=createImageElement(c,cached,'high');
-    let ok=false;
-    await new Promise(resolve=>{
-      const timer=setTimeout(()=>resolve(),900);
-      img.onload=()=>{clearTimeout(timer);ok=true;resolve()};
-      img.onerror=()=>{clearTimeout(timer);resolve()};
-      img.src=cached;
-    });
-    if(ok){el.innerHTML='';el.appendChild(img);applyFaceFocus(img,c);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';return}
-    imageCache.delete(c.name);
-  }
-
-  const localSources=localImageCandidates(c);
-  // Fast path: root-level files are the user's normal GitHub layout. Try all
-  // root filename variants concurrently so one missing extension never stalls.
-  const rootSources=localSources.slice(0,localImageNames(c).length*LOCAL_IMAGE_EXTS.length);
-  const found=await firstWorkingImage(c,rootSources,900,'high');
-  if(found){commitImage(c,el,found.src,found.img);return}
-
-  // Second fast path: common folders, still concurrent and capped.
-  const folderSources=localSources.slice(rootSources.length,rootSources.length+Math.min(72,localSources.length-rootSources.length));
-  const folderFound=await firstWorkingImage(c,folderSources,1000,'high');
-  if(folderFound){commitImage(c,el,folderFound.src,folderFound.img);return}
-
-  // Deep repository scan happens in the background. It is no longer on the
-  // critical path for cards stored beside index.html.
-  let githubSources=[];
-  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),1200))]);}catch(e){githubSources=[]}
-  const remoteSources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
-  const remoteFound=await firstWorkingImage(c,remoteSources,1800,'auto');
-  if(remoteFound){commitImage(c,el,remoteFound.src,remoteFound.img);return}
-
-  let foundWiki=false;
-  try{foundWiki=await Promise.race([findWiki(c,el),new Promise(r=>setTimeout(()=>r(false),1800))]);}catch(e){foundWiki=false}
-  if(!foundWiki)fallbackImage(c,el);
-  el.dataset.loading='0';
+function repoBaseUrl(){
+  // GitHub Pages serves the repository root from the current document base URL.
+  // This keeps root-level images working whether the site is owner.github.io
+  // or owner.github.io/repository/.
+  return new URL('./', document.baseURI).href;
 }
-
+function rootGitHubCandidates(c){
+  const out=[];
+  const names=localImageNames(c);
+  const base=repoBaseUrl();
+  for(const name of names){
+    for(const ext of LOCAL_IMAGE_EXTS){
+      out.push(new URL(encodeURIComponent(name)+'.'+ext, base).href);
+    }
+  }
+  return [...new Set(out)];
+}
+function firstWorkingImage(c,sources,timeout=5000,priority='high'){
+  const list=[...new Set((sources||[]).filter(Boolean))];
+  if(!list.length)return Promise.resolve(null);
+  return new Promise(resolve=>{
+    let settled=false,remaining=list.length;
+    const finishAll=v=>{if(!settled){settled=true;resolve(v)}};
+    list.forEach(src=>{
+      const img=createImageElement(c,src,priority);
+      let done=false;
+      const timer=setTimeout(()=>{
+        if(done)return;
+        done=true;
+        try{img.src='';}catch(e){}
+        remaining--;
+        if(remaining===0)finishAll(null);
+      },timeout);
+      img.onload=()=>{
+        if(done)return;
+        done=true;clearTimeout(timer);
+        finishAll({src,img});
+      };
+      img.onerror=()=>{
+        if(done)return;
+        done=true;clearTimeout(timer);
+        remaining--;
+        if(remaining===0)finishAll(null);
+      };
+      // Detached Image requests are unreliable in some browsers when the page
+      // is aggressively throttled, so force the request immediately.
+      try{img.src=src;}catch(e){done=true;clearTimeout(timer);remaining--;if(remaining===0)finishAll(null);}
+    });
+  });
+}
 function commitImage(c,el,src,img){
   imageCache.set(c.name,src);
   img.loading='lazy';
   if('fetchPriority' in img)img.fetchPriority='low';
   applyFaceFocus(img,c);
-  el.innerHTML='';el.appendChild(img);
-  el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';
+  el.innerHTML='';
+  el.appendChild(img);
+  el.classList.remove('loading','failed');
+  el.classList.add('loaded');
+  el.dataset.loading='0';
 }
+async function startImageLoad(c,el){
+  if(!el||el.dataset.loading==='1'||el.classList.contains('loaded'))return;
+  el.dataset.loading='1';
+  el.classList.add('loading');
 
-function firstWorkingImage(c,sources,timeout=1000,priority='auto'){
-  const list=[...new Set((sources||[]).filter(Boolean))];
-  if(!list.length)return Promise.resolve(null);
-  return new Promise(resolve=>{
-    let settled=false,remaining=list.length;
-    const done=v=>{if(settled)return;settled=true;resolve(v)};
-    list.forEach(src=>{
-      const img=createImageElement(c,src,priority);
-      let finished=false;
-      const finish=ok=>{
-        if(finished)return;finished=true;remaining--;
-        if(ok)done({src,img});
-        else if(remaining===0)done(null);
-      };
-      const timer=setTimeout(()=>{try{img.src=''}catch(e){};finish(false)},timeout);
-      img.onload=()=>{clearTimeout(timer);finish(true)};
-      img.onerror=()=>{clearTimeout(timer);finish(false)};
-      img.src=src;
-    });
-  });
+  const cached=imageCache.get(c.name);
+  if(cached){
+    const cachedFound=await firstWorkingImage(c,[cached],4000,'high');
+    if(cachedFound){commitImage(c,el,cachedFound.src,cachedFound.img);return}
+    imageCache.delete(c.name);
+  }
+
+  // IMPORTANT: user's setup has all card images beside index.html on GitHub.
+  // Try root files FIRST and give GitHub Pages enough time to respond.
+  const rootFound=await firstWorkingImage(c,rootGitHubCandidates(c),5000,'high');
+  if(rootFound){commitImage(c,el,rootFound.src,rootFound.img);return}
+
+  // Then try the common local folders for users who later reorganise assets.
+  const folderSources=localImageCandidates(c).filter(src=>{
+    try{return new URL(src,document.baseURI).pathname.split('/').length>2}catch(e){return true}
+  }).slice(0,120);
+  const folderFound=await firstWorkingImage(c,folderSources,4000,'high');
+  if(folderFound){commitImage(c,el,folderFound.src,folderFound.img);return}
+
+  // Only after local files fail do we try remote sources.
+  let githubSources=[];
+  try{
+    githubSources=await Promise.race([
+      githubIndexCandidates(c),
+      new Promise(r=>setTimeout(()=>r([]),1500))
+    ]);
+  }catch(e){}
+  const remoteSources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  const remoteFound=await firstWorkingImage(c,remoteSources,4500,'auto');
+  if(remoteFound){commitImage(c,el,remoteFound.src,remoteFound.img);return}
+
+  let foundWiki=false;
+  try{
+    foundWiki=await Promise.race([
+      findWiki(c,el),
+      new Promise(r=>setTimeout(()=>r(false),3000))
+    ]);
+  }catch(e){foundWiki=false}
+  if(!foundWiki)fallbackImage(c,el);
+  el.dataset.loading='0';
 }
-
-function observeImage(c,el,immediate=false){if(immediate){startImageLoad(c,el);return}if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}if(!imageObserver)imageObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const c=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);if(c)startImageLoad(c,e.target);imageObserver.unobserve(e.target)}}),{rootMargin:'500px 0px'});el.dataset.cardName=c.name;imageObserver.observe(el)}
+function observeImage(c,el,immediate=false){
+  if(immediate){startImageLoad(c,el);return}
+  if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}
+  if(!imageObserver){
+    imageObserver=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(!e.isIntersecting)return;
+        const card=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);
+        if(card)startImageLoad(card,e.target);
+        imageObserver.unobserve(e.target);
+      });
+    },{rootMargin:'900px 0px',threshold:0.01});
+  }
+  el.dataset.cardName=c.name;
+  imageObserver.observe(el);
+}
 async function findWiki(c,el){
   const endpoints=[
     'https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&origin=*&titles='+encodeURIComponent(c.name),
