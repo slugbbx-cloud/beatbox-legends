@@ -455,7 +455,7 @@ function localImageCandidates(c){
   return [...new Set(out)];
 }
 function fallbackImage(c,el){el.classList.remove('loading','loaded');el.classList.add('failed');el.dataset.filename=String(c.name)+'.png';el.innerHTML=`<div class="ph">${initials(c.name)}</div>`}
-function createImageElement(c,src){const img=new Image();img.alt=c.name;img.decoding='async';img.loading='lazy';return img}
+function createImageElement(c,src){const img=new Image();img.alt=c.name;img.decoding='async';return img}
 function githubRepoCandidates(){
   const host=location.hostname.replace(/\.$/,'');
   const pathParts=location.pathname.split('/').filter(Boolean);
@@ -527,8 +527,11 @@ async function startImageLoad(c,el){
     const nextLocal=()=>{
       if(i>=localSources.length)return resolve(false);
       const src=localSources[i++],img=createImageElement(c,src);
-      img.onload=()=>{imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';resolve(true)};
-      img.onerror=nextLocal;img.src=src;
+      let settled=false;
+      const timer=setTimeout(()=>{if(settled)return;settled=true;try{img.src=''}catch(e){};nextLocal()},1200);
+      img.onload=()=>{if(settled)return;settled=true;clearTimeout(timer);img.loading='lazy';imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';resolve(true)};
+      img.onerror=()=>{if(settled)return;settled=true;clearTimeout(timer);nextLocal()};
+      img.src=src;
     };
     nextLocal();
   });
@@ -536,14 +539,17 @@ async function startImageLoad(c,el){
 
   // Only after local files fail do we ask GitHub's API for deeply nested art.
   let githubSources=[];
-  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),2500))]);}catch(e){githubSources=[]}
+  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),1800))]);}catch(e){githubSources=[]}
   const sources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
   let j=0;
   const next=()=>{
-    if(j>=sources.length){findWiki(c,el).then(found=>{if(!found)fallbackImage(c,el);el.dataset.loading='0'});return}
+    if(j>=sources.length){Promise.race([findWiki(c,el),new Promise(r=>setTimeout(()=>r(false),2500))]).then(found=>{if(!found)fallbackImage(c,el);el.dataset.loading='0'});return}
     const src=sources[j++],img=createImageElement(c,src);
-    img.onload=()=>{imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0'};
-    img.onerror=next;img.src=src;
+    let settled=false;
+    const timer=setTimeout(()=>{if(settled)return;settled=true;try{img.src=''}catch(e){};next()},2500);
+    img.onload=()=>{if(settled)return;settled=true;clearTimeout(timer);img.loading='lazy';imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0'};
+    img.onerror=()=>{if(settled)return;settled=true;clearTimeout(timer);next()};
+    img.src=src;
   };
   next();
 }
