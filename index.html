@@ -1,863 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BEATBOX LEGENDS: LEGACY</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;600;700&family=Rajdhani:wght@500;700&display=swap');
-
-        :root {
-            /* Premium Dark Palette */
-            --bg: #050505;
-            --surface: #0a0a0a;
-            --surface-highlight: #141414;
-            --border: #222;
-            --text-main: #f0f0f0;
-            --text-muted: #666;
-            
-            /* Accents */
-            --gold: #FFD700;
-            --gold-dim: #b39700;
-            --red: #E63946;
-            
-            /* Rarity Colors */
-            --c-common: #9e9e9e;
-            --c-underground: #607d8b;
-            --c-rare: #00bcd4;
-            --c-epic: #d500f9;
-            --c-uk: #ff1744;
-            --c-discord: #ff9100;
-            --c-loop: #00e676;
-            --c-legendary: #ffd700;
-
-            /* Shadows & Effects */
-            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.8);
-            --shadow-hard: 0 20px 60px -10px rgba(0,0,0,0.9);
-            --glow-gold: 0 0 20px rgba(255, 215, 0, 0.15);
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background-color: var(--bg);
-            /* Premium Noise Texture & Vignette */
-            background-image: 
-                radial-gradient(circle at 50% 0%, #1a1a2e 0%, transparent 80%),
-                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-            color: var(--text-main);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow: hidden;
-            user-select: none;
-        }
-
-        /* --- HEADER --- */
-        header {
-            width: 100%;
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 20;
-            background: linear-gradient(to bottom, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0) 100%);
-        }
-
-        .brand h1 {
-            font-family: 'Teko', sans-serif;
-            margin: 0;
-            font-size: 2.5rem;
-            line-height: 0.9;
-            letter-spacing: 2px;
-            background: linear-gradient(to right, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
-        }
-
-        .subtitle {
-            font-size: 0.7rem;
-            letter-spacing: 4px;
-            color: var(--gold);
-            text-transform: uppercase;
-            font-weight: 700;
-            opacity: 0.8;
-        }
-
-        .stats-bar {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .stat-pill {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            padding: 5px 15px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 700;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            line-height: 1;
-            backdrop-filter: blur(5px);
-        }
-        .stat-pill span { font-size: 0.55rem; color: var(--text-muted); margin-bottom: 2px; letter-spacing: 1px; }
-
-        .settings-btn {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            width: 42px; height: 42px;
-            border-radius: 8px;
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1.2rem;
-        }
-        .settings-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.05); }
-
-        /* --- PACK STAGE --- */
-        .stage {
-            flex: 1;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1200px;
-            position: relative;
-            padding-bottom: 40px; /* Space for reflection */
-        }
-
-        .pack-row {
-            display: flex;
-            gap: 40px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .pack {
-            width: 220px;
-            height: 330px;
-            background: #0a0a0a;
-            border-radius: 16px;
-            position: relative;
-            transform-style: preserve-3d;
-            cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-soft);
-            will-change: transform;
-        }
-
-        /* Pack Hover Effect */
-        .pack:not(.locked):hover { 
-            transform: translateY(-15px) scale(1.02) rotateX(5deg); 
-            box-shadow: var(--shadow-hard), 0 0 20px rgba(255,255,255,0.05);
-            border-color: #444;
-        }
-        
-        .pack.opening { animation: packBurst 0.7s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards; pointer-events: none; }
-
-        .pack.locked {
-            filter: grayscale(100%) opacity(0.4);
-            cursor: not-allowed;
-            border-style: dashed;
-        }
-        .pack.locked:hover { transform: none; box-shadow: none; }
-
-        .pack-inner {
-            position: absolute; inset: 4px;
-            background: linear-gradient(145deg, #161616, #080808);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #1a1a1a;
-            overflow: hidden;
-        }
-        
-        /* Premium Holographic Sheen */
-        .pack-inner::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 55%, transparent 60%);
-            background-size: 200% 200%;
-            animation: holoShift 4s infinite linear;
-            pointer-events: none;
-        }
-
-        @keyframes holoShift { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        @keyframes packBurst { 
-            0% { transform: scale(1); filter: brightness(1); } 
-            40% { transform: scale(0.95) rotateZ(-2deg); filter: brightness(1.5); } 
-            100% { transform: scale(1.5); opacity: 0; filter: brightness(2); } 
-        }
-
-        .pack-icon { font-size: 4rem; margin-bottom: 15px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); transition: transform 0.3s; }
-        .pack:hover .pack-icon { transform: scale(1.1); }
-        
-        .pack-title { font-family: 'Teko', sans-serif; font-size: 2.2rem; line-height: 0.9; color: var(--text-main); letter-spacing: 1px; }
-        .pack-sub { font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; margin-top: 8px; font-weight: 700; opacity: 0.9; }
-
-        .lock-overlay {
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            border-radius: 12px;
-            z-index: 10;
-            display: none;
-            backdrop-filter: blur(2px);
-        }
-        .pack.locked .lock-overlay { display: flex; }
-        .lock-msg { font-size: 0.7rem; color: #888; margin-top: 10px; width: 80%; text-align: center; font-weight: 600; letter-spacing: 1px; }
-
-        /* --- CARD OVERLAY --- */
-        .overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 100;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            backdrop-filter: blur(20px);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .overlay.active { opacity: 1; }
-
-        .pack-results {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding: 40px 0;
-            perspective: 1500px;
-        }
-
-        .card-wrapper {
-            width: 300px;
-            height: 480px;
-            flex-shrink: 0;
-            transform-style: preserve-3d;
-        }
-
-        /* Optimized Card */
-        .card {
-            width: 100%; height: 100%;
-            border-radius: 20px;
-            position: relative;
-            transform-style: preserve-3d;
-            background: #0c0c0c;
-            box-shadow: var(--shadow-hard);
-            border: 1px solid rgba(255,255,255,0.08);
-            overflow: hidden;
-            display: flex; flex-direction: column;
-            opacity: 0;
-            transform: rotateY(90deg) translateZ(-100px);
-            will-change: transform, opacity;
-        }
-        
-        .card.inspect { opacity: 1; transform: rotateY(0deg) translateZ(0); }
-        .card.reveal { animation: revealFlip 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
-
-        @keyframes revealFlip { 
-            0% { opacity: 0; transform: rotateY(90deg) translateZ(-100px); } 
-            100% { opacity: 1; transform: rotateY(0deg) translateZ(0); } 
-        }
-
-        .card-top {
-            padding: 20px;
-            display: flex; justify-content: space-between; align-items: flex-start;
-            z-index: 2;
-        }
-
-        .rat-circle {
-            width: 54px; height: 54px;
-            border-bottom: 3px solid currentColor;
-            display: flex; justify-content: center; align-items: center;
-            font-family: 'Teko', sans-serif;
-            font-size: 2.8rem;
-            line-height: 0;
-            padding-top: 6px;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            background: linear-gradient(180deg, rgba(0,0,0,0.4), transparent);
-            border-radius: 50%;
-            backdrop-filter: blur(4px);
-        }
-
-        .flag { font-size: 2.2rem; filter: grayscale(0.2) drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
-
-        .img-mask {
-            position: absolute; top: 0; left: 0; width: 100%; height: 65%;
-            z-index: 1;
-            /* Smoother fade to black */
-            mask-image: linear-gradient(to bottom, black 50%, transparent 95%);
-            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 95%);
-            background: #080808; 
-        }
-
-        .hero-img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease-out;
-        }
-        .card:hover .hero-img { transform: scale(1.05); }
-
-        .card-bottom {
-            margin-top: auto;
-            padding: 20px;
-            z-index: 2;
-            background: linear-gradient(to top, #050505 10%, transparent);
-        }
-
-        .card-name {
-            font-family: 'Teko', sans-serif;
-            font-size: 3.2rem;
-            text-transform: uppercase;
-            line-height: 0.8;
-            margin: 0;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            color: #fff;
-            text-shadow: 0 4px 20px rgba(0,0,0,1);
-        }
-
-        .card-sub {
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 15px;
-            display: block;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        }
-
-        .stats-row {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 12px;
-        }
-        .stat-item { text-align: center; }
-        .stat-lbl { font-size: 0.6rem; color: #666; font-weight: 700; display: block; margin-bottom: 2px; }
-        .stat-val { font-size: 1.2rem; font-family: 'Teko', sans-serif; color: #eee; line-height: 1; }
-
-        /* Buttons */
-        .btn {
-            background: var(--text-main);
-            color: var(--bg);
-            border: none;
-            padding: 14px 50px;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            border-radius: 6px;
-            margin-top: 20px;
-            transition: all 0.2s;
-            box-shadow: 0 5px 20px rgba(255,255,255,0.1);
-        }
-        .btn:hover { 
-            background: var(--gold); 
-            color: #000; 
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
-        }
-        .btn:active { transform: translateY(0); }
-        
-        .btn-red { background: var(--red); color: white; box-shadow: 0 5px 20px rgba(230, 57, 70, 0.2); }
-        .btn-red:hover { background: #ff5252; box-shadow: 0 10px 30px rgba(230, 57, 70, 0.4); }
-
-        /* --- INVENTORY --- */
-        .inventory {
-            width: 100%;
-            height: 240px;
-            background: rgba(10, 10, 10, 0.9);
-            border-top: 1px solid var(--border);
-            padding: 20px 30px;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-        }
-        .inv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .inv-title { font-size: 0.85rem; color: var(--gold); letter-spacing: 2px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
-        
-        .inv-toggles { display: flex; gap: 8px; }
-        .toggle-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 6px 14px;
-            font-family: 'Rajdhani';
-            font-weight: 700;
-            cursor: pointer;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            transition: all 0.2s;
-        }
-        .toggle-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
-        .toggle-btn.active { background: var(--text-main); color: var(--bg); border-color: var(--text-main); box-shadow: 0 2px 10px rgba(255,255,255,0.1); }
-
-        .inv-scroll {
-            display: flex; gap: 12px; overflow-x: auto; height: 100%; padding-bottom: 10px;
-            /* Smooth scroll */
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-        .inv-scroll::-webkit-scrollbar { height: 6px; }
-        .inv-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        .inv-scroll::-webkit-scrollbar-track { background: transparent; }
-
-        .inv-card {
-            min-width: 110px; height: 100%;
-            background: #111;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            display: flex; flex-direction: column;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            will-change: transform;
-        }
-        .inv-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .inv-card.locked { opacity: 0.4; filter: grayscale(100%); pointer-events: none; border-style: dashed; }
-        
-        .inv-img { width: 100%; height: 75%; object-fit: cover; background: #080808; }
-        .inv-info { height: 25%; display: flex; justify-content: center; align-items: center; font-family: 'Teko'; font-size: 1.2rem; color: #fff; background: #0a0a0a; border-top: 1px solid rgba(255,255,255,0.05); }
-        .inv-badge { position: absolute; top: 4px; right: 4px; background: var(--gold); color: #000; font-size: 0.65rem; padding: 2px 5px; font-weight: 800; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-
-        /* --- SETTINGS MODAL --- */
-        #settingsModal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none;
-            justify-content: center; align-items: center; flex-direction: column;
-            backdrop-filter: blur(5px);
-        }
-        .modal-box {
-            background: #111;
-            border: 1px solid var(--border);
-            padding: 40px;
-            border-radius: 16px;
-            width: 320px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-        }
-        .modal-title { font-family: 'Teko'; font-size: 2.2rem; margin-bottom: 25px; color: var(--text-main); letter-spacing: 2px; }
-        .setting-btn { width: 100%; margin-top: 15px; padding: 12px; }
-
-        /* --- SCANNER ANIM --- */
-        #scanner {
-            position: fixed; inset: 0; background: black; z-index: 150; display: none;
-            justify-content: center; align-items: center;
-        }
-        .scan-beam {
-            width: 100%; height: 2px; background: var(--gold);
-            box-shadow: 0 0 50px var(--gold), 0 0 100px white;
-            animation: scan 1.2s ease-in-out infinite;
-        }
-        @keyframes scan { 0% { transform: translateY(-50vh) scaleX(0.5); opacity: 0; } 50% { opacity: 1; transform: translateY(0) scaleX(1); } 100% { transform: translateY(50vh) scaleX(0.5); opacity: 0; } }
-        
-        /* --- NEW: PITY METER --- */
-        .pity-wrap { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 280px; z-index: 5; text-align: center; }
-        .pity-label { font-size: 0.6rem; letter-spacing: 2px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
-        .pity-label span { color: var(--gold); }
-        .pity-track { width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; border: 1px solid var(--border); }
-        .pity-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); transition: width 0.4s ease; box-shadow: 0 0 10px rgba(255,215,0,0.5); }
-
-        /* --- NEW: COIN PILL --- */
-        .coin-pill { cursor: pointer; transition: all 0.2s; }
-        .coin-pill:hover { border-color: var(--gold); background: rgba(255,215,0,0.06); }
-
-        /* --- NEW: SEARCH / SORT / FILTER --- */
-        .search-box {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main);
-            padding: 6px 12px; border-radius: 6px; font-family: 'Rajdhani'; font-weight: 600; font-size: 0.8rem; width: 120px;
-        }
-        .search-box:focus { outline: none; border-color: var(--gold); }
-        .sort-select {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main);
-            padding: 6px 10px; border-radius: 6px; font-family: 'Rajdhani'; font-weight: 700; font-size: 0.7rem; letter-spacing: 1px; cursor: pointer;
-        }
-        .rarity-chips { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-        .rarity-chip {
-            font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; padding: 4px 10px; border-radius: 10px;
-            border: 1px solid var(--border); cursor: pointer; opacity: 0.5; transition: all 0.2s; background: rgba(255,255,255,0.03);
-        }
-        .rarity-chip.active { opacity: 1; box-shadow: 0 0 8px currentColor; }
-
-        /* --- NEW: STAR / FAVORITE --- */
-        .fav-star {
-            position: absolute; top: 4px; left: 4px; z-index: 5; font-size: 0.9rem; cursor: pointer;
-            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8)); transition: transform 0.15s;
-        }
-        .fav-star:hover { transform: scale(1.3); }
-        .new-badge {
-            position: absolute; top: 4px; left: 4px; background: var(--red); color: #fff; font-size: 0.55rem;
-            padding: 2px 5px; font-weight: 800; border-radius: 3px; z-index: 5; letter-spacing: 1px;
-        }
-        .card-fav-star {
-            position: absolute; top: 20px; right: 20px; font-size: 1.6rem; cursor: pointer; z-index: 6;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8)); transition: transform 0.15s;
-        }
-        .card-fav-star:hover { transform: scale(1.2); }
-        .sell-btn { margin-top: 10px; }
-
-        /* --- NEW: HOLO TILT --- */
-        .card { transition: transform 0.1s ease-out, box-shadow 0.4s ease; }
-        .card .holo-sheen {
-            position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: overlay;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), transparent 60%);
-            transition: opacity 0.2s;
-        }
-        .card:hover .holo-sheen { opacity: 0.5; }
-
-        /* --- NEW: PLACEHOLDER ART (for missing/broken photos) --- */
-        .placeholder-art {
-            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            font-family: 'Teko', sans-serif; color: rgba(255,255,255,0.85); position: relative; overflow: hidden;
-        }
-        .placeholder-art .ph-initials { font-size: 5rem; line-height: 1; text-shadow: 0 4px 20px rgba(0,0,0,0.6); }
-        .placeholder-art .ph-mic { position: absolute; font-size: 6rem; opacity: 0.12; bottom: -10px; right: -10px; }
-        .inv-img.placeholder-art .ph-initials { font-size: 1.8rem; }
-        .inv-img.placeholder-art .ph-mic { font-size: 2.5rem; }
-
-        /* --- NEW: MODALS (Stats/Achievements/Shop) --- */
-        #statsModal, #achModal, #shopModal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none;
-            justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px);
-        }
-        .modal-wide { width: 420px; max-height: 80vh; overflow-y: auto; }
-        .vol-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; text-align: left; }
-        .vol-row label { font-size: 0.7rem; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
-        .stat-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
-        .stat-box .sb-val { font-family: 'Teko'; font-size: 1.8rem; color: var(--gold); line-height: 1; }
-        .stat-box .sb-lbl { font-size: 0.6rem; color: var(--text-muted); letter-spacing: 1px; font-weight: 700; }
-        .rarity-bars { text-align: left; }
-        .rbar-row { margin-bottom: 8px; }
-        .rbar-lbl { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700; margin-bottom: 3px; }
-        .rbar-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
-        .rbar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-
-        .ach-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
-        .ach-item {
-            display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; opacity: 0.4;
-        }
-        .ach-item.unlocked { opacity: 1; border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.1); }
-        .ach-icon { font-size: 1.6rem; }
-        .ach-name { font-weight: 800; font-size: 0.9rem; }
-        .ach-desc { font-size: 0.7rem; color: var(--text-muted); }
-        .ach-reward { margin-left: auto; font-size: 0.75rem; color: var(--gold); font-weight: 700; white-space: nowrap; }
-
-        /* --- NEW: TOASTS --- */
-        #toastContainer { position: fixed; top: 90px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
-        .toast {
-            background: rgba(10,10,10,0.95); border: 1px solid var(--gold); border-radius: 8px; padding: 12px 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6); font-weight: 700; font-size: 0.85rem; color: var(--text-main);
-            animation: toastIn 0.3s ease, toastOut 0.4s ease 2.6s forwards; max-width: 280px;
-        }
-        .toast .t-title { color: var(--gold); font-size: 0.7rem; letter-spacing: 1px; display: block; margin-bottom: 2px; }
-        @keyframes toastIn { from { opacity:0; transform: translateX(40px); } to { opacity:1; transform: translateX(0); } }
-        @keyframes toastOut { to { opacity:0; transform: translateX(40px); } }
-
-        /* --- NEW: CONFETTI --- */
-        #confettiCanvas { position: fixed; inset: 0; z-index: 250; pointer-events: none; display: none; }
-        body.screen-shake { animation: shake 0.4s ease; }
-        @keyframes shake {
-            0%, 100% { transform: translate(0,0); }
-            20% { transform: translate(-6px, 4px); }
-            40% { transform: translate(6px, -4px); }
-            60% { transform: translate(-4px, -4px); }
-            80% { transform: translate(4px, 6px); }
-        }
-
-        /* --- NEW: LOCKED VAULT PACK --- */
-        #packVault.locked .lock-overlay { display: flex; }
-        #packVault .lock-msg { color: var(--gold); }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .pack-results { flex-direction: column; justify-content: flex-start; padding-top: 60px; }
-            .card-wrapper { height: 380px; width: 240px; margin-bottom: 30px; transform: none; }
-            .pack-row { flex-direction: column; gap: 30px; }
-            .pack { width: 180px; height: 260px; }
-            h1 { font-size: 2.2rem; }
-            .stats-bar span { display: none; }
-            .pity-wrap { width: 90%; top: 6px; }
-            .inv-toggles { flex-wrap: wrap; gap: 6px; }
-            .search-box { width: 90px; }
-            .modal-wide { width: 90vw; }
-        }
-
-    
-/* ===== LEGACY EXPANSION: SECTIONS / HUD / BATTLES / CHALLENGES ===== */
-.nav-tabs{width:100%;display:flex;gap:6px;padding:0 24px 12px;z-index:25;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.05)}
-.nav-tabs::-webkit-scrollbar{height:0}.nav-tab{flex:0 0 auto;background:rgba(255,255,255,.03);border:1px solid var(--border);color:#aaa;padding:9px 14px;border-radius:7px;font:700 .72rem Rajdhani;letter-spacing:1.5px;cursor:pointer;transition:.2s}.nav-tab:hover{color:#fff;border-color:#555}.nav-tab.active{background:#fff;color:#050505;border-color:#fff;box-shadow:0 4px 15px rgba(255,255,255,.08)}
-.section-page{position:absolute;inset:150px 0 0;padding:24px 30px;overflow:auto;display:none;background:linear-gradient(180deg,rgba(5,5,5,.985),rgba(5,5,5,.97));z-index:30}.section-page.active{display:block}.section-page::-webkit-scrollbar{width:7px}.section-page::-webkit-scrollbar-thumb{background:#333;border-radius:5px}
-.hero-panel{max-width:1100px;margin:0 auto;padding:34px;border:1px solid #202020;border-radius:18px;background:linear-gradient(135deg,rgba(255,215,0,.08),rgba(10,10,10,.9) 45%),#090909;box-shadow:var(--shadow-soft)}
-.kicker{font-size:.7rem;color:var(--gold);font-weight:800;letter-spacing:3px}.hero-panel h2{font:700 3.4rem Teko;margin:8px 0 4px;letter-spacing:2px}.hero-panel p{color:#999;max-width:720px;line-height:1.5;margin:0 0 20px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
-.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px auto 0;max-width:1100px}.metric-card{padding:18px;background:rgba(255,255,255,.03);border:1px solid #1f1f1f;border-radius:12px}.metric-card .v{font:700 2rem Teko;color:#fff}.metric-card .l{font-size:.62rem;color:#777;letter-spacing:1.5px;font-weight:800}
-.pack-catalog{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.pack-tile{min-height:190px;padding:20px;border-radius:15px;border:1px solid #252525;background:radial-gradient(circle at 80% 10%,rgba(255,255,255,.06),transparent 45%),#0b0b0b;cursor:pointer;position:relative;overflow:hidden;transition:.25s}.pack-tile:hover{transform:translateY(-5px);border-color:#555;box-shadow:0 15px 40px rgba(0,0,0,.55)}.pack-tile .icon{font-size:2.7rem}.pack-tile h3{font:700 2rem Teko;margin:8px 0 0}.pack-tile .desc{font-size:.72rem;color:#777;line-height:1.4;margin:4px 0 10px}.pack-tile .price{font-weight:800;color:var(--gold);font-size:.78rem;letter-spacing:1px}.pack-tile .odds{position:absolute;right:15px;bottom:14px;font-size:.62rem;color:#666;text-align:right}.pack-tile.locked{opacity:.45;filter:grayscale(.7)}
-.battle-layout{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.2fr .8fr;gap:15px}.panel{background:rgba(10,10,10,.9);border:1px solid #202020;border-radius:15px;padding:20px}.panel-title{font:700 1.8rem Teko;letter-spacing:1px;margin-bottom:12px}.matchup{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}.fighter{border:1px solid #242424;border-radius:14px;padding:16px;text-align:center;background:#0b0b0b}.fighter img,.fighter .f-art{width:100%;height:180px;object-fit:cover;border-radius:10px;background:#111}.fighter-name{font:700 1.7rem Teko;margin-top:7px}.fighter-rating{font-size:.68rem;color:#777;letter-spacing:1px}.versus{font:700 1.4rem Teko;color:var(--red)}.battle-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.battle-result{margin-top:15px;min-height:52px;padding:14px;border-radius:10px;background:#111;border:1px solid #262626}.battle-log{margin-top:10px;max-height:230px;overflow:auto}.log-line{padding:8px 10px;border-bottom:1px solid #181818;font-size:.72rem;color:#999}.log-line b{color:#fff}
-.challenge-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.challenge{padding:16px;border-radius:13px;border:1px solid #222;background:#0b0b0b}.challenge h3{font:700 1.5rem Teko;margin:0 0 5px}.challenge p{font-size:.7rem;color:#777;margin:0 0 12px}.progress{height:7px;background:#171717;border-radius:6px;overflow:hidden}.progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))}.challenge .reward{margin-top:9px;font-size:.68rem;color:var(--gold);font-weight:800}
-.rank-table{max-width:1100px;margin:0 auto;background:#0b0b0b;border:1px solid #222;border-radius:14px;overflow:hidden}.rank-row{display:grid;grid-template-columns:60px 1.5fr .7fr .7fr .8fr;gap:8px;align-items:center;padding:12px 15px;border-bottom:1px solid #171717}.rank-row.head{font-size:.62rem;color:#666;letter-spacing:1px;font-weight:800;background:#101010}.rank-avatar{display:flex;align-items:center;gap:9px}.rank-mini{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#151515}.rank-name{font-weight:800}.rank-val{font:700 1.2rem Teko;color:#fff}
-.collection-full{position:relative;max-width:1200px;margin:0 auto}.collection-full .inventory{position:relative;height:auto;min-height:440px;padding:0;background:transparent;border:0;box-shadow:none}.collection-full .inv-scroll{min-height:280px}
-.event-strip{max-width:1100px;margin:18px auto 0;display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}.event-card{padding:16px;border:1px solid #222;border-radius:12px;background:#0b0b0b}.event-card .big{font:700 2rem Teko}.event-card small{color:#777}
-@media(max-width:900px){.metric-grid{grid-template-columns:repeat(2,1fr)}.pack-catalog,.challenge-grid{grid-template-columns:1fr 1fr}.battle-layout{grid-template-columns:1fr}.section-page{inset:150px 0 230px}}
-@media(max-width:650px){header{padding:14px 15px}.brand h1{font-size:2rem}.stats-bar{gap:5px}.stats-bar .stat-pill{padding:5px 8px}.settings-btn{width:34px;height:34px}.nav-tabs{padding:0 12px 10px}.section-page{inset:118px 0 0;padding:15px}.hero-panel{padding:22px}.hero-panel h2{font-size:2.6rem}.metric-grid,.pack-catalog,.challenge-grid,.event-strip{grid-template-columns:1fr}.rank-row{grid-template-columns:40px 1.3fr .6fr .6fr}.rank-row>*:last-child{display:none}.matchup{grid-template-columns:1fr;}.versus{order:2}.fighter{order:1}.fighter:last-child{order:3}}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>BEATBOX LEGENDS // LEGACY</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
+:root{--bg:#040405;--panel:#0b0c10;--panel2:#11131a;--line:#222632;--text:#f4f6fb;--muted:#778096;--gold:#ffd43b;--red:#ff3d5a;--green:#33e77a;--cyan:#31d6ff;--purple:#c36aff;--orange:#ff8c3a;--shadow:0 25px 80px rgba(0,0,0,.55)}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Rajdhani,sans-serif;background:radial-gradient(circle at 50% -10%,#1a1c33 0%,#07080c 38%,#030304 100%);color:var(--text);overflow:hidden}button,input,select{font:inherit}button{cursor:pointer}body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.09;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:36px 36px;mask-image:linear-gradient(to bottom,black,transparent 80%)}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr;position:relative}
+header{height:76px;border-bottom:1px solid var(--line);background:rgba(5,6,9,.86);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:space-between;padding:10px 18px;position:relative;z-index:20}
+.brand{display:flex;align-items:center;gap:14px}.brand-mark{width:44px;height:44px;border:1px solid #3b3f4c;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#161920,#08090c);box-shadow:0 0 30px rgba(255,212,59,.08)}.brand-mark b{font:700 1.3rem Teko;color:var(--gold)}.brand h1{font:700 2rem/0.8 Teko;letter-spacing:2px;margin:0}.brand p{margin:5px 0 0;color:var(--gold);font-size:.62rem;letter-spacing:3px;font-weight:700}
+.hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.pill{border:1px solid var(--line);background:rgba(255,255,255,.025);padding:6px 11px;border-radius:9px;min-width:72px;text-align:center}.pill small{display:block;color:var(--muted);font-size:.52rem;letter-spacing:1px}.pill strong{font:600 1.1rem Teko}.pill.gold strong{color:var(--gold)}.icon-btn{width:38px;height:38px;border:1px solid var(--line);border-radius:9px;background:#0c0d11;color:var(--text);font-size:1rem}
+main{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 76px);min-height:0}
+nav{border-right:1px solid var(--line);background:rgba(5,6,8,.76);padding:12px;display:flex;flex-direction:column;gap:6px;overflow:auto}.navbtn{border:1px solid transparent;background:transparent;color:#8d95a7;text-align:left;padding:11px 13px;border-radius:9px;font-weight:700;letter-spacing:1px;display:flex;gap:10px;align-items:center}.navbtn:hover{background:#0e1015;color:#fff}.navbtn.active{background:linear-gradient(90deg,rgba(255,212,59,.11),transparent);border-color:#3c3721;color:var(--gold)}.navgroup{color:#4d5567;font-size:.58rem;letter-spacing:2px;padding:12px 8px 5px;font-weight:800}.navfoot{margin-top:auto;border-top:1px solid var(--line);padding-top:10px}
+.content{position:relative;min-width:0;overflow:hidden}.page{position:absolute;inset:0;overflow:auto;padding:24px 26px 42px;display:none}.page.active{display:block}.page::-webkit-scrollbar{width:7px}.page::-webkit-scrollbar-thumb{background:#2a2e38;border-radius:7px}
+.hero{border:1px solid #292d39;border-radius:18px;background:linear-gradient(135deg,rgba(255,212,59,.07),rgba(49,214,255,.035) 45%,rgba(195,106,255,.045));padding:26px;box-shadow:var(--shadow);position:relative;overflow:hidden}.hero::after{content:"BEATBOX";position:absolute;right:-35px;bottom:-55px;font:700 8rem Teko;color:rgba(255,255,255,.025);transform:rotate(-8deg)}.eyebrow{color:var(--gold);font-size:.66rem;letter-spacing:3px;font-weight:800}.hero h2{font:700 3.5rem/.82 Teko;margin:10px 0 12px;max-width:850px;letter-spacing:1px}.hero p{max-width:720px;color:#9ca4b5;line-height:1.5;margin:0}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.btn{border:none;border-radius:8px;padding:11px 16px;background:#f2f4f7;color:#070709;font-weight:800;letter-spacing:1px;box-shadow:0 8px 24px rgba(255,255,255,.05)}.btn:hover{transform:translateY(-1px);background:var(--gold)}.btn.dark{background:#15171d;color:#eef1f5;border:1px solid #313641}.btn.red{background:var(--red);color:white}.btn.cyan{background:var(--cyan);color:#001018}.btn.green{background:var(--green);color:#001a0c}.btn.purple{background:var(--purple);color:#13001f}
+.grid{display:grid;gap:13px}.grid4{grid-template-columns:repeat(4,1fr)}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:repeat(2,1fr)}.metric{border:1px solid var(--line);background:linear-gradient(180deg,#11131a,#090a0e);padding:14px;border-radius:12px}.metric .label{color:var(--muted);font-size:.55rem;letter-spacing:2px;font-weight:800}.metric .value{font:600 2.1rem Teko;margin-top:6px}.metric .sub{font-size:.72rem;color:#7f8798}
+.section-title{display:flex;justify-content:space-between;align-items:end;margin:22px 0 10px}.section-title h3{font:600 2rem Teko;margin:0;letter-spacing:1px}.section-title span{font-size:.65rem;letter-spacing:2px;color:var(--muted)}
+.panel{border:1px solid var(--line);border-radius:14px;background:rgba(10,11,15,.88);padding:16px;box-shadow:0 12px 35px rgba(0,0,0,.24)}
+.pack-card{position:relative;min-height:220px;border:1px solid #2d313d;border-radius:14px;padding:17px;overflow:hidden;background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.09),transparent 34%),linear-gradient(145deg,#151821,#08090d);transition:.25s}.pack-card:hover{transform:translateY(-4px);border-color:#555b68;box-shadow:0 15px 40px rgba(0,0,0,.45)}.pack-card .big{font-size:3.2rem}.pack-card h4{font:600 2rem Teko;margin:8px 0 4px}.pack-card p{color:#8b93a3;font-size:.74rem;line-height:1.35;min-height:40px}.pack-meta{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:99px;background:#151821;border:1px solid #2a2e37;color:#bac1cf;font-size:.58rem;font-weight:800;letter-spacing:1px}.tag.gold{color:var(--gold);border-color:#4e431d}.tag.red{color:#ff8090;border-color:#542632}.tag.cyan{color:#80e9ff;border-color:#1d4852}.tag.green{color:#8ef0b2;border-color:#1d4830}
+.cardlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.mini-card{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#0d0f14;position:relative;cursor:pointer}.mini-card:hover{border-color:#636979;transform:translateY(-2px)}.mini-art{height:135px;background:#12151b;display:grid;place-items:center;position:relative;overflow:hidden}.mini-art img{width:100%;height:100%;object-fit:cover;display:block}.ph{font:700 3.3rem Teko;color:var(--gold);text-shadow:0 4px 30px rgba(255,212,59,.14)}.mini-info{padding:9px}.mini-name{font:600 1.2rem Teko;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-line{display:flex;justify-content:space-between;color:#8f97a8;font-size:.65rem}.mini-line strong{color:#fff}.rar{font-size:.58rem;letter-spacing:1px;font-weight:900}.badge{position:absolute;top:7px;left:7px;padding:3px 6px;border-radius:5px;font-size:.52rem;font-weight:900;letter-spacing:1px;background:#0a0b0eaa;border:1px solid #555}
+.searchbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}input,select{background:#0d0f14;border:1px solid #2d313b;color:#e9edf5;padding:10px 11px;border-radius:8px;outline:none}input:focus,select:focus{border-color:#716324}.grow{flex:1;min-width:180px}
+.battle-wrap{display:grid;grid-template-columns:1.35fr .65fr;gap:14px}.arena{min-height:440px;background:radial-gradient(circle at 50% 42%,rgba(255,61,90,.09),transparent 27%),linear-gradient(180deg,#0d0f15,#07080b);border:1px solid #2d313c;border-radius:16px;padding:18px;overflow:hidden;position:relative}.arena-top{display:flex;justify-content:space-between;color:#8e96a5;font-size:.62rem;letter-spacing:2px}.fighters{display:grid;grid-template-columns:1fr 110px 1fr;align-items:center;gap:10px;margin-top:45px}.fighter{text-align:center}.fighter-avatar{width:150px;height:150px;border-radius:18px;margin:0 auto 10px;border:1px solid #353a46;background:#11151b;display:grid;place-items:center;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.42)}.fighter-avatar img{width:100%;height:100%;object-fit:cover}.fighter h4{font:600 2rem Teko;margin:0}.fighter small{color:#8790a0}.versus{font:700 3rem Teko;color:var(--red);text-shadow:0 0 30px rgba(255,61,90,.45);text-align:center}.health{height:9px;background:#1a1d24;border:1px solid #2d3139;border-radius:10px;overflow:hidden;margin:9px auto;width:75%}.health span{display:block;height:100%;background:linear-gradient(90deg,var(--red),#ff9a72);width:100%;transition:.35s}.movebar{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:28px}.move{padding:11px 8px;border:1px solid #2b3039;border-radius:9px;background:#101218;color:#dfe4ec;font-weight:800;font-size:.7rem}.move:hover{border-color:var(--gold);color:var(--gold)}.battle-log{height:100%;max-height:410px;overflow:auto;display:flex;flex-direction:column;gap:7px}.log{border-left:2px solid #3b404b;background:#101217;padding:8px 9px;font-size:.69rem;color:#9fa7b7}.log.win{border-color:var(--green)}.log.loss{border-color:var(--red)}
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.team-slot{border:1px dashed #343a47;border-radius:10px;padding:10px;text-align:center;min-height:84px;background:#0e1015}.team-slot.filled{border-style:solid;border-color:#555d6d}.team-slot b{display:block;font:500 1.15rem Teko;margin-top:4px}.team-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.royale{display:grid;grid-template-columns:1fr 1fr;gap:14px}.royale-ring{width:320px;height:320px;margin:12px auto;border-radius:50%;border:10px solid #252a33;box-shadow:inset 0 0 70px rgba(255,61,90,.12),0 0 50px rgba(255,61,90,.08);display:grid;place-items:center;text-align:center;background:radial-gradient(circle,#11141a 0%,#08090c 65%)}.royale-ring .num{font:700 5rem Teko;color:#fff}.royale-ring small{color:#7e8798;letter-spacing:2px}.feed{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto}.feed-row{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:9px;background:#0d0f14}.feed-row .place{font:700 1.3rem Teko;color:var(--gold)}.feed-row small{display:block;color:#798195;font-size:.58rem}
+.rank-row{display:grid;grid-template-columns:45px 1.6fr .8fr .7fr .7fr;gap:7px;align-items:center;padding:10px;border-bottom:1px solid #1b1e25;font-size:.72rem}.rank-row.header{color:#697286;font-size:.56rem;letter-spacing:1px;font-weight:800}.rank-medal{font:700 1.2rem Teko;color:var(--gold)}.rank-name{font-weight:800}.elo{color:var(--cyan);font-weight:800}
+.progress{height:8px;border-radius:8px;background:#171920;overflow:hidden;border:1px solid #282d37}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--orange));width:0%;transition:.35s}
+.timeline{display:flex;gap:10px;overflow:auto;padding:5px 2px 12px}.stage-dot{min-width:150px;border:1px solid var(--line);border-radius:12px;padding:12px;background:#0d0f14}.stage-dot.active{border-color:var(--gold);box-shadow:0 0 25px rgba(255,212,59,.08)}.stage-dot b{font:600 1.4rem Teko}.stage-dot small{display:block;color:#798195}
+.achievement{display:flex;align-items:center;gap:11px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#0e1015}.achievement.done{border-color:#5d4f1c;background:linear-gradient(90deg,rgba(255,212,59,.08),#0e1015)}.achievement .ico{font-size:1.45rem}.achievement .txt{flex:1}.achievement b{display:block;font-size:.77rem}.achievement small{color:#748094;font-size:.61rem}.achievement .rew{color:var(--gold);font-size:.62rem;font-weight:800}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:80;display:none;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-box{width:min(780px,96vw);max-height:90vh;overflow:auto;background:#0c0e13;border:1px solid #343945;border-radius:16px;padding:18px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{font:600 2rem Teko;margin:0}.close{border:1px solid #323741;background:#101218;color:#fff;border-radius:8px;width:34px;height:34px}.modal-grid{display:grid;grid-template-columns:260px 1fr;gap:16px;margin-top:15px}.big-art{height:340px;border-radius:14px;overflow:hidden;background:#11151b;border:1px solid #343946;display:grid;place-items:center}.big-art img{width:100%;height:100%;object-fit:cover}.detail h4{font:600 3rem Teko;margin:0}.statbars{display:flex;flex-direction:column;gap:8px;margin-top:10px}.statbar{display:grid;grid-template-columns:34px 1fr 34px;gap:7px;align-items:center;font-size:.62rem;color:#777f91}.statbar i{height:7px;background:#181b22;border-radius:9px;overflow:hidden}.statbar i span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));width:50%}
+.toast-wrap{position:fixed;right:18px;top:92px;z-index:100;display:flex;flex-direction:column;gap:8px}.toast{background:#0d1015;border:1px solid #3a3f4a;border-left:3px solid var(--gold);border-radius:9px;padding:9px 12px;box-shadow:var(--shadow);min-width:220px;animation:tin .25s ease}.toast b{display:block;color:var(--gold);font-size:.62rem;letter-spacing:1px}.toast span{font-size:.75rem}@keyframes tin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.hidden{display:none!important}.muted{color:var(--muted)}.gold{color:var(--gold)}.cyan{color:var(--cyan)}.green{color:var(--green)}.redtxt{color:#ff7a89}.tiny{font-size:.58rem;color:#687185;letter-spacing:1px}
+@media(max-width:1050px){main{grid-template-columns:72px 1fr}nav .navlabel,nav .navgroup{display:none}.navbtn{justify-content:center}.battle-wrap,.royale{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){header{height:68px;padding:8px 10px}main{height:calc(100vh - 68px)}.brand h1{font-size:1.5rem}.brand p{display:none}.pill{min-width:55px;padding:5px 7px}.hud .pill:nth-child(1){display:none}nav{width:64px;padding:8px 6px}.page{padding:14px 12px 34px}.hero h2{font-size:2.7rem}.grid3,.grid4,.grid2{grid-template-columns:1fr}.fighters{grid-template-columns:1fr;gap:15px;margin-top:22px}.versus{font-size:2rem}.fighter-avatar{width:110px;height:110px}.movebar{grid-template-columns:repeat(2,1fr)}.modal-grid{grid-template-columns:1fr}.rank-row{grid-template-columns:34px 1fr .7fr}.rank-row > *:nth-child(4),.rank-row > *:nth-child(5){display:none}}
 </style>
 </head>
 <body>
+<div class="app">
+<header>
+  <div class="brand"><div class="brand-mark"><b>BBX</b></div><div><h1>BEATBOX LEGENDS</h1><p>LEGACY // GLOBAL CIRCUIT</p></div></div>
+  <div class="hud"><div class="pill"><small>LEVEL</small><strong id="hudLevel">1</strong></div><div class="pill"><small>ENERGY</small><strong id="hudEnergy">100</strong></div><div class="pill gold"><small>COINS</small><strong id="hudCoins">0</strong></div><div class="pill"><small>GEMS</small><strong id="hudGems">0</strong></div><button class="icon-btn" onclick="openModal('settingsModal')">⚙</button></div>
+</header>
+<main>
+<nav>
+  <div class="navgroup">GAME</div>
+  <button class="navbtn active" data-page="home">🏠<span class="navlabel">HOME</span></button>
+  <button class="navbtn" data-page="packs">📦<span class="navlabel">PACKS</span></button>
+  <button class="navbtn" data-page="battles">⚔<span class="navlabel">BATTLES</span></button>
+  <button class="navbtn" data-page="royale">☠<span class="navlabel">BATTLE ROYALE</span></button>
+  <button class="navbtn" data-page="draft">🃏<span class="navlabel">DRAFT</span></button>
+  <button class="navbtn" data-page="world">🌍<span class="navlabel">WORLD TOUR</span></button>
+  <div class="navgroup">META</div>
+  <button class="navbtn" data-page="rankings">🏆<span class="navlabel">LEADERBOARDS</span></button>
+  <button class="navbtn" data-page="collection">🗂<span class="navlabel">COLLECTION</span></button>
+  <button class="navbtn" data-page="gym">🥊<span class="navlabel">TRAINING LAB</span></button>
+  <button class="navbtn" data-page="quests">🎯<span class="navlabel">QUESTS</span></button>
+  <button class="navbtn" data-page="codex">📖<span class="navlabel">CODEX</span></button>
+  <div class="navfoot"><button class="navbtn" onclick="openModal('settingsModal')">🛠<span class="navlabel">SETTINGS</span></button></div>
+</nav>
+<div class="content">
+<section class="page active" id="page-home">
+  <div class="hero"><div class="eyebrow">THE GLOBAL BEATBOX CIRCUIT IS OPEN</div><h2>BUILD YOUR LEGACY.<br>BREAK THE META.</h2><p>Collect beatboxers, train your roster, conquer regional bosses, climb the Elo ladder and survive the sixteen-card Battle Royale. The old collection systems are still here — this is the full game around them.</p><div class="actions"><button class="btn" onclick="go('packs')">OPEN PACKS</button><button class="btn red" onclick="go('battles')">ENTER THE ARENA</button><button class="btn dark" onclick="go('royale')">BATTLE ROYALE</button></div></div>
+  <div class="grid grid4" style="margin-top:14px"><div class="metric"><div class="label">UNIQUE OWNED</div><div class="value" id="homeOwned">0</div><div class="sub" id="homeOwnedSub">0% complete</div></div><div class="metric"><div class="label">WORLD ELO</div><div class="value" id="homeElo">1000</div><div class="sub" id="homeRank">Unranked</div></div><div class="metric"><div class="label">WIN RATE</div><div class="value" id="homeWin">0%</div><div class="sub" id="homeRecord">0W / 0L</div></div><div class="metric"><div class="label">MASTERY XP</div><div class="value" id="homeXp">0</div><div class="sub" id="homeLevelSub">Level 1</div></div></div>
+  <div class="section-title"><h3>RECENT FORM</h3><span id="homeStreak">DAILY STREAK 0</span></div>
+  <div class="grid grid3"><div class="panel"><div class="tiny">LEGENDARY PITY</div><div style="font:600 2.2rem Teko;margin:4px 0" id="homePity">0 / 40</div><div class="progress"><span id="homePityBar"></span></div></div><div class="panel"><div class="tiny">BEST PULL</div><div style="font:600 1.9rem Teko;margin:4px 0" id="homeBest">—</div><div class="muted" id="homeBestSub">Nothing yet.</div></div><div class="panel"><div class="tiny">DAILY QUEST</div><div style="font:600 1.9rem Teko;margin:4px 0" id="homeQuest">—</div><div class="muted" id="homeQuestSub">Visit the quests tab.</div></div></div>
+  <div class="section-title"><h3>SPOTLIGHT</h3><span>TOP CARDS</span></div><div id="homeSpotlight" class="cardlist"></div>
+</section>
 
-    <!-- AUDIO SOURCE - AUTO PLAY ON DOG PACK -->
-    <audio id="dogAudio" src="1st take freestyle.mp3"></audio>
+<section class="page" id="page-packs"><div class="hero"><div class="eyebrow">PACK LAB</div><h2>OPEN SOMETHING DANGEROUS.</h2><p>Every pack is built around a different pool, mechanic or guaranteed reward. Some are free. Some are expensive. Some are absolutely stupid.</p></div><div class="section-title"><h3>PACK CATALOGUE</h3><span id="packCycleLabel">LIVE ROTATION</span></div><div class="grid grid3" id="packGrid"></div></section>
 
-    <header>
-        <div class="brand">
-            <h1>BEATBOX LEGENDS</h1>
-            <div class="subtitle">LEGACY COLLECTION</div>
-        </div>
-        <div class="stats-bar">
-            <div class="stat-pill">
-                <span>OPENED</span>
-                <div id="totalOpenedDisplay" style="color:var(--text-main); font-size:1.2rem;">0</div>
-            </div>
-            <div class="stat-pill coin-pill" onclick="toggleShop()" title="Coin Shop">
-                <span>COINS</span>
-                <div id="coinDisplay" style="color:var(--gold); font-size:1.2rem;">🪙 0</div>
-            </div>
-            <button class="settings-btn" onclick="toggleStats()" title="Stats">📊</button>
-            <button class="settings-btn" onclick="toggleAchievements()" title="Achievements">🏆</button>
-            <button class="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
-        </div>
-    </header>
+<section class="page" id="page-battles"><div class="battle-wrap"><div class="arena"><div class="arena-top"><span>RANKED // 1V1</span><span id="battleTurn">READY</span></div><div class="fighters"><div class="fighter"><div class="fighter-avatar" id="playerAvatar"></div><h4 id="playerName">YOUR FIGHTER</h4><small id="playerMeta">Choose a card</small><div class="health"><span id="hpPlayer"></span></div></div><div class="versus">VS</div><div class="fighter"><div class="fighter-avatar" id="enemyAvatar"></div><h4 id="enemyName">OPPONENT</h4><small id="enemyMeta">Roll a matchup</small><div class="health"><span id="hpEnemy"></span></div></div></div><div class="movebar"><button class="move" onclick="battleMove('attack')">🥊 ATTACK</button><button class="move" onclick="battleMove('guard')">🛡 GUARD</button><button class="move" onclick="battleMove('signature')">⚡ SIGNATURE</button><button class="move" onclick="battleMove('hype')">🔥 HYPE</button></div><div class="actions"><button class="btn dark" onclick="newRankedBattle()">FIND OPPONENT</button><button class="btn green" onclick="autoBestBattle()">AUTO FIGHT</button></div><div id="battleStatus" class="panel" style="margin-top:12px">Find an opponent to start.</div></div><div class="panel"><div class="section-title" style="margin-top:0"><h3>BATTLE LOG</h3><span id="recordLabel">0W / 0L</span></div><div id="battleLog" class="battle-log"></div></div></div><div class="section-title"><h3>TEAM BUILDER</h3><span>3 CARD SQUAD</span></div><div class="panel"><div id="teamSlots" class="team"></div><div class="team-actions"><button class="btn" onclick="setBestTeam()">SET BEST TEAM</button><button class="btn dark" onclick="clearTeam()">CLEAR</button><button class="btn cyan" onclick="go('collection')">CHOOSE CARDS</button></div></div></section>
 
-    <nav class="nav-tabs" id="navTabs">
-        <button class="nav-tab active" data-section="home">HOME</button>
-        <button class="nav-tab" data-section="packs">PACKS</button>
-        <button class="nav-tab" data-section="battles">BATTLES</button>
-        <button class="nav-tab" data-section="challenges">CHALLENGES</button>
-        <button class="nav-tab" data-section="rankings">RANKINGS</button>
-        <button class="nav-tab" data-section="collection">COLLECTION</button>
-    </nav>
+<section class="page" id="page-royale"><div class="royale"><div class="panel"><div class="section-title" style="margin-top:0"><h3>BATTLE ROYALE</h3><span>16 ENTER // 1 SURVIVES</span></div><div class="royale-ring"><div><div class="num" id="royaleCount">16</div><small>FIGHTERS REMAIN</small></div></div><div id="royaleStatus" class="panel">Pick your champion and start the bracket.</div><div class="actions"><button class="btn red" onclick="startRoyale()">START ROYALE</button><button class="btn dark" onclick="royaleNextRound()">NEXT ROUND</button></div></div><div class="panel"><div class="section-title" style="margin-top:0"><h3>BRACKET FEED</h3><span>LIVE</span></div><div id="royaleFeed" class="feed"></div></div></div></section>
 
-    <div id="page-home" class="section-page active">
-        <div class="hero-panel"><div class="kicker">WELCOME TO THE UNDERGROUND</div><h2>BUILD THE ULTIMATE BEATBOX LEGACY.</h2><p>Collect legends, chase rarities, build a battle squad and unlock weirdly addictive packs. Your progress is stored locally in this browser.</p><div class="hero-actions"><button class="btn" onclick="switchSection('packs');openPackType('starter')">OPEN A PACK</button><button class="btn btn-red" onclick="switchSection('battles')">ENTER BATTLES</button></div></div>
-        <div class="metric-grid" id="homeMetrics"></div>
-        <div class="event-strip"><div class="event-card"><div class="kicker">LIVE EVENT</div><div class="big">LEGACY LADDER</div><small>Win simulated battles for bonus coins.</small></div><div class="event-card"><div class="kicker">DAILY</div><div class="big" id="homeStreak">0🔥</div><small>Current streak</small></div><div class="event-card"><div class="kicker">PITY</div><div class="big" id="homePity">0/40</div><small>Next legendary guarantee</small></div></div>
-    </div>
-    <div id="page-packs" class="section-page"><div class="pack-catalog" id="packCatalog"></div></div>
-    <div id="page-battles" class="section-page"><div class="battle-layout"><div class="panel"><div class="panel-title">⚔ LEGACY BATTLES</div><div class="matchup" id="matchup"></div><div class="battle-controls"><button class="btn" onclick="startBattle()">ROLL MATCHUP</button><button class="toggle-btn" onclick="useBestTeam()">USE BEST TEAM</button></div><div class="battle-result" id="battleResult">Roll a matchup to begin.</div></div><div class="panel"><div class="panel-title">BATTLE LOG</div><div class="battle-log" id="battleLog"></div></div></div></div>
-    <div id="page-challenges" class="section-page"><div class="challenge-grid" id="challengeGrid"></div></div>
-    <div id="page-rankings" class="section-page"><div class="rank-table" id="rankTable"></div></div>
-    <div id="page-collection" class="section-page"><div class="collection-full"><div class="inventory"><div class="inv-header"><div class="inv-title">COLLECTION <span id="clubCountFull" style="color:var(--text-muted);margin-left:5px;">(0)</span></div><div class="inv-toggles"><input type="text" id="searchBoxFull" class="search-box" placeholder="Search..." oninput="renderFullCollection()"><button class="toggle-btn active" id="fullOwned" onclick="setFullView('owned')">OWNED</button><button class="toggle-btn" id="fullIndex" onclick="setFullView('all')">INDEX</button></div></div><div class="rarity-chips" id="rarityChipsFull"></div><div class="inv-scroll" id="invListFull"></div></div></div></div>
+<section class="page" id="page-draft"><div class="hero"><div class="eyebrow">DRAFT ARENA</div><h2>BUILD A SQUAD FROM SCRATCH.</h2><p>Draft from random offers. No ownership required. Three picks become your temporary battle team. Win the run and earn premium rewards.</p><div class="actions"><button class="btn purple" onclick="startDraft()">START NEW DRAFT</button></div></div><div class="section-title"><h3>AVAILABLE PICKS</h3><span id="draftRound">ROUND 0 / 3</span></div><div id="draftOffers" class="grid grid3"></div><div class="section-title"><h3>YOUR DRAFT</h3><span>3 PICKS</span></div><div id="draftTeam" class="cardlist"></div><div id="draftResult" class="panel">Start a draft to receive offers.</div></section>
 
-    <div class="stage">
-        <div class="pity-wrap">
-            <div class="pity-label">LEGENDARY PITY <span id="pityCount">0</span>/40</div>
-            <div class="pity-track"><div class="pity-fill" id="pityFill"></div></div>
-        </div>
-        <div class="pack-row">
-            <!-- 1 Card Pack (Always Unlocked) -->
-            <div class="pack" onclick="openPack(1)">
-                <div class="pack-inner">
-                    <div class="pack-icon">👤</div>
-                    <div class="pack-title">SOLO</div>
-                    <div class="pack-sub">1 CARD</div>
-                </div>
-            </div>
+<section class="page" id="page-world"><div class="hero"><div class="eyebrow">WORLD TOUR // 8 REGIONS</div><h2>TAKE YOUR ROSTER WORLDWIDE.</h2><p>Every region contains five fights and a boss. Bosses use weighted cards, special rules and bonus rewards. Clear the circuit to unlock the final LEGEND GAUNTLET.</p></div><div class="timeline" id="worldTimeline"></div><div class="section-title"><h3>REGION PROGRESS</h3><span id="worldProgressText">0 / 40 WINS</span></div><div id="worldCards" class="grid grid3"></div></section>
 
-            <!-- 3 Card Pack (Unlock @ 10) -->
-            <div class="pack" id="pack3" onclick="openPack(3)">
-                <div class="lock-overlay">
-                    <div style="font-size:2rem; margin-bottom:5px;">🔒</div>
-                    <div class="lock-msg">OPEN 10 CARDS</div>
-                </div>
-                <div class="pack-inner">
-                    <div class="pack-icon">💠</div>
-                    <div class="pack-title">TRIPLE</div>
-                    <div class="pack-sub">3 CARDS</div>
-                </div>
-            </div>
+<section class="page" id="page-rankings"><div class="hero"><div class="eyebrow">GLOBAL LADDER</div><h2>THE NUMBERS DON'T LIE.</h2><p>Your ranked Elo is local to this game, while the seeded World board is built from public beatbox competition profiles and ranking sources. Newly added card ratings are subjective game ratings; your live battle Elo starts at 1000.</p></div><div class="section-title"><h3>GLOBAL TOP 100</h3><span>SEEDED + LOCAL</span></div><div class="panel"><div class="rank-row header"><div>#</div><div>BEATBOXER</div><div>RATING</div><div>RARITY</div><div>OWNED</div></div><div id="rankTable"></div></div><div class="section-title"><h3>YOUR CAREER</h3><span>LIVE</span></div><div class="grid grid4" id="careerMetrics"></div></section>
 
-            <!-- 5 Card Pack (Unlock @ 25) -->
-            <div class="pack" id="pack5" onclick="openPack(5)" style="border-color: var(--gold); box-shadow:var(--glow-gold);">
-                <div class="lock-overlay">
-                    <div style="font-size:2rem; margin-bottom:5px;">🔒</div>
-                    <div class="lock-msg">OPEN 25 CARDS</div>
-                </div>
-                <div class="pack-inner">
-                    <div class="pack-icon" style="color:var(--gold)">🔥</div>
-                    <div class="pack-title" style="color:var(--gold)">MEGA</div>
-                    <div class="pack-sub">5 CARDS</div>
-                </div>
-            </div>
+<section class="page" id="page-collection"><div class="hero"><div class="eyebrow">THE CODEX OF HUMAN PERCUSSION</div><h2>EVERY CARD COUNTS.</h2><p>The original 50 cards stay exactly as you had them; this version adds a much larger global roster around them and keeps the collection searchable, sortable, filterable and inspectable.</p></div><div class="section-title"><h3>COLLECTION</h3><span id="collectionCount">0 / 0</span></div><div class="searchbar"><input id="collectionSearch" class="grow" placeholder="Search beatboxer, type or country..." oninput="renderCollection()"><select id="collectionRarity" onchange="renderCollection()"><option value="all">ALL RARITIES</option></select><select id="collectionSort" onchange="renderCollection()"><option value="rating">RATING</option><option value="name">NAME</option><option value="rarity">RARITY</option></select><button class="btn dark" onclick="toggleOwnedOnly()" id="ownedOnlyBtn">OWNED ONLY</button></div><div id="collectionGrid" class="cardlist"></div></section>
 
-            <!-- Coin Vault Pack (Guaranteed Epic+) -->
-            <div class="pack" id="packVault" onclick="openVaultPack()" style="border-color: var(--c-epic);">
-                <div class="lock-overlay">
-                    <div style="font-size:2rem; margin-bottom:5px;">🪙</div>
-                    <div class="lock-msg">250 COINS</div>
-                </div>
-                <div class="pack-inner">
-                    <div class="pack-icon" style="color:var(--c-epic)">💎</div>
-                    <div class="pack-title" style="color:var(--c-epic)">VAULT</div>
-                    <div class="pack-sub">EPIC+ GUARANTEED</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="page" id="page-gym"><div class="hero"><div class="eyebrow">TRAINING LAB // MASTERY</div><h2>TURN GOOD CARDS INTO MONSTERS.</h2><p>Every owned beatboxer has persistent mastery XP. Level them up, boost one of four stats and unlock a passive based on their archetype.</p></div><div class="section-title"><h3>YOUR TRAINING ROSTER</h3><span>SELECT A CARD</span></div><div id="gymGrid" class="cardlist"></div></section>
 
-    <div id="scanner"><div class="scan-beam"></div></div>
+<section class="page" id="page-quests"><div class="hero"><div class="eyebrow">DAILY / WEEKLY / LIFETIME</div><h2>ALWAYS ANOTHER REASON TO PLAY.</h2><p>Quest rewards feed your pack economy, progression and Battle Royale tickets. Daily quests rotate automatically.</p></div><div class="section-title"><h3>QUEST BOARD</h3><span id="questReset">RESET DAILY</span></div><div id="questGrid" class="grid grid2"></div><div class="section-title"><h3>ACHIEVEMENTS</h3><span id="achievementCount">0 / 0</span></div><div id="achievementGrid" class="grid grid2"></div></section>
 
-    <div class="overlay" id="overlay">
-        <div class="pack-results" id="resultsArea"></div>
-        <button class="btn" id="closeBtn" onclick="closeOverlay()">COLLECT ALL</button>
-    </div>
+<section class="page" id="page-codex"><div class="hero"><div class="eyebrow">BEATBOX LORE // TECHNIQUES // RECORDS</div><h2>THE WEIRD STUFF.</h2><p>Unlock lore entries by collecting rarities, winning battles and defeating world bosses. This is the part where the game gets unnecessarily deep.</p></div><div class="grid grid3" id="codexGrid"></div></section>
+</div></main></div>
 
-    <div id="settingsModal">
-        <div class="modal-box">
-            <div class="modal-title">SETTINGS</div>
-            <div class="vol-row">
-                <label for="volSlider">SFX VOLUME</label>
-                <input type="range" id="volSlider" min="0" max="100" value="70" oninput="setVolume(this.value)">
-            </div>
-            <button class="toggle-btn setting-btn" id="muteBtn" onclick="toggleMute()" style="width:100%;">🔊 SOUND ON</button>
-            <button class="btn btn-red setting-btn" onclick="resetProgress()">RESET PROGRESS</button>
-            <button class="btn setting-btn" onclick="toggleSettings()">CLOSE</button>
-        </div>
-    </div>
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="modal" id="cardModal"><div class="modal-box"><div class="modal-head"><h3 id="modalCardTitle">CARD</h3><button class="close" onclick="closeModal('cardModal')">×</button></div><div class="modal-grid"><div class="big-art" id="modalArt"></div><div class="detail" id="modalDetail"></div></div></div></div>
+<div class="modal" id="settingsModal"><div class="modal-box"><div class="modal-head"><h3>SETTINGS</h3><button class="close" onclick="closeModal('settingsModal')">×</button></div><div class="grid grid2" style="margin-top:15px"><div class="panel"><b>Sound</b><p class="muted">Simple browser SFX are generated locally.</p><button class="btn dark" onclick="toggleMute()" id="muteBtn">SOUND ON</button></div><div class="panel"><b>Profile</b><p class="muted">Export your progress as JSON or restore it later.</p><div class="actions"><button class="btn" onclick="exportSave()">EXPORT</button><button class="btn dark" onclick="importSave()">IMPORT</button></div></div></div><div class="panel" style="margin-top:12px"><b>Danger Zone</b><p class="muted">This permanently clears local progression.</p><button class="btn red" onclick="resetAll()">RESET EVERYTHING</button></div></div></div>
+<div class="modal" id="packModal"><div class="modal-box"><div class="modal-head"><h3 id="packModalTitle">PACK OPENING</h3><button class="close" onclick="closeModal('packModal')">×</button></div><div id="packResults" class="cardlist" style="margin-top:14px"></div></div></div>
 
-    <div id="statsModal">
-        <div class="modal-box modal-wide">
-            <div class="modal-title">PROFILE STATS</div>
-            <div class="stats-grid" id="statsGrid"></div>
-            <div class="modal-title" style="font-size:1.4rem; margin-top:20px;">RARITY BREAKDOWN</div>
-            <div id="rarityBars" class="rarity-bars"></div>
-            <button class="btn setting-btn" onclick="toggleStats()">CLOSE</button>
-        </div>
-    </div>
-
-    <div id="achModal">
-        <div class="modal-box modal-wide">
-            <div class="modal-title">ACHIEVEMENTS</div>
-            <div id="achList" class="ach-list"></div>
-            <button class="btn setting-btn" onclick="toggleAchievements()">CLOSE</button>
-        </div>
-    </div>
-
-    <div id="shopModal">
-        <div class="modal-box">
-            <div class="modal-title">🪙 COIN VAULT</div>
-            <div class="lock-msg" style="margin-bottom:15px;">Sell duplicate cards for coins, then spend them on a guaranteed Epic+ VAULT pack. Open a card in your collection and hit SELL DUPLICATE.</div>
-            <div class="modal-title" style="font-size:1.4rem;">BALANCE: <span id="shopCoinDisplay" style="color:var(--gold)">0</span></div>
-            <button class="btn setting-btn" onclick="openVaultPack()">OPEN VAULT PACK (250)</button>
-            <button class="btn setting-btn" onclick="toggleShop()">CLOSE</button>
-        </div>
-    </div>
-
-    <canvas id="confettiCanvas"></canvas>
-    <div id="toastContainer"></div>
-
-    <div class="inventory">
-        <div class="inv-header">
-            <div class="inv-title">COLLECTION <span id="clubCount" style="color:var(--text-muted); margin-left:5px;">(0)</span></div>
-            <div class="inv-toggles">
-                <input type="text" id="searchBox" class="search-box" placeholder="Search..." oninput="updateInv()">
-                <select id="sortSelect" class="sort-select" onchange="updateInv()">
-                    <option value="rating">RATING</option>
-                    <option value="name">NAME</option>
-                    <option value="rarity">RARITY</option>
-                    <option value="country">COUNTRY</option>
-                </select>
-                <button class="toggle-btn" id="btnFav" onclick="toggleFavFilter()">★ FAVS</button>
-                <button class="toggle-btn active" id="btnOwned" onclick="setView('owned')">OWNED</button>
-                <button class="toggle-btn" id="btnIndex" onclick="setView('all')">INDEX</button>
-            </div>
-        </div>
-        <div class="rarity-chips" id="rarityChips"></div>
-        <div class="inv-scroll" id="invList"></div>
-    </div>
-
+<audio id="dogAudio" src="1st take freestyle.mp3"></audio>
 <script>
-    // --- OPTIMIZED SOUND ENGINE ---
-    const SoundFX = {
-        ctx: null,
-        init: function() {
-            if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            if(this.ctx.state === 'suspended') this.ctx.resume();
-        },
-        play: function(type) {
-            if(!this.ctx) this.init();
-            const t = this.ctx.currentTime;
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-
-            if (type === 'click') {
-                osc.frequency.setValueAtTime(600, t);
-                gain.gain.setValueAtTime(0.05, t);
-                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-                osc.start(t);
-                osc.stop(t + 0.1);
-            } else if (type === 'charge') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(100, t);
-                osc.frequency.exponentialRampToValueAtTime(800, t + 0.5);
-                gain.gain.setValueAtTime(0.05, t);
-                gain.gain.linearRampToValueAtTime(0.2, t + 0.4);
-                gain.gain.linearRampToValueAtTime(0, t + 0.5);
-                osc.start(t);
-                osc.stop(t + 0.5);
-            } else if (type === 'burst') {
-                const bSize = this.ctx.sampleRate * 0.5;
-                const b = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
-                const d = b.getChannelData(0);
-                for(let i=0;i<bSize;i++) d[i] = Math.random() * 2 - 1;
-                const src = this.ctx.createBufferSource();
-                src.buffer = b;
-                const filt = this.ctx.createBiquadFilter();
-                filt.type = 'lowpass';
-                filt.frequency.value = 800;
-                src.connect(filt);
-                filt.connect(gain);
-                gain.connect(this.ctx.destination);
-                gain.gain.setValueAtTime(0.4, t);
-                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
-                src.start(t);
-            } else if (type === 'reveal') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(200, t);
-                osc.frequency.exponentialRampToValueAtTime(600, t + 0.15);
-                gain.gain.setValueAtTime(0.1, t);
-                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-                osc.start(t);
-                osc.stop(t + 0.2);
-            }
-        }
-    };
-
-    /* --- DATABASE --- */
-    const db = [
+// ===== EXISTING DATABASE: RATINGS PRESERVED EXACTLY =====
+const db = [
         { name: "DOG", rating: 99, country: "🇬🇧", rarity: "legendary", type: "HYBRID", t:98, m:98, o:97, p:98, img: "dog.png" }, 
         { name: "NaPoM", rating: 97, country: "🇺🇸", rarity: "legendary", type: "TITAN", t:98, m:92, o:96, p:98, img: "8xM9yU8IqfE" },
         { name: "D-Low", rating: 98, country: "🇬🇧", rarity: "legendary", type: "CHAMP", t:98, m:93, o:97, p:96, img: "17kJpT9sibM" },
@@ -909,601 +150,362 @@
         { name: "Zekka", rating: 91, country: "🇪🇸", rarity: "epic", type: "FAST", t:94, m:88, o:89, p:92, img: "https://img.youtube.com/vi/v6xaojfDj20/maxresdefault.jpg" },
         { name: "Vocodah", rating: 90, country: "🇺🇸", rarity: "discord-gem", type: "BASS", t:94, m:81, o:95, p:96, img: "https://static.wixstatic.com/media/8e1a68_eb71e9054341472b9c08a76ba3faa299~mv2.png/v1/fill/w_2500%2Ch_1761%2Cal_c/8e1a68_eb71e9054341472b9c08a76ba3faa299~mv2.png" }
     ];
+// ===== GLOBAL EXPANSION DATABASE =====
+const dbExpansion = [
+        { name: "PACMax", rating: 99, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "legendary", type: "TITAN", t:99, m:99, o:99, p:99, img: null },
+        { name: "Alexinho", rating: 98, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "legendary", type: "CLEAN", t:99, m:98, o:98, p:97, img: null },
+        { name: "B-Art", rating: 97, country: "\ud83c\uddf3\ud83c\uddf1", rarity: "legendary", type: "POWER", t:96, m:97, o:96, p:98, img: null },
+        { name: "Efaybee", rating: 96, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "legendary", type: "FLOW", t:95, m:97, o:96, p:95, img: null },
+        { name: "Eon", rating: 95, country: "\ud83c\udde6\ud83c\uddf9", rarity: "legendary", type: "TECH", t:96, m:94, o:95, p:94, img: null },
+        { name: "Slizzer", rating: 94, country: "\ud83c\uddf1\ud83c\uddfa", rarity: "legendary", type: "FLOW", t:93, m:95, o:94, p:93, img: null },
+        { name: "Geo Popoff", rating: 95, country: "\ud83c\udde6\ud83c\uddf9", rarity: "legendary", type: "BASS", t:95, m:95, o:94, p:95, img: null },
+        { name: "Epock", rating: 94, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "legendary", type: "SHOW", t:93, m:94, o:95, p:93, img: null },
+        { name: "Supernova", rating: 94, country: "\ud83c\udde7\ud83c\uddea", rarity: "legendary", type: "POWER", t:93, m:94, o:93, p:95, img: null },
+        { name: "Kenny Urban", rating: 93, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "legendary", type: "FLOW", t:92, m:94, o:93, p:92, img: null },
+        { name: "Blackroll", rating: 94, country: "\ud83c\udde8\ud83c\udded", rarity: "loop-master", type: "LOOP", t:93, m:95, o:93, p:94, img: null },
+        { name: "Kaji", rating: 94, country: "\ud83c\uddef\ud83c\uddf5", rarity: "loop-master", type: "LOOP", t:93, m:95, o:93, p:94, img: null },
+        { name: "GEN", rating: 95, country: "\ud83c\uddef\ud83c\uddf5", rarity: "legendary", type: "FAST", t:97, m:94, o:94, p:95, img: null },
+        { name: "WinG", rating: 96, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "legendary", type: "FLOW", t:95, m:97, o:96, p:95, img: null },
+        { name: "H-has", rating: 93, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "legendary", type: "AGGRO", t:92, m:92, o:93, p:95, img: null },
+        { name: "Mighty", rating: 92, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "epic", type: "POWER", t:91, m:92, o:91, p:93, img: null },
+        { name: "Steady", rating: 91, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "epic", type: "TECH", t:92, m:90, o:91, p:90, img: null },
+        { name: "Cloud", rating: 90, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "epic", type: "CLEAN", t:91, m:90, o:90, p:89, img: null },
+        { name: "Chills", rating: 90, country: "\ud83c\udde6\ud83c\uddfa", rarity: "epic", type: "FLOW", t:89, m:91, o:90, p:89, img: null },
+        { name: "Match", rating: 90, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "BASS", t:90, m:90, o:89, p:90, img: null },
+        { name: "Azel", rating: 92, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "TECH", t:93, m:91, o:92, p:91, img: null },
+        { name: "BeatMeda", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "FLOW", t:87, m:89, o:88, p:87, img: null },
+        { name: "Calexy", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "UNIQUE", t:89, m:87, o:89, p:87, img: null },
+        { name: "ABX", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "POWER", t:87, m:88, o:87, p:89, img: null },
+        { name: "ADEL", rating: 87, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "FAST", t:89, m:86, o:86, p:87, img: null },
+        { name: "Aaron", rating: 86, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Amit", rating: 84, country: "\ud83c\uddee\ud83c\uddf3", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Artsy", rating: 88, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "SHOW", t:87, m:88, o:89, p:87, img: null },
+        { name: "AW0KE", rating: 87, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "BASS", t:87, m:87, o:86, p:87, img: null },
+        { name: "A-C3LL", rating: 86, country: "\ud83c\udde8\ud83c\udde6", rarity: "uk-scene", type: "TECH", t:87, m:85, o:86, p:85, img: null },
+        { name: "AZZR", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "GLITCH", t:88, m:85, o:86, p:85, img: null },
+        { name: "AFQ", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Babeli", rating: 92, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "TECH", t:93, m:91, o:92, p:91, img: null },
+        { name: "Balance", rating: 88, country: "\ud83c\uddf3\ud83c\uddf1", rarity: "epic", type: "FLOW", t:87, m:89, o:88, p:87, img: null },
+        { name: "Balistix", rating: 90, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "POWER", t:89, m:90, o:89, p:91, img: null },
+        { name: "Beatness", rating: 89, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "SHOW", t:88, m:89, o:90, p:88, img: null },
+        { name: "Bee Low", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "BASS", t:88, m:88, o:87, p:88, img: null },
+        { name: "Bellatrix", rating: 87, country: "\ud83c\udde7\ud83c\uddea", rarity: "epic", type: "FLOW", t:86, m:88, o:87, p:86, img: null },
+        { name: "Big Ben", rating: 86, country: "\ud83c\udde7\ud83c\uddea", rarity: "uk-scene", type: "POWER", t:85, m:86, o:85, p:87, img: null },
+        { name: "BIGG", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "AGGRO", t:83, m:83, o:84, p:86, img: null },
+        { name: "Bigman", rating: 86, country: "\ud83c\uddec\ud83c\udde7", rarity: "uk-scene", type: "POWER", t:85, m:86, o:85, p:87, img: null },
+        { name: "BigRoad", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "BigSquid", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "UNIQUE", t:84, m:82, o:84, p:82, img: null },
+        { name: "Camero", rating: 85, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:84, m:86, o:85, p:84, img: null },
+        { name: "Chiwawa", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "SHOW", t:87, m:88, o:89, p:87, img: null },
+        { name: "Chris Celiz", rating: 87, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "FLOW", t:86, m:88, o:87, p:86, img: null },
+        { name: "Demellow", rating: 86, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:86, m:86, o:85, p:86, img: null },
+        { name: "CJ", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Dudz", rating: 87, country: "\ud83c\udde8\ud83c\udde6", rarity: "epic", type: "AGGRO", t:86, m:86, o:87, p:89, img: null },
+        { name: "Doobsama", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "UNIQUE", t:85, m:83, o:85, p:83, img: null },
+        { name: "CLR", rating: 85, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:86, m:84, o:85, p:84, img: null },
+        { name: "Derrick", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "POWER", t:81, m:82, o:81, p:83, img: null },
+        { name: "Clutch", rating: 83, country: "\ud83c\udde8\ud83c\udde6", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "Cobli", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:87, m:85, o:86, p:85, img: null },
+        { name: "Den", rating: 90, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "TECH", t:91, m:89, o:90, p:89, img: null },
+        { name: "Codfish", rating: 96, country: "\ud83c\uddf5\ud83c\uddf9", rarity: "legendary", type: "FLOW", t:95, m:97, o:96, p:95, img: null },
+        { name: "DMN'BASS", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "BASS", t:86, m:86, o:85, p:86, img: null },
+        { name: "Andre Gibson", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "POWER", t:83, m:84, o:83, p:85, img: null },
+        { name: "Ball-Zee", rating: 94, country: "\ud83c\uddec\ud83c\udde7", rarity: "legendary", type: "POWER", t:93, m:94, o:93, p:95, img: null },
+        { name: "Dimus", rating: 83, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "Blayou", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Bass", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "BASS", t:82, m:82, o:81, p:82, img: null },
+        { name: "Dewaabi", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Ale", rating: 81, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:80, m:82, o:81, p:80, img: null },
+        { name: "Blaz", rating: 87, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "POWER", t:86, m:87, o:86, p:88, img: null },
+        { name: "Conundrum", rating: 86, country: "\ud83c\uddec\ud83c\udde7", rarity: "uk-scene", type: "UNIQUE", t:87, m:85, o:87, p:85, img: null },
+        { name: "Dismay", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "AGGRO", t:83, m:83, o:84, p:86, img: null },
+        { name: "Bloomer", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "BassBro", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:83, m:83, o:82, p:83, img: null },
+        { name: "Cosmin", rating: 84, country: "\ud83c\uddf7\ud83c\uddf4", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Davidd", rating: 84, country: "\ud83c\udde8\ud83c\udded", rarity: "uk-scene", type: "SHOW", t:83, m:84, o:85, p:83, img: null },
+        { name: "Acar", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "Bly Crepsley", rating: 85, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "UNIQUE", t:86, m:84, o:86, p:84, img: null },
+        { name: "Bataco", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "POWER", t:87, m:88, o:87, p:89, img: null },
+        { name: "Crkzu", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "FLOW", t:87, m:89, o:88, p:87, img: null },
+        { name: "DannyCahya", rating: 89, country: "\ud83c\uddee\ud83c\udde9", rarity: "epic", type: "TECH", t:90, m:88, o:89, p:88, img: null },
+        { name: "Afra", rating: 82, country: "\ud83c\uddee\ud83c\udde9", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "BMG", rating: 84, country: "\ud83c\udde9\ud83c\uddea", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "Battery", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "POWER", t:85, m:86, o:85, p:87, img: null },
+        { name: "Crythix", rating: 90, country: "\ud83c\udde9\ud83c\uddf0", rarity: "epic", type: "TECH", t:91, m:89, o:90, p:89, img: null },
+        { name: "Des", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "AH Xin", rating: 86, country: "\ud83c\udde8\ud83c\uddf3", rarity: "uk-scene", type: "TECH", t:87, m:85, o:86, p:85, img: null },
+        { name: "Bookie Blanco", rating: 91, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "FLOW", t:90, m:92, o:91, p:90, img: null },
+        { name: "Barras", rating: 81, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "POWER", t:80, m:81, o:80, p:82, img: null },
+        { name: "Cubito", rating: 83, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "LOOP", t:82, m:84, o:82, p:83, img: null },
+        { name: "Desconocido", rating: 86, country: "\ud83c\uddea\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Akinde", rating: 80, country: "\ud83c\uddf3\ud83c\uddec", rarity: "uk-scene", type: "POWER", t:79, m:80, o:79, p:81, img: null },
+        { name: "Albo", rating: 81, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:80, m:82, o:81, p:80, img: null },
+        { name: "Angeluz", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "SHOW", t:83, m:84, o:85, p:83, img: null },
+        { name: "Astron", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Bozz", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "BASS", t:82, m:82, o:81, p:82, img: null },
+        { name: "BBK", rating: 83, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "CDenio", rating: 86, country: "\ud83c\uddea\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:87, m:85, o:86, p:85, img: null },
+        { name: "BP", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "POWER", t:81, m:82, o:81, p:83, img: null },
+        { name: "Beardyman", rating: 96, country: "\ud83c\uddec\ud83c\udde7", rarity: "legendary", type: "LOOP", t:95, m:97, o:95, p:96, img: null },
+        { name: "CTB", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "Daichi", rating: 94, country: "\ud83c\uddef\ud83c\uddf5", rarity: "legendary", type: "POWER", t:93, m:94, o:93, p:95, img: null },
+        { name: "Beasty", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "Beat Rhino", rating: 85, country: "\ud83c\udde8\ud83c\udded", rarity: "uk-scene", type: "BASS", t:85, m:85, o:84, p:85, img: null },
+        { name: "C-Fresh", rating: 86, country: "\ud83c\udde6\ud83c\uddfa", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Coldness", rating: 85, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:86, m:84, o:85, p:84, img: null },
+        { name: "Cheese", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "UNIQUE", t:83, m:81, o:83, p:81, img: null },
+        { name: "Dharni", rating: 93, country: "\ud83c\uddf8\ud83c\uddec", rarity: "legendary", type: "SHOW", t:92, m:93, o:94, p:92, img: null },
+        { name: "Cimax", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "D-Low Jr", rating: 86, country: "\ud83c\uddec\ud83c\udde7", rarity: "uk-scene", type: "TECH", t:87, m:85, o:86, p:85, img: null },
+        { name: "Dilip", rating: 85, country: "\ud83c\uddee\ud83c\uddf3", rarity: "uk-scene", type: "FAST", t:87, m:84, o:84, p:85, img: null },
+        { name: "Fenetix", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "FLOW", t:87, m:89, o:88, p:87, img: null },
+        { name: "Hikakin", rating: 88, country: "\ud83c\uddef\ud83c\uddf5", rarity: "epic", type: "SHOW", t:87, m:88, o:89, p:87, img: null },
+        { name: "Jollux", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "LOOP", t:81, m:83, o:81, p:82, img: null },
+        { name: "Kingdom", rating: 82, country: "\ud83c\udde9\ud83c\uddea", rarity: "uk-scene", type: "POWER", t:81, m:82, o:81, p:83, img: null },
+        { name: "Doug E. Fresh", rating: 95, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "legendary", type: "PIONEER", t:94, m:95, o:97, p:94, img: null },
+        { name: "Dr Koopa", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "UNIQUE", t:85, m:83, o:85, p:83, img: null },
+        { name: "Dynamatt", rating: 85, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:86, m:84, o:85, p:84, img: null },
+        { name: "Dumpling", rating: 83, country: "\ud83c\udde8\ud83c\uddf3", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "Elisii", rating: 88, country: "\ud83c\udde8\ud83c\udded", rarity: "epic", type: "FLOW", t:87, m:89, o:88, p:87, img: null },
+        { name: "Enel", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Fusion", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "BASS", t:88, m:88, o:87, p:88, img: null },
+        { name: "GTS", rating: 87, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "POWER", t:86, m:87, o:86, p:88, img: null },
+        { name: "Given", rating: 81, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:80, m:82, o:81, p:80, img: null },
+        { name: "GZ7V", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "GeometrickFX", rating: 87, country: "\ud83c\udde8\ud83c\udded", rarity: "epic", type: "GLITCH", t:89, m:86, o:87, p:86, img: null },
+        { name: "Gelber", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "G-Wizz", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:83, m:83, o:82, p:83, img: null },
+        { name: "Gako", rating: 89, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "SHOW", t:88, m:89, o:90, p:88, img: null },
+        { name: "Hippy", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "Hira", rating: 85, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "TECH", t:86, m:84, o:85, p:84, img: null },
+        { name: "Hiro", rating: 84, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "Huckle", rating: 89, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "epic", type: "TECH", t:90, m:88, o:89, p:88, img: null },
+        { name: "Hooked", rating: 84, country: "\ud83c\udde8\ud83c\udde6", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Hunty", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "POWER", t:82, m:83, o:82, p:84, img: null },
+        { name: "Joker", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "AGGRO", t:83, m:83, o:84, p:86, img: null },
+        { name: "K-Late", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "JBeat", rating: 88, country: "\ud83c\uddef\ud83c\uddf5", rarity: "epic", type: "FAST", t:90, m:87, o:87, p:88, img: null },
+        { name: "Kodless", rating: 85, country: "\ud83c\udde8\ud83c\udded", rarity: "uk-scene", type: "LOOP", t:84, m:86, o:84, p:85, img: null },
+        { name: "Jayton", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "KemBloke", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "BASS", t:82, m:82, o:81, p:82, img: null },
+        { name: "Jene", rating: 84, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Leevy", rating: 85, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:84, m:86, o:85, p:84, img: null },
+        { name: "Lenksi", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "LOOP", t:81, m:83, o:81, p:82, img: null },
+        { name: "K.I.M", rating: 89, country: "\ud83c\udde7\ud83c\uddea", rarity: "epic", type: "POWER", t:88, m:89, o:88, p:90, img: null },
+        { name: "Lexomafo", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "UNIQUE", t:89, m:87, o:89, p:87, img: null },
+        { name: "Kaila", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "Lukerative", rating: 87, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "BASS", t:87, m:87, o:86, p:87, img: null },
+        { name: "Lytos", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Kara", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Lungfish", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "Gale", rating: 86, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Lean", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Ettoman", rating: 82, country: "\ud83c\udde9\ud83c\uddea", rarity: "uk-scene", type: "POWER", t:81, m:82, o:81, p:83, img: null },
+        { name: "Kenozen", rating: 83, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "Loughneally", rating: 84, country: "\ud83c\uddee\ud83c\uddea", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "Ex-Bitt", rating: 85, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "TECH", t:86, m:84, o:85, p:84, img: null },
+        { name: "Laymx", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Exallos", rating: 88, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "POWER", t:87, m:88, o:87, p:89, img: null },
+        { name: "Inferno", rating: 87, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "AGGRO", t:86, m:86, o:87, p:89, img: null },
+        { name: "Ghost", rating: 85, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:84, m:86, o:85, p:84, img: null },
+        { name: "Kohey", rating: 90, country: "\ud83c\uddef\ud83c\uddf5", rarity: "epic", type: "TECH", t:91, m:89, o:90, p:89, img: null },
+        { name: "El Constantin", rating: 85, country: "\ud83c\uddf7\ud83c\uddf4", rarity: "uk-scene", type: "FLOW", t:84, m:86, o:85, p:84, img: null },
+        { name: "Ike", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:82, m:82, o:81, p:82, img: null },
+        { name: "Graycloud", rating: 84, country: "\ud83c\udde8\ud83c\udde6", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Krey", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Max", rating: 87, country: "\ud83c\udde8\ud83c\udde6", rarity: "epic", type: "FLOW", t:86, m:88, o:87, p:86, img: null },
+        { name: "Exacto", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Infernape", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "POWER", t:82, m:83, o:82, p:84, img: null },
+        { name: "Grizzy", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "KRNFX", rating: 92, country: "\ud83c\udde8\ud83c\udde6", rarity: "legendary", type: "POWER", t:91, m:92, o:91, p:93, img: null },
+        { name: "Minko", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Fabley", rating: 89, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "UNIQUE", t:90, m:88, o:90, p:88, img: null },
+        { name: "Inovity", rating: 88, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "epic", type: "TECH", t:89, m:87, o:88, p:87, img: null },
+        { name: "Kuulest", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Marvel Beatbox", rating: 88, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "SHOW", t:87, m:88, o:89, p:87, img: null },
+        { name: "Fayabraz", rating: 83, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "Fuga", rating: 84, country: "\ud83c\uddee\ud83c\uddf9", rarity: "uk-scene", type: "LOOP", t:83, m:85, o:83, p:84, img: null },
+        { name: "Indicator", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Heartgrey", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Kip", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "BASS", t:83, m:83, o:82, p:83, img: null },
+        { name: "Jaylip", rating: 90, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "FLOW", t:89, m:91, o:90, p:89, img: null },
+        { name: "Heartzel", rating: 84, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "Karma", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "AGGRO", t:82, m:82, o:83, p:85, img: null },
+        { name: "Madni", rating: 84, country: "\ud83c\uddec\ud83c\udde7", rarity: "uk-scene", type: "POWER", t:83, m:84, o:83, p:85, img: null },
+        { name: "Jack", rating: 84, country: "\ud83c\udde8\ud83c\udde6", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Heat", rating: 90, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "epic", type: "POWER", t:89, m:90, o:89, p:91, img: null },
+        { name: "Jwow", rating: 83, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "UNIQUE", t:84, m:82, o:84, p:82, img: null },
+        { name: "Hellcat", rating: 82, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "AGGRO", t:81, m:81, o:82, p:84, img: null },
+        { name: "Hershe", rating: 82, country: "\ud83c\udde8\ud83c\udde6", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "Jwat", rating: 85, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "TECH", t:86, m:84, o:85, p:84, img: null },
+        { name: "Kem", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "Milkman", rating: 85, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "FLOW", t:84, m:86, o:85, p:84, img: null },
+        { name: "Kindo", rating: 82, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Mostmate", rating: 84, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "LOOP", t:83, m:85, o:83, p:84, img: null },
+        { name: "KyleEshvans", rating: 86, country: "\ud83c\uddfa\ud83c\uddf8", rarity: "uk-scene", type: "SHOW", t:85, m:86, o:87, p:85, img: null },
+        { name: "Mizuki", rating: 84, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "POEM", rating: 88, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "epic", type: "FLOW", t:87, m:89, o:88, p:87, img: null },
+        { name: "OwnGyu", rating: 86, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:87, m:85, o:86, p:85, img: null },
+        { name: "Cardio", rating: 87, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "epic", type: "POWER", t:86, m:87, o:86, p:88, img: null },
+        { name: "THUS", rating: 86, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "uk-scene", type: "AGGRO", t:85, m:85, o:86, p:88, img: null },
+        { name: "Dispay", rating: 86, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "NERO", rating: 87, country: "\ud83c\uddef\ud83c\uddf5", rarity: "epic", type: "FAST", t:89, m:86, o:86, p:87, img: null },
+        { name: "Ryu", rating: 88, country: "\ud83c\uddef\ud83c\uddf5", rarity: "epic", type: "TECH", t:89, m:87, o:88, p:87, img: null },
+        { name: "Keishi", rating: 86, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "FLOW", t:85, m:87, o:86, p:85, img: null },
+        { name: "Rentaro", rating: 84, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "TECH", t:85, m:83, o:84, p:83, img: null },
+        { name: "KE\u2606N", rating: 84, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "SHOW", t:83, m:84, o:85, p:83, img: null },
+        { name: "TENTA", rating: 82, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "Taiga", rating: 83, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "POWER", t:82, m:83, o:82, p:84, img: null },
+        { name: "Tocchi", rating: 82, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "HARI", rating: 81, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "FLOW", t:80, m:82, o:81, p:80, img: null },
+        { name: "KiriNo", rating: 84, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "FAST", t:86, m:83, o:83, p:84, img: null },
+        { name: "Ach", rating: 81, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "FLOW", t:80, m:82, o:81, p:80, img: null },
+        { name: "YUTA", rating: 82, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Rusy", rating: 85, country: "\ud83c\uddef\ud83c\uddf5", rarity: "uk-scene", type: "FLOW", t:84, m:86, o:85, p:84, img: null },
+        { name: "Corey", rating: 87, country: "\ud83c\udded\ud83c\uddf0", rarity: "epic", type: "TECH", t:88, m:86, o:87, p:86, img: null },
+        { name: "Silver", rating: 82, country: "\ud83c\udded\ud83c\uddf0", rarity: "uk-scene", type: "FLOW", t:81, m:83, o:82, p:81, img: null },
+        { name: "Zalit", rating: 83, country: "\ud83c\udded\ud83c\uddf0", rarity: "uk-scene", type: "POWER", t:82, m:83, o:82, p:84, img: null },
+        { name: "3H", rating: 85, country: "\ud83c\udded\ud83c\uddf0", rarity: "uk-scene", type: "TECH", t:86, m:84, o:85, p:84, img: null },
+        { name: "SVM", rating: 84, country: "\ud83c\udde6\ud83c\uddfa", rarity: "uk-scene", type: "FLOW", t:83, m:85, o:84, p:83, img: null },
+        { name: "Ryxel", rating: 86, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "POWER", t:85, m:86, o:85, p:87, img: null },
+        { name: "BeatWell", rating: 85, country: "\ud83c\uddeb\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:84, m:86, o:85, p:84, img: null },
+        { name: "H-has Jr", rating: 80, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:81, m:79, o:80, p:79, img: null },
+        { name: "NXHP", rating: 84, country: "\ud83c\udde6\ud83c\uddfa", rarity: "uk-scene", type: "POWER", t:83, m:84, o:83, p:85, img: null },
+        { name: "Brunny", rating: 83, country: "\ud83c\udde6\ud83c\uddfa", rarity: "uk-scene", type: "FLOW", t:82, m:84, o:83, p:82, img: null },
+        { name: "Penitent", rating: 82, country: "\ud83c\udde6\ud83c\uddfa", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+        { name: "Wob Lobster", rating: 83, country: "\ud83c\udde6\ud83c\uddfa", rarity: "uk-scene", type: "SHOW", t:82, m:83, o:84, p:82, img: null },
+        { name: "Sonicboom", rating: 84, country: "\ud83c\udde6\ud83c\uddfa", rarity: "uk-scene", type: "BASS", t:84, m:84, o:83, p:84, img: null },
+        { name: "Listo", rating: 80, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "uk-scene", type: "FLOW", t:79, m:81, o:80, p:79, img: null },
+        { name: "Rippick", rating: 82, country: "\ud83c\uddf0\ud83c\uddf7", rarity: "uk-scene", type: "TECH", t:83, m:81, o:82, p:81, img: null },
+];
+const ALL_CARDS = [...db, ...dbExpansion.filter(x => !db.some(y => y.name === x.name))];
 
-    /* Coin value + XP per rarity (used by shop / stats / achievements) */
-    const RARITY_COIN = { legendary: 40, 'loop-master': 25, epic: 15, 'discord-gem': 15, 'uk-scene': 5, underground: 3, common: 2 };
-    const RARITY_ORDER = ['legendary','loop-master','epic','discord-gem','uk-scene','underground','common'];
-    const RARITY_LABEL = { legendary:'LEGENDARY', 'loop-master':'LOOP MASTER', epic:'EPIC', 'discord-gem':'DISCORD GEM', 'uk-scene':'UK SCENE', underground:'UNDERGROUND', common:'COMMON' };
+// ===== GAME DATA =====
+const RARITY_ORDER=['legendary','loop-master','epic','discord-gem','uk-scene','underground','common'];
+const RARITY_LABEL={legendary:'LEGENDARY','loop-master':'LOOP MASTER',epic:'EPIC','discord-gem':'DISCORD GEM','uk-scene':'UK SCENE',underground:'UNDERGROUND',common:'COMMON'};
+const RARITY_COLOR={legendary:'#ffd43b','loop-master':'#33e77a',epic:'#c36aff','discord-gem':'#ff8c3a','uk-scene':'#ff3d5a',underground:'#6e8295',common:'#a4abb8'};
+const PACKS=[
+{id:'daily',name:'DAILY DROP',icon:'☀️',cost:0,currency:'free',cards:1,desc:'One free card every day. Tiny chance at anything.',unlock:0,weight:['all']},
+{id:'starter',name:'STARTER PACK',icon:'👤',cost:0,currency:'unlock',cards:3,desc:'Your free launch pack. Designed to get a roster moving.',unlock:1,weight:['common','uk-scene','epic']},
+{id:'triple',name:'TRIPLE',icon:'💠',cost:45,currency:'coins',cards:3,desc:'Three pulls with boosted rare odds.',unlock:0,weight:['common','uk-scene','epic','loop-master','legendary']},
+{id:'mega',name:'MEGA',icon:'🔥',cost:120,currency:'coins',cards:5,desc:'Five cards and much louder reveal odds.',unlock:20,weight:['uk-scene','epic','loop-master','legendary']},
+{id:'legend',name:'LEGEND HUNT',icon:'👑',cost:2,currency:'gems',cards:3,desc:'Legendary-focused. At least one Epic+ is guaranteed.',unlock:0,guarantee:'epic',weight:['epic','loop-master','legendary']},
+{id:'loop',name:'LOOPSTATION LAB',icon:'🌀',cost:100,currency:'coins',cards:4,desc:'Loop Master and hybrid-heavy pool.',unlock:10,weight:['loop-master','epic','uk-scene']},
+{id:'uk',name:'UK UNDERGROUND',icon:'🇬🇧',cost:60,currency:'coins',cards:4,desc:'UK scene pool with rising names and local monsters.',unlock:0,weight:['uk-scene','epic','loop-master']},
+{id:'world',name:'WORLD ALL-STARS',icon:'🌍',cost:250,currency:'coins',cards:7,desc:'Huge global pull. Excellent for late-game collection filling.',unlock:50,weight:['epic','loop-master','legendary','uk-scene']},
+{id:'eclipse',name:'ECLIPSE',icon:'🌑',cost:5,currency:'gems',cards:5,desc:'Very expensive. Strong Legendary and special odds.',unlock:0,guarantee:'legendary',weight:['legendary','loop-master','epic']},
+{id:'rival',name:'RIVAL PACK',icon:'⚔️',cost:3,currency:'tickets',cards:4,desc:'Battle-themed pack. Pull styles designed to counter meta archetypes.',unlock:0,weight:['epic','loop-master','uk-scene','legendary']},
+{id:'chaos',name:'CHAOS MIX',icon:'🧪',cost:80,currency:'coins',cards:6,desc:'Completely unpredictable rarity weighting.',unlock:0,weight:['common','uk-scene','epic','loop-master','legendary','discord-gem']},
+{id:'vault',name:'MYTH VAULT',icon:'💎',cost:250,currency:'coins',cards:1,desc:'Guaranteed Legendary. Very low repeat protection.',unlock:0,guarantee:'legendary',weight:['legendary']}
+];
+const REGIONS=[
+['LONDON','🇬🇧',['Milky','Frosty','D-Low']],['PARIS','🇫🇷',['Colaps',"River'",'PACMax']],['SEOUL','🇰🇷',['WinG','H-has','Mighty']],['TOKYO','🇯🇵',['Daichi','GEN','Kaji']],['NEW YORK','🇺🇸',['NaPoM','King Inertia','Rahzel']],['MELBOURNE','🇦🇺',['Tom Thum','Chills','C-Fresh']],['BERLIN','🇩🇪',['B-Art','Fenetix','GeometrickFX']],['WORLD FINALS','🌍',['DOG','PACMax','Alexinho']]
+];
+const CODEX=[
+['🥁','FOUNDATION','The oldest school of beatbox technique. Collect 10 unique cards.'],['🧠','TECH WARS','Technical cards gain a tempo bonus after successful Signature attacks.'],['🔊','BASS CANNON','Bass archetypes hit harder when HYPE is active.'],['🌀','LOOP DIMENSION','Loop cards can chain their next move for bonus mastery XP.'],['⚡','FAST HANDS','Fast archetypes gain a priority bonus in battles.'],['👑','LEGENDS','Collect five Legendary cards to unlock the Legend Gauntlet.'],['🌐','WORLD CIRCUIT','Win a battle in every region to unlock the final boss.'],['☠','ROYAL SURVIVOR','Reach the final four in Battle Royale three times.'],['💎','ECLIPSE','Open five premium packs to unlock the Eclipse title.']
+];
 
-    let myCollection = JSON.parse(localStorage.getItem('myCollection')) || {};
-    let totalOpened = parseInt(localStorage.getItem('totalOpened')) || 0;
-    let coins = parseInt(localStorage.getItem('coins')) || 0;
-    let pityCount = parseInt(localStorage.getItem('pityCount')) || 0;
-    let favorites = JSON.parse(localStorage.getItem('favorites')) || {};
-    let unlockedAch = JSON.parse(localStorage.getItem('unlockedAch')) || {};
-    let pullHistory = JSON.parse(localStorage.getItem('pullHistory')) || [];
-    let newCards = JSON.parse(localStorage.getItem('newCards')) || {};
-    let luckiest = JSON.parse(localStorage.getItem('luckiest')) || null;
-    let viewMode = 'owned';
-    let favFilterOn = false;
-    let activeRarityFilter = 'all';
-    const PITY_LIMIT = 40;
-
-    // --- SOUND SETTINGS ---
-    let sfxVolume = parseFloat(localStorage.getItem('sfxVolume'));
-    if (isNaN(sfxVolume)) sfxVolume = 0.7;
-    let sfxMuted = localStorage.getItem('sfxMuted') === 'true';
-
-    // --- DAILY STREAK ---
-    (function handleDailyStreak() {
-        const today = new Date().toDateString();
-        const lastVisit = localStorage.getItem('lastVisit');
-        let streak = parseInt(localStorage.getItem('streak')) || 0;
-        if (lastVisit !== today) {
-            const yesterday = new Date(Date.now() - 86400000).toDateString();
-            streak = (lastVisit === yesterday) ? streak + 1 : 1;
-            localStorage.setItem('streak', streak);
-            localStorage.setItem('lastVisit', today);
-            const bonus = 10 + Math.min(streak, 10) * 5;
-            coins += bonus;
-            localStorage.setItem('coins', coins);
-            setTimeout(() => showToast(`DAY ${streak} STREAK 🔥`, `+${bonus} coins for logging in`), 800);
-        }
-    })();
-
-    // --- ACHIEVEMENTS DEFINITIONS ---
-    const ACHIEVEMENTS = [
-        { id: 'first_pack', icon: '📦', name: 'First Pull', desc: 'Open your first pack', reward: 20, check: () => totalOpened >= 1 },
-        { id: 'opened_10', icon: '📦', name: 'Getting Started', desc: 'Open 10 cards', reward: 30, check: () => totalOpened >= 10 },
-        { id: 'opened_50', icon: '📦', name: 'Regular', desc: 'Open 50 cards', reward: 60, check: () => totalOpened >= 50 },
-        { id: 'opened_100', icon: '📦', name: 'Dedicated', desc: 'Open 100 cards', reward: 120, check: () => totalOpened >= 100 },
-        { id: 'opened_250', icon: '📦', name: 'Obsessed', desc: 'Open 250 cards', reward: 250, check: () => totalOpened >= 250 },
-        { id: 'first_legendary', icon: '⭐', name: 'Legend Found', desc: 'Pull a Legendary card', reward: 50, check: () => Object.values(myCollection).some(c => c.rarity === 'legendary') },
-        { id: 'first_loop', icon: '🌀', name: 'Loop Master Found', desc: 'Pull a Loop Master card', reward: 30, check: () => Object.values(myCollection).some(c => c.rarity === 'loop-master') },
-        { id: 'got_dog', icon: '🐐', name: 'GOATED', desc: 'Pull the legendary DOG', reward: 100, check: () => !!myCollection['DOG'] },
-        { id: 'full_legendary', icon: '👑', name: 'Legendary Vault', desc: 'Collect every Legendary card', reward: 200, check: () => db.filter(c=>c.rarity==='legendary').every(c => myCollection[c.name]) },
-        { id: 'full_collection', icon: '🏆', name: 'Beatbox Historian', desc: 'Collect every card in the game', reward: 500, check: () => db.every(c => myCollection[c.name]) },
-        { id: 'coins_500', icon: '🪙', name: 'Coin Collector', desc: 'Hold 500 coins at once', reward: 0, check: () => coins >= 500 },
-        { id: 'streak_7', icon: '🔥', name: 'Week Streak', desc: 'Log in 7 days in a row', reward: 100, check: () => (parseInt(localStorage.getItem('streak'))||0) >= 7 },
-        { id: 'ten_favorites', icon: '★', name: 'Curator', desc: 'Favorite 10 different cards', reward: 40, check: () => Object.keys(favorites).length >= 10 },
-    ];
-
-    function checkAchievements() {
-        ACHIEVEMENTS.forEach(a => {
-            if (!unlockedAch[a.id] && a.check()) {
-                unlockedAch[a.id] = true;
-                coins += a.reward;
-                localStorage.setItem('unlockedAch', JSON.stringify(unlockedAch));
-                localStorage.setItem('coins', coins);
-                updateCoinDisplay();
-                showToast(`ACHIEVEMENT UNLOCKED 🏆`, `${a.name}${a.reward ? ' — +' + a.reward + ' coins' : ''}`);
-            }
-        });
-    }
-
-    // --- ELEMENTS ---
-    const overlay = document.getElementById('overlay');
-    const resultsArea = document.getElementById('resultsArea');
-    const scanner = document.getElementById('scanner');
-    const dogAudio = document.getElementById('dogAudio');
-    const closeBtn = document.getElementById('closeBtn');
-    const totalDisplay = document.getElementById('totalOpenedDisplay');
-    const settingsModal = document.getElementById('settingsModal');
-
-    // --- INIT ---
-    function initApp() {
-        document.body.addEventListener('click', () => { SoundFX.init(); }, { once: true });
-        totalDisplay.innerText = totalOpened;
-        checkUnlocks();
-        updateInv();
-        updateCoinDisplay();
-        updatePityBar();
-        buildRarityChips();
-        const vs = document.getElementById('volSlider');
-        if (vs) vs.value = Math.round(sfxVolume * 100);
-        const mb = document.getElementById('muteBtn');
-        if (mb) mb.innerText = sfxMuted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
-        checkAchievements();
-    }
-
-    function updateCoinDisplay() {
-        const d = document.getElementById('coinDisplay');
-        if (d) d.innerText = `🪙 ${coins}`;
-        const sd = document.getElementById('shopCoinDisplay');
-        if (sd) sd.innerText = coins;
-        const vault = document.getElementById('packVault');
-        if (vault) { if (coins >= 250) vault.classList.remove('locked'); else vault.classList.add('locked'); }
-    }
-
-    function updatePityBar() {
-        const fill = document.getElementById('pityFill');
-        const cnt = document.getElementById('pityCount');
-        if (fill) fill.style.width = Math.min(100, (pityCount / PITY_LIMIT) * 100) + '%';
-        if (cnt) cnt.innerText = pityCount;
-    }
-
-    function checkUnlocks() {
-        if (totalOpened >= 10) document.getElementById('pack3').classList.remove('locked');
-        else document.getElementById('pack3').classList.add('locked');
-        if (totalOpened >= 25) document.getElementById('pack5').classList.remove('locked');
-        else document.getElementById('pack5').classList.add('locked');
-    }
-
-    function openPack(numCards) { if((numCards===3&&totalOpened<10)||(numCards===5&&totalOpened<25))return;SoundFX.play('click');const packIndex=numCards===1?0:(numCards===3?1:2);const activePack=document.querySelectorAll('.pack')[packIndex];if(activePack?.classList.contains('opening'))return;activePack?.classList.add('opening');SoundFX.play('charge');setTimeout(()=>{activePack?.classList.remove('opening');SoundFX.play('burst');revealLogic(numCards,false,null)},600); }
-
-    const PACKS=[{id:'starter',name:'STARTER',icon:'👤',cards:1,cost:0,desc:'A clean single pull. Build pity and start the collection.',odds:'STANDARD'},{id:'triple',name:'TRIPLE',icon:'💠',cards:3,cost:0,unlock:10,desc:'Three cards with more duplicate and rarity opportunities.',odds:'3 CARDS'},{id:'mega',name:'MEGA',icon:'🔥',cards:5,cost:0,unlock:25,desc:'Five pulls for serious collection growth.',odds:'5 CARDS'},{id:'legend',name:'LEGEND HUNT',icon:'👑',cards:3,cost:120,guaranteed:true,rarity:'legendary',desc:'Three cards drawn exclusively from the Legendary pool.',odds:'LEGENDARY ONLY'},{id:'loop',name:'LOOPSTATION',icon:'🌀',cards:4,cost:80,rarity:'loop-master',desc:'Target the loop gods.',odds:'LOOP MASTER ONLY'},{id:'uk',name:'UK UNDERGROUND',icon:'🇬🇧',cards:5,cost:60,pool:['Milky','Bass Ventura','Epos','Zak','Whit','OxBox','Hobbit','BeatFox','Tyla','Pye','M-Age','ABH','D-Koy','Fredy Beats','Izen','Deity','Lucid','Chucid','Contrix'],desc:'Five cards from the UK scene.',odds:'UK SCENE'},{id:'allstars',name:'ALL-STARS',icon:'⚡',cards:4,cost:150,pool:['DOG','NaPoM','D-Low','River\'','Colaps','FootboxG','Tom Thum','Reeps One','Skiller','Rahzel','Alem','Saro','Bizkit','Frosty'],desc:'A compact pool of headline names.',odds:'STAR POOL'},{id:'vaultplus',name:'VAULT+',icon:'💎',cards:2,cost:250,guaranteed:true,desc:'Two Epic+ cards for collectors.',odds:'EPIC+ GUARANTEED'}];
-    function openPackType(id){const cfg=PACKS.find(p=>p.id===id);if(!cfg)return;if(cfg.unlock&&totalOpened<cfg.unlock){showToast('LOCKED',`Open ${cfg.unlock} cards first.`);return}if(cfg.cost&&coins<cfg.cost){showToast('NOT ENOUGH COINS',`Need ${cfg.cost} coins.`);return}if(cfg.cost){coins-=cfg.cost;localStorage.setItem('coins',coins);updateCoinDisplay()}SoundFX.play('charge');window.activePackConfig=cfg;setTimeout(()=>{SoundFX.play('burst');revealLogic(cfg.cards,false,cfg);window.activePackConfig=null},600)}
-
-    function openVaultPack() {
-        if (coins < 250) { showToast('NOT ENOUGH COINS', 'Sell duplicates or open packs to earn more.'); return; }
-        coins -= 250;
-        localStorage.setItem('coins', coins);
-        updateCoinDisplay();
-        SoundFX.play('click');
-        const vaultPack = document.getElementById('packVault');
-        if (vaultPack.classList.contains('opening')) return;
-        vaultPack.classList.add('opening');
-        SoundFX.play('charge');
-        setTimeout(() => {
-            vaultPack.classList.remove('opening');
-            SoundFX.play('burst');
-            revealLogic(1, true);
-        }, 600);
-        toggleShop(true);
-    }
-
-    function revealLogic(numCards, forceEpicPlus=false, packConfig=null){const openedCards=[];let hasSpecial=false,hasDog=false;const cfg=packConfig||window.activePackConfig||{};for(let i=0;i<numCards;i++){totalOpened++;pityCount++;let r=Math.random()*100,pool=[];if(forceEpicPlus||cfg.guaranteed){pool=db.filter(x=>['legendary','loop-master','epic','discord-gem'].includes(x.rarity));if(cfg.rarity)pool=pool.filter(x=>x.rarity===cfg.rarity)}else if(cfg.rarity){pool=db.filter(x=>x.rarity===cfg.rarity)}else if(cfg.pool){pool=cfg.pool.map(n=>db.find(x=>x.name===n)).filter(Boolean)}else{const pityTriggered=pityCount>=PITY_LIMIT;if(r<1||pityTriggered)pool=db.filter(x=>x.name==='DOG');else if(r<5||pityTriggered)pool=db.filter(x=>x.rarity==='legendary');else if(r<12)pool=db.filter(x=>x.rarity==='loop-master');else if(r<25)pool=db.filter(x=>x.rarity==='epic'||x.rarity==='discord-gem');else pool=db.filter(x=>['uk-scene','underground','common'].includes(x.rarity))}if(!pool.length)pool=db;const card=pool[Math.floor(Math.random()*pool.length)];openedCards.push(card);if(card.rarity==='legendary')pityCount=0;if(!myCollection[card.name])newCards[card.name]=true;if(!luckiest||RARITY_ORDER.indexOf(card.rarity)<RARITY_ORDER.indexOf(luckiest.rarity))luckiest={name:card.name,rarity:card.rarity,rating:card.rating};coins+=RARITY_COIN[card.rarity]||2;pullHistory.unshift({name:card.name,rarity:card.rarity,t:Date.now()});if(pullHistory.length>50)pullHistory.length=50;if(myCollection[card.name])myCollection[card.name].count++;else myCollection[card.name]={...card,count:1};if(['legendary','loop-master'].includes(card.rarity))hasSpecial=true;if(card.name==='DOG')hasDog=true}localStorage.setItem('myCollection',JSON.stringify(myCollection));localStorage.setItem('totalOpened',totalOpened);localStorage.setItem('coins',coins);localStorage.setItem('pityCount',pityCount);localStorage.setItem('pullHistory',JSON.stringify(pullHistory));localStorage.setItem('newCards',JSON.stringify(newCards));localStorage.setItem('luckiest',JSON.stringify(luckiest));totalDisplay.innerText=totalOpened;checkUnlocks();updateCoinDisplay();updatePityBar();checkAchievements();renderHome();renderChallenges();if(openedCards.some(c=>c.rarity==='legendary'))launchConfetti();if(hasSpecial)triggerScanner(openedCards,hasDog);else showCards(openedCards,hasDog)}
-
-    function triggerScanner(cards, hasDog) {
-        scanner.style.display = 'flex';
-        // Simulate scanner sound loop or effect here if desired
-        setTimeout(() => {
-            scanner.style.display = 'none';
-            showCards(cards, hasDog);
-        }, 1200);
-    }
-
-    /* --- INITIALS-BASED PLACEHOLDER ART (used whenever a real photo isn't available) ---
-       Instead of ever showing a broken image icon, an unrelated stock photo, or two
-       different people sharing one photo, unresolved cards get an on-brand generated
-       card face: initials over a rarity-colored gradient. */
-    function initialsOf(name) {
-        return name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(w => w[0]).slice(0,2).join('').toUpperCase() || '?';
-    }
-    function placeholderArtHTML(card, small) {
-        const c1 = getBorderColor(card.rarity), c2 = getTxtColor(card.rarity);
-        return `<div class="placeholder-art" style="background:radial-gradient(circle at 30% 20%, ${c2}22, #0a0a0a 70%), linear-gradient(160deg, ${c1}33, #050505);">
-            <span class="ph-mic">🎤</span>
-            <span class="ph-initials" style="color:${c2};">${initialsOf(card.name)}</span>
-        </div>`;
-    }
-
-    /* --- SMART IMAGE ENGINE: multi-tier YouTube thumbnail fallback,
-       ending in the generated placeholder above rather than a random photo --- */
-    function resolveImgSrc(card) {
-        if (!card.img) return null;
-        if (card.img.includes('http') || card.img.includes('.png') || card.img.includes('.jpg')) return card.img;
-        return `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
-    }
-
-    function createCardElement(card, index, isInspection = false) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'card-wrapper';
-        if(!isInspection) wrapper.style.animationDelay = `${index * 0.1}s`;
-
-        const cardDiv = document.createElement('div');
-        cardDiv.className = isInspection ? `card inspect` : `card reveal`;
-        cardDiv.style.borderColor = getBorderColor(card.rarity);
-
-        const imgSrc = resolveImgSrc(card);
-        const color = getTxtColor(card.rarity);
-        const isFav = !!favorites[card.name];
-        const showSell = isInspection && myCollection[card.name] && myCollection[card.name].count > 1;
-
-        cardDiv.innerHTML = `
-            <div class="foil-layer"></div>
-            <div class="holo-sheen"></div>
-            <span class="card-fav-star" onclick="toggleFavorite('${card.name.replace(/'/g,"\\'")}', this)">${isFav ? '★' : '☆'}</span>
-            <div class="card-top">
-                <div class="rat-circle" style="color:${color}; border-color:${color}">${card.rating}</div>
-                <div class="flag">${card.country}</div>
-            </div>
-            <div class="img-mask">
-                ${imgSrc ? `<img src="${imgSrc}" class="hero-img" data-name="${card.name.replace(/"/g,'&quot;')}" data-rarity="${card.rarity}" onerror="smartFallback(this)">` : placeholderArtHTML(card)}
-            </div>
-            <div class="card-bottom">
-                <h2 class="card-name">${card.name}</h2>
-                <span class="card-sub" style="color:${color}">${card.type}</span>
-                <div class="stats-row">
-                    <div class="stat-item"><span class="stat-lbl">TEC</span><span class="stat-val">${card.t}</span></div>
-                    <div class="stat-item"><span class="stat-lbl">MUS</span><span class="stat-val">${card.m}</span></div>
-                    <div class="stat-item"><span class="stat-lbl">ORG</span><span class="stat-val">${card.o}</span></div>
-                    <div class="stat-item"><span class="stat-lbl">PWR</span><span class="stat-val">${card.p}</span></div>
-                </div>
-                ${showSell ? `<button class="btn btn-red sell-btn" onclick="sellDuplicate('${card.name.replace(/'/g,"\\'")}')">SELL DUPLICATE (+${RARITY_COIN[card.rarity]||2} 🪙)</button>` : ''}
-            </div>
-        `;
-
-        // Holographic mouse-tilt effect
-        cardDiv.addEventListener('mousemove', (e) => {
-            const rect = cardDiv.getBoundingClientRect();
-            const px = (e.clientX - rect.left) / rect.width;
-            const py = (e.clientY - rect.top) / rect.height;
-            const rx = (py - 0.5) * -14;
-            const ry = (px - 0.5) * 14;
-            cardDiv.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
-            const sheen = cardDiv.querySelector('.holo-sheen');
-            if (sheen) sheen.style.background = `radial-gradient(circle at ${px*100}% ${py*100}%, rgba(255,255,255,0.8), transparent 60%)`;
-        });
-        cardDiv.addEventListener('mouseleave', () => {
-            cardDiv.style.transform = isInspection ? 'rotateY(0deg) translateZ(0)' : '';
-        });
-        
-        if(!isInspection) {
-            setTimeout(() => { SoundFX.play('reveal'); }, index * 100 + 200);
-        }
-
-        wrapper.appendChild(cardDiv);
-        return wrapper;
-    }
-
-    window.smartFallback = function(img) {
-        // Fallback chain: maxres -> sd -> hq -> mq -> generated placeholder (never an unrelated stock photo)
-        const order = ['maxresdefault','sddefault','hqdefault','mqdefault'];
-        const hit = order.find(o => img.src.includes(o));
-        const next = hit ? order[order.indexOf(hit) + 1] : null;
-        if (next) {
-            img.src = img.src.replace(hit, next);
-        } else {
-            img.onerror = null;
-            const name = img.dataset.name, rarity = img.dataset.rarity;
-            const card = { name, rarity };
-            const wrap = document.createElement('div');
-            wrap.innerHTML = placeholderArtHTML(card);
-            img.replaceWith(wrap.firstElementChild);
-        }
-    }
-
-    function toggleFavorite(name, el) {
-        SoundFX.play('click');
-        if (favorites[name]) delete favorites[name];
-        else favorites[name] = true;
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-        if (el) el.innerText = favorites[name] ? '★' : '☆';
-        checkAchievements();
-        updateInv();
-    }
-
-    function sellDuplicate(name) {
-        const owned = myCollection[name];
-        if (!owned || owned.count <= 1) return;
-        SoundFX.play('burst');
-        owned.count--;
-        const reward = RARITY_COIN[owned.rarity] || 2;
-        coins += reward;
-        localStorage.setItem('myCollection', JSON.stringify(myCollection));
-        localStorage.setItem('coins', coins);
-        updateCoinDisplay();
-        checkAchievements();
-        showToast('DUPLICATE SOLD', `+${reward} coins for a spare ${name}`);
-        closeOverlay();
-        updateInv();
-    }
-
-    function showCards(cards, hasDog) {
-        overlay.classList.add('active');
-        overlay.style.display = 'flex';
-        resultsArea.innerHTML = '';
-        
-        // Efficient DOM insertion
-        const frag = document.createDocumentFragment();
-        cards.forEach((card, index) => {
-            frag.appendChild(createCardElement(card, index));
-        });
-        resultsArea.appendChild(frag);
-        
-        updateInv();
-
-        if(hasDog) {
-            dogAudio.currentTime = 27;
-            dogAudio.volume = 1.0; 
-            dogAudio.play().catch(e => console.log("Audio autostart prevented"));
-        }
-    }
-
-    function inspectCard(cardName) {
-        SoundFX.play('click');
-        const card = db.find(c => c.name === cardName);
-        if(!card || (viewMode === 'all' && !myCollection[cardName])) return;
-
-        overlay.classList.add('active');
-        overlay.style.display = 'flex';
-        resultsArea.innerHTML = '';
-        resultsArea.appendChild(createCardElement(card, 0, true));
-        closeBtn.innerText = "CLOSE";
-    }
-
-    function closeOverlay() {
-        SoundFX.play('click');
-        overlay.classList.remove('active');
-        setTimeout(() => { overlay.style.display = 'none'; resultsArea.innerHTML = ''; }, 200);
-        dogAudio.pause();
-        dogAudio.currentTime = 0;
-        closeBtn.innerText = "COLLECT ALL";
-    }
-
-    function setView(mode) {
-        SoundFX.play('click');
-        viewMode = mode;
-        document.getElementById('btnOwned').className = mode === 'owned' ? 'toggle-btn active' : 'toggle-btn';
-        document.getElementById('btnIndex').className = mode === 'all' ? 'toggle-btn active' : 'toggle-btn';
-        updateInv();
-    }
-
-    function buildRarityChips() {
-        const wrap = document.getElementById('rarityChips');
-        if (!wrap) return;
-        const rarities = ['all', ...new Set(db.map(c => c.rarity))];
-        wrap.innerHTML = rarities.map(r => {
-            const label = r === 'all' ? 'ALL' : RARITY_LABEL[r] || r.toUpperCase();
-            const color = r === 'all' ? '#fff' : getBorderColor(r);
-            return `<button class="rarity-chip${r===activeRarityFilter?' active':''}" style="color:${color}; border-color:${color};" onclick="setRarityFilter('${r}')">${label}</button>`;
-        }).join('');
-    }
-
-    function setRarityFilter(r) {
-        SoundFX.play('click');
-        activeRarityFilter = r;
-        buildRarityChips();
-        updateInv();
-    }
-
-    function toggleFavFilter() {
-        SoundFX.play('click');
-        favFilterOn = !favFilterOn;
-        document.getElementById('btnFav').className = favFilterOn ? 'toggle-btn active' : 'toggle-btn';
-        updateInv();
-    }
-
-    function updateInv() {
-        const list = document.getElementById('invList');
-        list.innerHTML = '';
-
-        let cardsToShow = [];
-        if (viewMode === 'owned') {
-            cardsToShow = Object.values(myCollection);
-        } else {
-            cardsToShow = db.map(card => {
-                const owned = myCollection[card.name];
-                return { ...card, count: owned ? owned.count : 0, isLocked: !owned };
-            });
-        }
-
-        const search = (document.getElementById('searchBox')?.value || '').toLowerCase().trim();
-        if (search) cardsToShow = cardsToShow.filter(c => c.name.toLowerCase().includes(search));
-        if (activeRarityFilter !== 'all') cardsToShow = cardsToShow.filter(c => c.rarity === activeRarityFilter);
-        if (favFilterOn) cardsToShow = cardsToShow.filter(c => favorites[c.name]);
-
-        const sortBy = document.getElementById('sortSelect')?.value || 'rating';
-        cardsToShow.sort((a,b) => {
-            if (sortBy === 'name') return a.name.localeCompare(b.name);
-            if (sortBy === 'country') return (a.country||'').localeCompare(b.country||'');
-            if (sortBy === 'rarity') return RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
-            return b.rating - a.rating;
-        });
-
-        const totalOwned = Object.values(myCollection).length;
-        document.getElementById('clubCount').innerText = `(${totalOwned}/${db.length})`;
-
-        const frag = document.createDocumentFragment();
-        cardsToShow.forEach(c => {
-            const div = document.createElement('div');
-            div.className = c.isLocked ? 'inv-card locked' : 'inv-card';
-            div.style.borderColor = getBorderColor(c.rarity);
-            div.onclick = () => inspectCard(c.name);
-
-            const imgSrc = c.isLocked ? null : resolveImgSrc(c);
-            const badgeDisplay = c.count > 1 ? `<span class="inv-badge">${c.count}</span>` : '';
-            const favDisplay = (!c.isLocked && favorites[c.name]) ? `<span class="fav-star">★</span>` : '';
-            const newDisplay = (!c.isLocked && newCards[c.name] && !favorites[c.name]) ? `<span class="new-badge">NEW</span>` : '';
-            const ratingDisplay = c.isLocked ? "??" : c.rating;
-
-            div.innerHTML = `
-                ${badgeDisplay}${favDisplay}${newDisplay}
-                <div class="inv-info" style="color:${getTxtColor(c.rarity)}">${ratingDisplay}</div>
-            `;
-
-            if (imgSrc) {
-                const img = document.createElement('img');
-                img.className = 'inv-img';
-                img.src = imgSrc.replace('maxresdefault', 'mqdefault');
-                img.dataset.name = c.name;
-                img.dataset.rarity = c.rarity;
-                img.onerror = function() { smartFallback(this); };
-                div.prepend(img);
-            } else {
-                const ph = document.createElement('div');
-                ph.className = 'inv-img placeholder-art';
-                ph.innerHTML = placeholderArtHTML(c, true);
-                ph.style.background = 'transparent';
-                div.prepend(ph);
-            }
-            frag.appendChild(div);
-        });
-        list.appendChild(frag);
-
-        if (viewMode === 'owned') {
-            Object.keys(newCards).forEach(n => delete newCards[n]);
-            localStorage.setItem('newCards', JSON.stringify(newCards));
-        }
-    }
-
-    function toggleSettings() {
-        SoundFX.play('click');
-        const d = settingsModal.style.display;
-        settingsModal.style.display = d === 'flex' ? 'none' : 'flex';
-    }
-
-    function setVolume(v) {
-        sfxVolume = v / 100;
-        localStorage.setItem('sfxVolume', sfxVolume);
-        SoundFX.play('click');
-    }
-
-    function toggleMute() {
-        sfxMuted = !sfxMuted;
-        localStorage.setItem('sfxMuted', sfxMuted);
-        document.getElementById('muteBtn').innerText = sfxMuted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
-        if (!sfxMuted) SoundFX.play('click');
-    }
-
-    function resetProgress() {
-        SoundFX.play('click');
-        if(confirm('Reset entire collection? This clears cards, coins, achievements and stats.')) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
-
-    function toggleStats() {
-        SoundFX.play('click');
-        const m = document.getElementById('statsModal');
-        const opening = m.style.display !== 'flex';
-        m.style.display = opening ? 'flex' : 'none';
-        if (opening) renderStats();
-    }
-
-    function renderStats() {
-        const totalOwned = Object.values(myCollection).length;
-        const pct = Math.round((totalOwned / db.length) * 100);
-        const streak = parseInt(localStorage.getItem('streak')) || 0;
-        const grid = document.getElementById('statsGrid');
-        grid.innerHTML = `
-            <div class="stat-box"><div class="sb-val">${totalOpened}</div><div class="sb-lbl">CARDS OPENED</div></div>
-            <div class="stat-box"><div class="sb-val">${pct}%</div><div class="sb-lbl">COLLECTION COMPLETE</div></div>
-            <div class="stat-box"><div class="sb-val">${totalOwned}/${db.length}</div><div class="sb-lbl">UNIQUE OWNED</div></div>
-            <div class="stat-box"><div class="sb-val">${streak}🔥</div><div class="sb-lbl">DAY STREAK</div></div>
-            <div class="stat-box"><div class="sb-val">${coins}</div><div class="sb-lbl">COINS EARNED</div></div>
-            <div class="stat-box"><div class="sb-val">${luckiest ? luckiest.name : '—'}</div><div class="sb-lbl">LUCKIEST PULL</div></div>
-        `;
-        const rBars = document.getElementById('rarityBars');
-        rBars.innerHTML = RARITY_ORDER.filter(r => db.some(c => c.rarity === r)).map(r => {
-            const total = db.filter(c => c.rarity === r).length;
-            const owned = db.filter(c => c.rarity === r && myCollection[c.name]).length;
-            const pctR = total ? Math.round((owned/total)*100) : 0;
-            return `<div class="rbar-row">
-                <div class="rbar-lbl"><span style="color:${getTxtColor(r)}">${RARITY_LABEL[r]}</span><span>${owned}/${total}</span></div>
-                <div class="rbar-track"><div class="rbar-fill" style="width:${pctR}%; background:${getBorderColor(r)};"></div></div>
-            </div>`;
-        }).join('');
-    }
-
-    function toggleAchievements() {
-        SoundFX.play('click');
-        const m = document.getElementById('achModal');
-        const opening = m.style.display !== 'flex';
-        m.style.display = opening ? 'flex' : 'none';
-        if (opening) renderAchievements();
-    }
-
-    function renderAchievements() {
-        const list = document.getElementById('achList');
-        list.innerHTML = ACHIEVEMENTS.map(a => `
-            <div class="ach-item${unlockedAch[a.id] ? ' unlocked' : ''}">
-                <div class="ach-icon">${a.icon}</div>
-                <div>
-                    <div class="ach-name">${a.name}</div>
-                    <div class="ach-desc">${a.desc}</div>
-                </div>
-                <div class="ach-reward">${unlockedAch[a.id] ? '✓ DONE' : (a.reward ? '+'+a.reward+' 🪙' : '')}</div>
-            </div>
-        `).join('');
-    }
-
-    function toggleShop(forceClose) {
-        SoundFX.play('click');
-        const m = document.getElementById('shopModal');
-        if (forceClose) { m.style.display = 'none'; return; }
-        const opening = m.style.display !== 'flex';
-        m.style.display = opening ? 'flex' : 'none';
-        updateCoinDisplay();
-    }
-
-    function showToast(title, msg) {
-        const c = document.getElementById('toastContainer');
-        if (!c) return;
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.innerHTML = `<span class="t-title">${title}</span>${msg}`;
-        c.appendChild(t);
-        setTimeout(() => t.remove(), 3100);
-    }
-
-    function launchConfetti() {
-        const canvas = document.getElementById('confettiCanvas');
-        if (!canvas) return;
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        canvas.style.display = 'block';
-        const ctx = canvas.getContext('2d');
-        const colors = ['#ffd700','#ffe57f','#ff1744','#00e676','#d500f9','#fff'];
-        const pieces = Array.from({length: 140}, () => ({
-            x: Math.random() * canvas.width, y: -20 - Math.random() * canvas.height * 0.5,
-            r: 4 + Math.random() * 6, c: colors[Math.floor(Math.random()*colors.length)],
-            vy: 2 + Math.random() * 4, vx: (Math.random()-0.5) * 3, rot: Math.random()*360, vr: (Math.random()-0.5) * 10
-        }));
-        let frame = 0;
-        function tick() {
-            frame++;
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            pieces.forEach(p => {
-                p.x += p.vx; p.y += p.vy; p.rot += p.vr;
-                ctx.save();
-                ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI/180);
-                ctx.fillStyle = p.c;
-                ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*1.6);
-                ctx.restore();
-            });
-            if (frame < 150) requestAnimationFrame(tick);
-            else canvas.style.display = 'none';
-        }
-        tick();
-        document.body.classList.add('screen-shake');
-        setTimeout(() => document.body.classList.remove('screen-shake'), 400);
-    }
-
-    function getBorderColor(r) {
-        if(r === 'legendary') return '#ffd700';
-        if(r === 'loop-master') return '#00e676';
-        if(r === 'uk-scene') return '#ff1744';
-        if(r === 'epic') return '#d500f9';
-        if(r === 'discord-gem') return '#ff9100';
-        if(r === 'underground') return '#607d8b';
-        return '#9e9e9e';
-    }
-
-    function getTxtColor(r) {
-        if(r === 'legendary') return '#ffe57f';
-        if(r === 'loop-master') return '#b9f6ca';
-        if(r === 'uk-scene') return '#ff8a80';
-        if(r === 'epic') return '#ea80fc';
-        if(r === 'discord-gem') return '#ffcc80';
-        if(r === 'underground') return '#b0bec5';
-        return '#bdbdbd';
-    }
-
-    let fullViewMode='owned',dailyStats=JSON.parse(localStorage.getItem('dailyStats')||'{}'),battleLog=JSON.parse(localStorage.getItem('battleLog')||'[]'),battleState=null;
-    function saveDaily(){localStorage.setItem('dailyStats',JSON.stringify(dailyStats))}function switchSection(name){document.querySelectorAll('.section-page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+name)?.classList.add('active');document.querySelector('.stage').style.display='none';document.querySelector('body > .inventory').style.display='none';document.querySelectorAll('.nav-tab').forEach(x=>x.classList.toggle('active',x.dataset.section===name));if(name==='home')renderHome();if(name==='packs')renderPackCatalog();if(name==='battles')renderBattle();if(name==='challenges')renderChallenges();if(name==='rankings')renderRankings();if(name==='collection')renderFullCollection()}document.querySelectorAll('.nav-tab').forEach(b=>b.addEventListener('click',()=>switchSection(b.dataset.section)));
-    function renderHome(){const u=Object.keys(myCollection).length,dup=Object.values(myCollection).reduce((a,c)=>a+Math.max(0,(c.count||1)-1),0),leg=Object.values(myCollection).filter(c=>c.rarity==='legendary').length;const m=document.getElementById('homeMetrics');if(m)m.innerHTML=`<div class="metric-card"><div class="v">${u}/${db.length}</div><div class="l">UNIQUE CARDS</div></div><div class="metric-card"><div class="v">${dup}</div><div class="l">DUPLICATES</div></div><div class="metric-card"><div class="v">${leg}</div><div class="l">LEGENDARIES</div></div><div class="metric-card"><div class="v">🪙 ${coins}</div><div class="l">COIN BALANCE</div></div>`;const hs=document.getElementById('homeStreak');if(hs)hs.innerText=(parseInt(localStorage.getItem('streak'))||0)+'🔥';const hp=document.getElementById('homePity');if(hp)hp.innerText=pityCount+'/40'}
-    function renderPackCatalog(){const el=document.getElementById('packCatalog');if(!el)return;el.innerHTML=PACKS.map(p=>{const locked=(p.unlock&&totalOpened<p.unlock)||(p.cost&&coins<p.cost);return `<div class="pack-tile${locked?' locked':''}" onclick="openPackType('${p.id}')"><div class="icon">${p.icon}</div><h3>${p.name}</h3><div class="desc">${p.desc}</div><div class="price">${p.cost?'🪙 '+p.cost:'FREE'}${p.unlock?' · UNLOCK '+p.unlock:''}</div><div class="odds">${p.odds}<br>${p.cards} CARD${p.cards>1?'S':''}</div></div>`}).join('')}
-    function ensureChallenges(){if(!dailyStats.date||dailyStats.date!==new Date().toDateString()){dailyStats={date:new Date().toDateString(),opened:0,battles:0,legendary:0,sold:0};saveDaily()}}function renderChallenges(){ensureChallenges();const el=document.getElementById('challengeGrid');if(!el)return;const defs=[['OPEN SEASON','Open 5 cards today',dailyStats.opened,5,25],['BATTLE TESTED','Win 3 battles today',dailyStats.battles,3,40],['GOLD RUSH','Pull 1 Legendary today',dailyStats.legendary,1,75],['RECYCLER','Sell 2 duplicates today',dailyStats.sold,2,20],['COLLECTOR','Reach 10 unique cards',Object.keys(myCollection).length,10,40],['PITY BREAKER','Reach 20 pity',pityCount,20,15]];el.innerHTML=defs.map(d=>`<div class="challenge"><h3>${d[0]}</h3><p>${d[1]}</p><div class="progress"><span style="width:${Math.min(100,d[2]/d[3]*100)}%"></span></div><div class="reward">${Math.min(d[2],d[3])}/${d[3]} · +${d[4]} 🪙</div></div>`).join('')}
-    function currentBest(){return Object.values(myCollection).sort((a,b)=>b.rating-a.rating)[0]||db[0]}function randomOpponent(exclude){const p=db.filter(c=>c.name!==exclude.name);return p[Math.floor(Math.random()*p.length)]}function useBestTeam(){const best=currentBest();battleState={player:best,enemy:randomOpponent(best)};renderBattle();showToast('BEST CARD',`${best.name} · ${best.rating}`)}function startBattle(){const player=currentBest();if(!myCollection[player.name]){showToast('BUILD A TEAM','Open a card first.');return}const enemy=randomOpponent(player);battleState={player,enemy};const p=player.rating+(Math.random()*18-9),e=enemy.rating+(Math.random()*18-9),win=p>=e;ensureChallenges();if(win){dailyStats.battles++;coins+=30}else coins+=5;dailyStats.date=new Date().toDateString();saveDaily();localStorage.setItem('coins',coins);updateCoinDisplay();battleLog.unshift({player:player.name,enemy:enemy.name,win});battleLog=battleLog.slice(0,20);localStorage.setItem('battleLog',JSON.stringify(battleLog));document.getElementById('battleResult').innerHTML=win?`<b style="color:var(--gold)">VICTORY.</b> ${player.name} wins. +30 🪙`:`<b style="color:var(--red)">DEFEAT.</b> ${enemy.name} takes it. +5 🪙`;renderBattle();renderHome();renderChallenges()}function renderBattle(){const m=document.getElementById('matchup');if(!m)return;const p=battleState?.player||currentBest(),e=battleState?.enemy||randomOpponent(p);m.innerHTML=[p,e].map((c,i)=>{const src=resolveImgSrc(c);return `<div class="fighter"><div class="f-art">${src?`<img src="${src}">`:placeholderArtHTML(c)}</div><div class="fighter-name">${c.name}</div><div class="fighter-rating">${c.rating} · ${c.type}</div></div>${i===0?'<div class="versus">VS</div>':''}`}).join('');const log=document.getElementById('battleLog');if(log)log.innerHTML=battleLog.map(x=>`<div class="log-line"><b>${x.win?'W':'L'}</b> · ${x.player} vs ${x.enemy}</div>`).join('')||'<div class="log-line">No battles yet.</div>'}
-    function renderRankings(){const el=document.getElementById('rankTable');if(!el)return;const ranks=[...db].sort((a,b)=>b.rating-a.rating).slice(0,25);el.innerHTML=`<div class="rank-row head"><div>#</div><div>BEATBOXER</div><div>RATING</div><div>RARITY</div><div>OWNED</div></div>`+ranks.map((c,i)=>{const src=resolveImgSrc(c);return `<div class="rank-row"><div class="rank-val">${i+1}</div><div class="rank-avatar">${src?`<img class="rank-mini" src="${src}">`:'<div class="rank-mini"></div>'}<span class="rank-name">${c.name}</span></div><div class="rank-val">${c.rating}</div><div style="color:${getTxtColor(c.rarity)};font-size:.65rem;font-weight:800">${RARITY_LABEL[c.rarity]||c.rarity}</div><div>${myCollection[c.name]?myCollection[c.name].count:'—'}</div></div>`}).join('')}
-    function setFullView(m){fullViewMode=m;document.getElementById('fullOwned').className=m==='owned'?'toggle-btn active':'toggle-btn';document.getElementById('fullIndex').className=m==='all'?'toggle-btn active':'toggle-btn';renderFullCollection()}function renderFullCollection(){const wrap=document.getElementById('invListFull');if(!wrap)return;let arr=fullViewMode==='owned'?Object.values(myCollection):db.map(c=>({...c,count:myCollection[c.name]?.count||0,isLocked:!myCollection[c.name]}));const q=(document.getElementById('searchBoxFull')?.value||'').toLowerCase();if(q)arr=arr.filter(c=>c.name.toLowerCase().includes(q));document.getElementById('clubCountFull').innerText=`(${Object.keys(myCollection).length}/${db.length})`;wrap.innerHTML='';arr.sort((a,b)=>b.rating-a.rating).forEach(c=>{const d=document.createElement('div');d.className=c.isLocked?'inv-card locked':'inv-card';d.style.borderColor=getBorderColor(c.rarity);d.onclick=()=>inspectCard(c.name);const img=resolveImgSrc(c);d.innerHTML=`${c.count>1?`<span class="inv-badge">${c.count}</span>`:''}<div class="inv-info" style="color:${getTxtColor(c.rarity)}">${c.isLocked?'??':c.rating}</div>`;if(img&&!c.isLocked){const im=document.createElement('img');im.className='inv-img';im.src=img;im.onerror=function(){smartFallback(this)};d.prepend(im)}else{const ph=document.createElement('div');ph.className='inv-img placeholder-art';ph.innerHTML=placeholderArtHTML(c,true);d.prepend(ph)}wrap.appendChild(d)})}
-    ensureChallenges();document.querySelector('.stage').style.display='none';document.querySelector('body > .inventory').style.display='none';renderHome();renderPackCatalog();renderChallenges();renderBattle();renderRankings();
-    const _revealLogicOriginal=revealLogic;revealLogic=function(n,f,c){const before=totalOpened;_revealLogicOriginal(n,f,c);ensureChallenges();dailyStats.opened+=Math.max(0,totalOpened-before);if((pullHistory[0]?.rarity)==='legendary')dailyStats.legendary++;saveDaily();renderHome();renderChallenges()};
-    // START
-    initApp();
-
+const S={
+ collection:JSON.parse(localStorage.getItem('myCollection')||'{}'), totalOpened:+localStorage.getItem('totalOpened')||0, coins:+localStorage.getItem('coins')||0, gems:+localStorage.getItem('gems')||3, tickets:+localStorage.getItem('tickets')||2, pity:+localStorage.getItem('pityCount')||0,
+ fav:JSON.parse(localStorage.getItem('favorites')||'{}'), xp:+localStorage.getItem('masteryXP')||0, level:+localStorage.getItem('profileLevel')||1, energy:+localStorage.getItem('energy')||100, elo:+localStorage.getItem('elo')||1000, wins:+localStorage.getItem('battleWins')||0, losses:+localStorage.getItem('battleLosses')||0,
+ streak:+localStorage.getItem('streak')||0, lastDaily:localStorage.getItem('lastDaily')||'', battleLog:JSON.parse(localStorage.getItem('battleLog')||'[]'), quests:JSON.parse(localStorage.getItem('quests')||'null'), achievements:JSON.parse(localStorage.getItem('achievements')||'{}'), mastery:JSON.parse(localStorage.getItem('mastery')||'{}'), team:JSON.parse(localStorage.getItem('team')||'[]'), worldWins:+localStorage.getItem('worldWins')||0, worldRegion:+localStorage.getItem('worldRegion')||0, royaleWins:+localStorage.getItem('royaleWins')||0, royaleRuns:+localStorage.getItem('royaleRuns')||0, muted:false
+};
+const PITY_LIMIT=40;
+function save(){localStorage.setItem('myCollection',JSON.stringify(S.collection));localStorage.setItem('totalOpened',S.totalOpened);localStorage.setItem('coins',S.coins);localStorage.setItem('gems',S.gems);localStorage.setItem('tickets',S.tickets);localStorage.setItem('pityCount',S.pity);localStorage.setItem('masteryXP',S.xp);localStorage.setItem('profileLevel',S.level);localStorage.setItem('energy',S.energy);localStorage.setItem('elo',S.elo);localStorage.setItem('battleWins',S.wins);localStorage.setItem('battleLosses',S.losses);localStorage.setItem('battleLog',JSON.stringify(S.battleLog));localStorage.setItem('quests',JSON.stringify(S.quests));localStorage.setItem('achievements',JSON.stringify(S.achievements));localStorage.setItem('mastery',JSON.stringify(S.mastery));localStorage.setItem('team',JSON.stringify(S.team));localStorage.setItem('worldWins',S.worldWins);localStorage.setItem('worldRegion',S.worldRegion);localStorage.setItem('royaleWins',S.royaleWins);localStorage.setItem('royaleRuns',S.royaleRuns)}
+function rarityColor(r){return RARITY_COLOR[r]||'#aaa'}
+function initials(n){return n.replace(/[^A-Za-z ]/g,'').split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase()||'?'}
+function slug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function imgFor(c){if(!c.img)return null; if(c.img.startsWith('http')||c.img.endsWith('.png')||c.img.endsWith('.jpg')||c.img.endsWith('.webp'))return c.img; return `https://img.youtube.com/vi/${c.img}/hqdefault.jpg`}
+// Wikipedia + YouTube fallback: this is deliberately chained so a wrong person is never substituted just to fill a card.
+async function hydrateImage(c,el){
+  const direct=imgFor(c); if(direct){el.innerHTML=`<img src="${direct}" onerror="this.remove();" alt="${escapeHtml(c.name)}">`; if(c.img && !String(c.img).startsWith('http')) el.querySelector('img').addEventListener('error',()=>findWiki(c,el)); return}
+  await findWiki(c,el);
+}
+async function findWiki(c,el){try{const u='https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&origin=*&titles='+encodeURIComponent(c.name);const j=await (await fetch(u)).json();const p=Object.values(j.query.pages)[0];if(p&&p.original&&p.original.source){el.innerHTML=`<img src="${p.original.source}" alt="${escapeHtml(c.name)}">`;return}}catch(e){}el.innerHTML=`<div class="ph">${initials(c.name)}</div><div style="position:absolute;bottom:6px;left:7px;right:7px;text-align:center;font-size:.48rem;color:#667084;letter-spacing:1px">IMAGE SEARCH READY</div>`}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function toast(title,msg){const w=document.getElementById('toastWrap');const d=document.createElement('div');d.className='toast';d.innerHTML=`<b>${title}</b><span>${msg}</span>`;w.appendChild(d);setTimeout(()=>d.remove(),3000)}
+function sfx(type='click'){if(S.muted)return;try{const C=audioEngine.ctx||(audioEngine.ctx=new (window.AudioContext||window.webkitAudioContext)());const o=C.createOscillator(),g=C.createGain();o.connect(g);g.connect(C.destination);const t=C.currentTime;o.type=type==='charge'?'triangle':'sine';o.frequency.setValueAtTime(type==='win'?360:type==='charge'?130:600,t);o.frequency.exponentialRampToValueAtTime(type==='win'?760:type==='charge'?740:220,t+.18);g.gain.setValueAtTime(.055,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.start(t);o.stop(t+.2)}catch(e){}}
+const audioEngine={ctx:null};
+function go(page){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.navbtn[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));renderPage(page);sfx('click')}
+document.querySelectorAll('.navbtn[data-page]').forEach(b=>b.onclick=()=>go(b.dataset.page));
+function renderPage(p){({home:renderHome,packs:renderPacks,battles:renderBattle,royale:renderRoyale,draft:renderDraft,world:renderWorld,rankings:renderRankings,collection:renderCollection,gym:renderGym,quests:renderQuests,codex:renderCodex}[p]||renderHome)()}
+function updateHUD(){document.getElementById('hudLevel').textContent=S.level;document.getElementById('hudEnergy').textContent=S.energy;document.getElementById('hudCoins').textContent=S.coins;document.getElementById('hudGems').textContent=S.gems;S.energy=Math.min(100,S.energy+0);save()}
+function xpNeed(){return 250 + (S.level-1)*125}
+function addXP(n){S.xp+=n;while(S.xp>=xpNeed()){S.xp-=xpNeed();S.level++;S.coins+=50;toast('LEVEL UP',`Profile is now level ${S.level} — +50 coins`)}save();updateHUD()}
+function updateDaily(){const today=new Date().toDateString();if(!S.lastDaily||S.lastDaily!==today){const yesterday=new Date(Date.now()-86400000).toDateString();S.streak=(S.lastDaily===yesterday)?S.streak+1:1;S.lastDaily=today;S.coins+=15+Math.min(10,S.streak)*5;localStorage.setItem('lastVisit',today);toast('DAILY STREAK',`Day ${S.streak} — bonus coins awarded`)}if(!S.quests||S.quests.day!==today){S.quests={day:today,items:[{id:'open',text:'Open 3 cards',goal:3,done:0,reward:60},{id:'win',text:'Win 2 battles',goal:2,done:0,reward:80},{id:'fav',text:'Favorite 1 card',goal:1,done:0,reward:30},{id:'train',text:'Train a card once',goal:1,done:0,reward:45}]};}save()}
+function questProgress(id,n=1){if(!S.quests)return;const q=S.quests.items.find(x=>x.id===id);if(!q)return;q.done=Math.min(q.goal,q.done+n);if(q.done===q.goal&&!q.claimed){q.claimed=true;S.coins+=q.reward;toast('QUEST COMPLETE',`+${q.reward} coins`)}save()}
+function rarityOf(r){const arr=ALL_CARDS.filter(c=>c.rarity===r);return arr[Math.floor(Math.random()*arr.length)]}
+function pickCard(pack){
+  if(pack.id==='daily')return ALL_CARDS[Math.floor(Math.random()*ALL_CARDS.length)];
+  if(pack.guarantee && Math.random()<.32)return rarityOf(pack.guarantee);
+  const w=pack.weight;let r=Math.random();
+  if(pack.id==='chaos'){const roll=Math.random();if(roll<.015)return rarityOf('legendary');if(roll<.11)return rarityOf('loop-master');if(roll<.28)return rarityOf('epic');if(roll<.7)return rarityOf('uk-scene')}
+  if(pack.id==='legend'&&r<.2)return rarityOf('legendary');
+  if(pack.id==='eclipse'&&r<.42)return rarityOf('legendary');
+  if(pack.id==='vault')return rarityOf('legendary');
+  const tier=r<w[0] ? w[0] : w[Math.floor(Math.random()*w.length)];
+  // Weighted by rarity rather than treating strings equally.
+  const rr=Math.random()*100;
+  if(pack.id==='mega'){if(rr<4)return rarityOf('legendary');if(rr<14)return rarityOf('loop-master');if(rr<31)return rarityOf('epic');if(rr<75)return rarityOf('uk-scene');return rarityOf('common')}
+  if(pack.id==='world'){if(rr<5)return rarityOf('legendary');if(rr<18)return rarityOf('loop-master');if(rr<38)return rarityOf('epic');if(rr<80)return rarityOf('uk-scene');return rarityOf('common')}
+  if(pack.id==='loop'){if(rr<10)return rarityOf('legendary');if(rr<55)return rarityOf('loop-master');return rarityOf('epic')}
+  if(pack.id==='uk'){if(rr<3)return rarityOf('legendary');if(rr<20)return rarityOf('loop-master');if(rr<36)return rarityOf('epic');return rarityOf('uk-scene')}
+  if(pack.id==='rival'){if(rr<5)return rarityOf('legendary');if(rr<22)return rarityOf('loop-master');if(rr<45)return rarityOf('epic');return rarityOf('uk-scene')}
+  if(rr<1)return rarityOf('legendary');if(rr<8)return rarityOf('loop-master');if(rr<22)return rarityOf('epic');if(rr<70)return rarityOf('uk-scene');return rarityOf('common');
+}
+function canBuy(p){if(p.unlock && S.totalOpened<p.unlock){toast('LOCKED',`Open ${p.unlock} cards first.`);return false}if(p.currency==='free'){const t=new Date().toDateString();if(localStorage.getItem('dailyPack')===t){toast('CLAIMED','Come back tomorrow for the free drop.');return false}}if(p.currency==='coins'&&S.coins<p.cost)return toast('NOT ENOUGH COINS','Earn coins from packs, quests and battles.');if(p.currency==='gems'&&S.gems<p.cost)return toast('NOT ENOUGH GEMS','Premium currency required.');if(p.currency==='tickets'&&S.tickets<p.cost)return toast('NOT ENOUGH TICKETS','Win Battle Royale runs or daily missions.');return true}
+function spend(p){if(p.currency==='coins')S.coins-=p.cost;if(p.currency==='gems')S.gems-=p.cost;if(p.currency==='tickets')S.tickets-=p.cost;if(p.currency==='free')localStorage.setItem('dailyPack',new Date().toDateString());}
+function openPackType(id){const p=PACKS.find(x=>x.id===id);if(!p||!canBuy(p))return;sfx('charge');spend(p);const cards=[];for(let i=0;i<p.cards;i++){S.totalOpened++;S.pity++;let c=pickCard(p);if(S.pity>=PITY_LIMIT&&c.rarity!=='legendary'){c=rarityOf('legendary');S.pity=0}if(c.rarity==='legendary')S.pity=0;cards.push(c);const owned=S.collection[c.name];if(owned)owned.count++;else S.collection[c.name]={...c,count:1};addXP(20);}S.coins+=cards.reduce((a,c)=>a+(c.rarity==='legendary'?40:c.rarity==='loop-master'?25:c.rarity==='epic'?15:c.rarity==='uk-scene'?5:2),0);questProgress('open',cards.length);save();renderAll();showPackResults(p,cards);if(cards.some(c=>c.rarity==='legendary'))sfx('win');else sfx('click');}
+function showPackResults(p,cards){document.getElementById('packModalTitle').textContent=p.name+' // '+cards.length+' CARDS';const box=document.getElementById('packResults');box.innerHTML='';cards.forEach((c,i)=>box.appendChild(cardEl(c,true)));document.getElementById('packModal').classList.add('open')}
+function cardEl(c,large=false){const d=document.createElement('div');d.className='mini-card';d.style.borderColor=rarityColor(c.rarity);const art=document.createElement('div');art.className='mini-art';d.appendChild(art);const b=document.createElement('span');b.className='badge';b.style.color=rarityColor(c.rarity);b.textContent=RARITY_LABEL[c.rarity]||c.rarity.toUpperCase();d.appendChild(b);const info=document.createElement('div');info.className='mini-info';info.innerHTML=`<div class="mini-name">${escapeHtml(c.name)}</div><div class="mini-line"><span>${escapeHtml(c.type)}</span><strong>${c.rating}</strong></div>`;d.appendChild(info);d.onclick=()=>inspect(c.name);hydrateImage(c,art);return d}
+function inspect(name){const c=ALL_CARDS.find(x=>x.name===name);if(!c)return;document.getElementById('modalCardTitle').textContent=c.name;const art=document.getElementById('modalArt');art.innerHTML='';hydrateImage(c,art);const lvl=S.mastery[name]?.level||1,xp=S.mastery[name]?.xp||0;document.getElementById('modalDetail').innerHTML=`<h4>${escapeHtml(c.name)}</h4><div class="tiny" style="color:${rarityColor(c.rarity)}">${RARITY_LABEL[c.rarity]||c.rarity.toUpperCase()} // ${escapeHtml(c.country)} // ${escapeHtml(c.type)}</div><p class="muted">Overall rating: <b style="color:#fff">${c.rating}</b> · Owned: ${S.collection[name]?.count||0} · Mastery Lv.$lvl</p><div class="statbars">${[['TEC',c.t],['MUS',c.m],['ORG',c.o],['PWR',c.p]].map(x=>`<div class="statbar"><b>${x[0]}</b><i><span style="width:${x[1]}%"></span></i><strong>${x[1]}</strong></div>`).join('')}</div><div class="panel" style="margin-top:13px"><b>MASTERY</b><div class="progress" style="margin:8px 0"><span style="width:${Math.min(100,(xp/350)*100)}%"></span></div><span class="muted">${xp} / 350 XP</span></div><div class="actions"><button class="btn" onclick="favorite('${escapeHtml(name)}')">${S.fav[name]?'UNFAVOURITE':'FAVOURITE'}</button>${S.collection[name]&&S.collection[name].count>1?`<button class="btn red" onclick="sellDuplicate('${escapeHtml(name)}')">SELL DUPLICATE</button>`:''}</div>`;openModal('cardModal')}
+function favorite(name){S.fav[name]=!S.fav[name];localStorage.setItem('favorites',JSON.stringify(S.fav));questProgress('fav');inspect(name)}
+function sellDuplicate(name){const c=S.collection[name];if(!c||c.count<2)return;c.count--;S.coins+=c.rarity==='legendary'?40:c.rarity==='loop-master'?25:c.rarity==='epic'?15:c.rarity==='uk-scene'?5:2;save();toast('DUPLICATE SOLD',`Duplicate ${name} sold for coins.`);renderAll()}
+function renderHome(){updateHUD();const owned=Object.keys(S.collection).length;document.getElementById('homeOwned').textContent=owned;document.getElementById('homeOwnedSub').textContent=`${Math.round(owned/ALL_CARDS.length*100)}% complete`;document.getElementById('homeElo').textContent=S.elo;const rank=globalBoard().findIndex(c=>c.elo<=S.elo)+1;document.getElementById('homeRank').textContent=rank>0?`Local rank #${rank}`:'Climb the ladder';const total=S.wins+S.losses;document.getElementById('homeWin').textContent=(total?Math.round(S.wins/total*100):0)+'%';document.getElementById('homeRecord').textContent=`${S.wins}W / ${S.losses}L`;document.getElementById('homeXp').textContent=S.xp;document.getElementById('homeLevelSub').textContent=`Level ${S.level}`;document.getElementById('homeStreak').textContent=`DAILY STREAK ${S.streak}`;document.getElementById('homePity').textContent=`${S.pity} / ${PITY_LIMIT}`;document.getElementById('homePityBar').style.width=(S.pity/PITY_LIMIT*100)+'%';const best=[...Object.values(S.collection)].sort((a,b)=>b.rating-a.rating)[0];document.getElementById('homeBest').textContent=best?.name||'—';document.getElementById('homeBestSub').textContent=best?`${RARITY_LABEL[best.rarity]||best.rarity} // ${best.rating} OVR`:'Nothing yet.';const q=S.quests?.items.find(x=>x.id==='open');document.getElementById('homeQuest').textContent=q?`${q.done} / ${q.goal} cards`: 'Visit quests';document.getElementById('homeQuestSub').textContent=q?`+${q.reward} coins`:'';const box=document.getElementById('homeSpotlight');box.innerHTML='';ALL_CARDS.sort((a,b)=>b.rating-a.rating).slice(0,8).forEach(c=>box.appendChild(cardEl(c)));}
+function renderPacks(){const box=document.getElementById('packGrid');box.innerHTML='';PACKS.forEach(p=>{const locked=p.unlock&&S.totalOpened<p.unlock;const cur=p.currency==='coins'?'🪙':p.currency==='gems'?'💎':p.currency==='tickets'?'🎟️':'FREE';const d=document.createElement('div');d.className='pack-card';d.innerHTML=`<div class="big">${p.icon}</div><div class="tag ${locked?'red':'gold'}">${locked?`LOCKED @ ${p.unlock} OPENED`:`${cur} ${p.cost||''}`}</div><h4>${p.name}</h4><p>${p.desc}</p><div class="pack-meta"><span class="tag">${p.cards} CARDS</span>${p.guarantee?`<span class="tag green">${RARITY_LABEL[p.guarantee]}+</span>`:''}</div><button class="btn ${locked?'dark':''}" ${locked?'disabled':''}>${locked?'LOCKED':'OPEN PACK'}</button>`;d.querySelector('button').onclick=()=>openPackType(p.id);box.appendChild(d)})}
+function setAvatar(el,c){el.innerHTML='';hydrateImage(c,el)}
+let battle=null;
+function playerCard(){const owned=Object.values(S.collection);return owned.sort((a,b)=>((b.rating+(S.mastery[b.name]?.level||0)*2)-(a.rating+(S.mastery[a.name]?.level||0)*2)))[0]||null}
+function newRankedBattle(){const me=playerCard();if(!me)return toast('NO FIGHTER','Open at least one card first.');const pool=ALL_CARDS.filter(c=>c.name!==me.name);let opp=pool[Math.floor(Math.random()*pool.length)];battle={me,opp,hpM:100,hpE:100,turn:1,over:false};document.getElementById('battleStatus').innerHTML=`Opponent found: <b>${opp.name}</b> (${opp.rating}). Choose a move.`;renderBattle()}
+function renderBattle(){if(!battle){battleStatusSafe('Find an opponent to start.')} else{document.getElementById('battleTurn').textContent=`TURN ${battle.turn}`;document.getElementById('playerName').textContent=battle.me.name;document.getElementById('enemyName').textContent=battle.opp.name;document.getElementById('playerMeta').textContent=`${RARITY_LABEL[battle.me.rarity]} // ${battle.me.rating}`;document.getElementById('enemyMeta').textContent=`${RARITY_LABEL[battle.opp.rarity]} // ${battle.opp.rating}`;document.getElementById('hpPlayer').style.width=Math.max(0,battle.hpM)+'%';document.getElementById('hpEnemy').style.width=Math.max(0,battle.hpE)+'%';setAvatar(document.getElementById('playerAvatar'),battle.me);setAvatar(document.getElementById('enemyAvatar'),battle.opp)}document.getElementById('recordLabel').textContent=`${S.wins}W / ${S.losses}L`;const log=document.getElementById('battleLog');log.innerHTML=S.battleLog.slice(0,15).map(x=>`<div class="log ${x.win?'win':'loss'}">${x.text}</div>`).join('');renderTeam()}
+function battleStatusSafe(t){document.getElementById('battleStatus').textContent=t;document.getElementById('playerName').textContent='YOUR FIGHTER';document.getElementById('enemyName').textContent='OPPONENT';document.getElementById('playerAvatar').innerHTML='<div class="ph">?</div>';document.getElementById('enemyAvatar').innerHTML='<div class="ph">?</div>';document.getElementById('hpPlayer').style.width='100%';document.getElementById('hpEnemy').style.width='100%'}
+function effectiveness(me,opp){const m=me.type,o=opp.type;const wins={TECH:['POWER','AGGRO'],POWER:['BASS','SHOW'],BASS:['FLOW','LOOP'],FLOW:['TECH','AGGRO'],LOOP:['SHOW','POWER'],SHOW:['TECH','UNIQUE'],AGGRO:['FLOW','LOOP'],UNIQUE:['POWER','BASS'],FAST:['LOOP','TECH'],GLITCH:['CLEAN','TECH'],CLEAN:['UNIQUE','GLITCH'],PIONEER:['AGGRO','SHOW'],TITAN:['ALL','ALL']};return wins[m]?.includes(o)?1.15:1}
+function battleMove(move){if(!battle||battle.over)return;let mult=effectiveness(battle.me,battle.opp);let dmg=8+(battle.me.rating-battle.opp.rating)*.22;if(move==='signature')dmg+=10; if(move==='hype'){dmg+=4;mult*=1.1} if(move==='guard'){battle.hpM=Math.min(100,battle.hpM+8);dmg*=.55}dmg*=mult*(.92+Math.random()*.22);battle.hpE-=dmg;let line=`YOU used ${move.toUpperCase()} for ${Math.round(dmg)} damage.`;if(battle.hpE<=0)return finishBattle(true,line);let enemyMoves=['attack','guard','signature','hype'];let em=enemyMoves[Math.floor(Math.random()*enemyMoves.length)];let edmg=7+(battle.opp.rating-battle.me.rating)*.22;if(em==='signature')edmg+=8;if(em==='guard'){battle.hpE=Math.min(100,battle.hpE+5);edmg*=.5}edmg*=.9+Math.random()*.2;battle.hpM-=Math.max(2,edmg);line+=` Enemy used ${em.toUpperCase()}.`;if(battle.hpM<=0)return finishBattle(false,line);battle.turn++;S.energy=Math.max(0,S.energy-2);document.getElementById('battleStatus').textContent=line;S.battleLog.unshift({text:`T${battle.turn-1} — ${line}`,win:false});S.battleLog=S.battleLog.slice(0,20);renderBattle();save()}
+function finishBattle(win,line){battle.over=true;const delta=win?24:-(10+Math.floor(Math.random()*7));S.elo=Math.max(700,S.elo+delta);if(win){S.wins++;S.coins+=65;addXP(70);questProgress('win');toast('VICTORY',`+65 coins // Elo ${delta>=0?'+':''}${delta}`)}else{S.losses++;S.coins+=20;addXP(20);toast('DEFEAT',`Elo ${delta}`)}S.battleLog.unshift({text:`${win?'WIN':'LOSS'} — ${battle.me.name} vs ${battle.opp.name}`,win});document.getElementById('battleStatus').innerHTML=`<b>${win?'VICTORY':'DEFEAT'}</b> — ${line}`;sfx(win?'win':'click');save();renderAll()}
+function autoBestBattle(){if(!battle)newRankedBattle();if(!battle)return;let n=0;const timer=setInterval(()=>{if(!battle||battle.over||n>12)return clearInterval(timer);battleMove(n%3===0?'signature':n%2?'attack':'hype');n++},350)}
+function setBestTeam(){S.team=Object.values(S.collection).sort((a,b)=>b.rating-a.rating).slice(0,3).map(c=>c.name);save();renderTeam()}
+function clearTeam(){S.team=[];save();renderTeam()}
+function renderTeam(){const box=document.getElementById('teamSlots');if(!box)return;box.innerHTML=[0,1,2].map(i=>{const c=ALL_CARDS.find(x=>x.name===S.team[i]);return `<div class="team-slot ${c?'filled':''}">${c?`<span style="color:${rarityColor(c.rarity)}">${c.rating} OVR</span><b>${escapeHtml(c.name)}</b>`:'<span class="muted">EMPTY SLOT</span>'}</div>`}).join('')}
+let royale={active:false,round:0,remain:16,champ:null,feed:[]};
+function startRoyale(){const me=playerCard();if(!me)return toast('NO CHAMPION','Open a card first.');if(S.tickets<1)return toast('NO TICKET','Win or complete quests for tickets.');S.tickets--;S.royaleRuns++;royale={active:true,round:1,remain:16,champ:me,feed:[]};royale.feed.push({p:1,name:me.name,note:'Entered the arena'});save();renderRoyale();toast('ROYAL ENTRY','16 fighters remain')}
+function royaleNextRound(){if(!royale.active)return startRoyale();if(royale.remain<=1)return;const survivors=Math.max(1,Math.ceil(royale.remain/2));for(let i=survivors;i<royale.remain;i++){const n=ALL_CARDS[Math.floor(Math.random()*ALL_CARDS.length)];royale.feed.unshift({p:i+1,name:n.name,note:'Eliminated'})}royale.remain=survivors;royale.round++;if(royale.remain===1){S.royaleWins++;S.coins+=250;S.tickets++;addXP(180);toast('ROYAL CHAMPION',`$${royale.champ.name} won the Royale — +250 coins`)}save();renderRoyale()}
+function renderRoyale(){document.getElementById('royaleCount').textContent=royale.active?royale.remain:16;document.getElementById('royaleStatus').innerHTML=royale.active?`Round ${Math.min(4,royale.round)} — Champion: <b>${royale.champ.name}</b>`:'Pick your champion and start the bracket.';document.getElementById('royaleFeed').innerHTML=royale.feed.slice(0,18).map(x=>`<div class="feed-row"><div class="place">${x.p}</div><div><b>${escapeHtml(x.name)}</b><small>${x.note}</small></div><span class="tiny">R${royale.round}</span></div>`).join('')}
+let draft={running:false,round:0,team:[],offers:[]};
+function startDraft(){draft={running:true,round:1,team:[],offers:[]};draftOffers();renderDraft();}
+function draftOffers(){draft.offers=[0,1,2].map(()=>ALL_CARDS[Math.floor(Math.random()*ALL_CARDS.length)])}
+function pickDraft(i){if(!draft.running||draft.team.length>=3)return;draft.team.push(draft.offers[i]);if(draft.team.length<3){draft.round++;draftOffers()}else{const score=draft.team.reduce((a,c)=>a+c.rating,0);const win=score>=270||(Math.random()<.4);document.getElementById('draftResult').innerHTML=`Draft complete — team rating ${score}. ${win?'RUN CLEARED: +3 tickets +150 coins':'RUN FAILED: +25 coins'}`;if(win){S.tickets+=3;S.coins+=150;addXP(120)}else S.coins+=25;save()}renderDraft()}
+function renderDraft(){document.getElementById('draftRound').textContent=`ROUND ${draft.running?draft.round:0} / 3`;const o=document.getElementById('draftOffers');o.innerHTML='';draft.offers.forEach((c,i)=>{const d=cardEl(c);d.onclick=()=>pickDraft(i);o.appendChild(d)});document.getElementById('draftTeam').innerHTML=draft.team.map(cardEl).map(x=>x.outerHTML).join('')}
+function renderWorld(){const t=document.getElementById('worldTimeline');t.innerHTML=REGIONS.map((r,i)=>`<div class="stage-dot ${i===S.worldRegion?'active':''}"><div class="tiny">STAGE ${i+1}</div><b>${r[1]} ${r[0]}</b><small>${Math.min(5,Math.max(0,S.worldWins-i*5))} / 5 clears</small></div>`).join('');document.getElementById('worldProgressText').textContent=`${S.worldWins} / 40 WINS`;const box=document.getElementById('worldCards');box.innerHTML='';REGIONS[S.worldRegion].push;REGIONS[S.worldRegion][2].forEach(name=>{const c=ALL_CARDS.find(x=>x.name===name)||ALL_CARDS[0];const d=cardEl(c);const b=document.createElement('button');b.className='btn dark';b.textContent='CHALLENGE';b.onclick=()=>worldFight(c);d.appendChild(b);box.appendChild(d)})}
+function worldFight(c){const me=playerCard();if(!me)return toast('NO FIGHTER','Open a card first.');const boss=S.worldRegion===REGIONS.length-1&&S.worldWins>=35;const chance=Math.max(.2,Math.min(.95,.5+(me.rating-c.rating)/90));if(Math.random()<chance){S.worldWins++;S.coins+=boss?300:75;addXP(boss?250:75);if(S.worldWins%5===0&&S.worldRegion<REGIONS.length-1)S.worldRegion++;toast(boss?'LEGEND GAUNTLET CLEARED':'REGION WIN',`$${me.name} defeated ${c.name}`)}else{S.coins+=15;toast('TOUGH FIGHT','The boss held the line.')}save();renderWorld();updateHUD()}
+function globalBoard(){return ALL_CARDS.map(c=>({...c,elo:Math.round(1000+(c.rating-80)*9)})).sort((a,b)=>b.elo-a.elo)}
+function renderRankings(){const top=globalBoard().slice(0,100);document.getElementById('rankTable').innerHTML=top.map((c,i)=>`<div class="rank-row"><div class="rank-medal">${i<3?['🥇','🥈','🥉'][i]:i+1}</div><div class="rank-name">${escapeHtml(c.name)} <span class="muted">${c.country}</span></div><div class="elo">${c.elo}</div><div style="color:${rarityColor(c.rarity)}">${RARITY_LABEL[c.rarity]}</div><div>${S.collection[c.name]?'✓':'—'}</div></div>`).join('');document.getElementById('careerMetrics').innerHTML=`<div class="metric"><div class="label">ELO</div><div class="value">${S.elo}</div><div class="sub">Peak ${Math.max(S.elo,1000)}</div></div><div class="metric"><div class="label">RANKED WINS</div><div class="value">${S.wins}</div><div class="sub">${S.losses} losses</div></div><div class="metric"><div class="label">ROYALE WINS</div><div class="value">${S.royaleWins}</div><div class="sub">${S.royaleRuns} runs</div></div><div class="metric"><div class="label">WORLD TOUR</div><div class="value">${S.worldWins}</div><div class="sub">Region ${S.worldRegion+1} / ${REGIONS.length}</div></div>`}
+let ownedOnly=false;
+function toggleOwnedOnly(){ownedOnly=!ownedOnly;document.getElementById('ownedOnlyBtn').textContent=ownedOnly?'SHOW ALL':'OWNED ONLY';renderCollection()}
+function renderCollection(){const q=(document.getElementById('collectionSearch')?.value||'').toLowerCase();const r=document.getElementById('collectionRarity')?.value||'all';let arr=ALL_CARDS.filter(c=>(!ownedOnly||S.collection[c.name])&&(r==='all'||c.rarity===r)&&(`${c.name} ${c.type} ${c.country}`.toLowerCase().includes(q)));const sort=document.getElementById('collectionSort')?.value||'rating';arr.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name):sort==='rarity'?RARITY_ORDER.indexOf(a.rarity)-RARITY_ORDER.indexOf(b.rarity):b.rating-a.rating);document.getElementById('collectionCount').textContent=`${Object.keys(S.collection).length} / ${ALL_CARDS.length}`;const box=document.getElementById('collectionGrid');box.innerHTML='';arr.slice(0,500).forEach(c=>box.appendChild(cardEl(c)))}
+function renderGym(){const box=document.getElementById('gymGrid');box.innerHTML='';Object.values(S.collection).sort((a,b)=>b.rating-a.rating).forEach(c=>{const d=cardEl(c);const m=S.mastery[c.name]||{level:1,xp:0};const btn=document.createElement('button');btn.className='btn';btn.textContent=`TRAIN (+25 XP / 25 🪙)`;btn.onclick=(e)=>{e.stopPropagation();train(c.name)};d.appendChild(btn);const p=document.createElement('div');p.className='progress';p.innerHTML=`<span style="width:${Math.min(100,m.xp/3.5)}%"></span>`;d.appendChild(p);box.appendChild(d)})}
+function train(name){if(S.coins<25)return toast('NOT ENOUGH COINS','Training costs 25 coins.');S.coins-=25;const m=S.mastery[name]||{level:1,xp:0};m.xp+=25;if(m.xp>=350){m.xp-=350;m.level++;toast('MASTERY UP',`${name} reached level ${m.level}`)}S.mastery[name]=m;questProgress('train');addXP(20);save();renderGym();updateHUD()}
+function renderQuests(){const q=S.quests?.items||[];document.getElementById('questGrid').innerHTML=q.map(x=>`<div class="panel"><div class="tiny">DAILY QUEST</div><h3 style="margin:5px 0;font-family:Teko;font-size:1.6rem">${x.text}</h3><div class="progress"><span style="width:${x.goal?x.done/x.goal*100:0}%"></span></div><div style="display:flex;justify-content:space-between;margin-top:7px"><span class="muted">${x.done} / ${x.goal}</span><span class="gold">+${x.reward}</span></div></div>`).join('');const ach=[['first','First Pull','Open your first card',()=>S.totalOpened>=1,20],['legend','Legend Found','Pull a Legendary',()=>Object.values(S.collection).some(c=>c.rarity==='legendary'),60],['royale','Royal Survivor','Win a Battle Royale',()=>S.royaleWins>=1,120],['world','World Traveller','Win 10 World Tour fights',()=>S.worldWins>=10,150],['collector','Collector','Own 50 unique cards',()=>Object.keys(S.collection).length>=50,250],['master','Training Arc','Get a card to mastery level 5',()=>Object.values(S.mastery).some(m=>m.level>=5),200],['elo','Ranked Monster','Reach 1200 Elo',()=>S.elo>=1200,200],['streak','Two Week Streak','Reach a 14 day streak',()=>S.streak>=14,150]];document.getElementById('achievementCount').textContent=`${ach.filter(a=>S.achievements[a[0]]).length} / ${ach.length}`;document.getElementById('achievementGrid').innerHTML=ach.map(a=>{const done=a[3]();if(done&&!S.achievements[a[0]]){S.achievements[a[0]]=true;S.coins+=a[4];toast('ACHIEVEMENT',`${a[1]} — +${a[4]} coins`)}return `<div class="achievement ${done?'done':''}"><div class="ico">${done?'🏆':'🔒'}</div><div class="txt"><b>${a[1]}</b><small>${a[2]}</small></div><div class="rew">+${a[4]}</div></div>`}).join('');save()}
+function renderCodex(){document.getElementById('codexGrid').innerHTML=CODEX.map((x,i)=>{const unlock=i<2?Object.keys(S.collection).length>=10:i===2?S.wins>=3:i===3?Object.values(S.collection).some(c=>c.rarity==='loop-master'):i===4?S.wins>=5:i===5?Object.values(S.collection).filter(c=>c.rarity==='legendary').length>=5:i===6?S.worldWins>=40:i===7?S.royaleWins>=3:i===8?S.gems<3:false;return `<div class="panel" style="opacity:${unlock?1:.42}"><div style="font-size:2rem">${x[0]}</div><h3 style="font:600 1.8rem Teko;margin:5px 0">${x[1]}</h3><p class="muted">${x[2]}</p><div class="tiny">${unlock?'UNLOCKED':'LOCKED'}</div></div>`}).join('')}
+function openModal(id){document.getElementById(id).classList.add('open')}function closeModal(id){document.getElementById(id).classList.remove('open')}
+function toggleMute(){S.muted=!S.muted;document.getElementById('muteBtn').textContent=S.muted?'🔇 SOUND OFF':'🔊 SOUND ON'}
+function exportSave(){const payload={S};const blob=new Blob([JSON.stringify(payload)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='beatbox-legends-save.json';a.click();URL.revokeObjectURL(a.href)}
+function importSave(){const input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=()=>{const f=input.files[0];const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);Object.assign(S,o.S);save();location.reload()}catch(e){toast('IMPORT FAILED','Invalid save file')}};r.readAsText(f)};input.click()}
+function resetAll(){if(confirm('Reset all Beatbox Legends progress?')){localStorage.clear();location.reload()}}
+function renderAll(){updateHUD();renderHome();renderPacks();renderBattle();renderRoyale();renderDraft();renderWorld();renderRankings();renderCollection();renderGym();renderQuests();renderCodex()}
+updateDaily();
+// Add missing legacy collection metadata if the old site used a stale object shape.
+Object.keys(S.collection).forEach(k=>{if(!S.collection[k].name){const c=ALL_CARDS.find(x=>x.name===k);if(c)S.collection[k]={...c,...S.collection[k]}}});
+const raritySelect=document.getElementById('collectionRarity');RARITY_ORDER.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=RARITY_LABEL[r];raritySelect.appendChild(o)});
+renderAll();updateHUD();
 </script>
-</body>
-</html>
+</body></html>
