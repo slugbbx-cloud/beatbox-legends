@@ -474,6 +474,125 @@
         }
         @keyframes scan { 0% { transform: translateY(-50vh) scaleX(0.5); opacity: 0; } 50% { opacity: 1; transform: translateY(0) scaleX(1); } 100% { transform: translateY(50vh) scaleX(0.5); opacity: 0; } }
         
+        /* --- NEW: PITY METER --- */
+        .pity-wrap { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 280px; z-index: 5; text-align: center; }
+        .pity-label { font-size: 0.6rem; letter-spacing: 2px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+        .pity-label span { color: var(--gold); }
+        .pity-track { width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; border: 1px solid var(--border); }
+        .pity-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); transition: width 0.4s ease; box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+
+        /* --- NEW: COIN PILL --- */
+        .coin-pill { cursor: pointer; transition: all 0.2s; }
+        .coin-pill:hover { border-color: var(--gold); background: rgba(255,215,0,0.06); }
+
+        /* --- NEW: SEARCH / SORT / FILTER --- */
+        .search-box {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 12px; border-radius: 6px; font-family: 'Rajdhani'; font-weight: 600; font-size: 0.8rem; width: 120px;
+        }
+        .search-box:focus { outline: none; border-color: var(--gold); }
+        .sort-select {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 10px; border-radius: 6px; font-family: 'Rajdhani'; font-weight: 700; font-size: 0.7rem; letter-spacing: 1px; cursor: pointer;
+        }
+        .rarity-chips { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .rarity-chip {
+            font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; padding: 4px 10px; border-radius: 10px;
+            border: 1px solid var(--border); cursor: pointer; opacity: 0.5; transition: all 0.2s; background: rgba(255,255,255,0.03);
+        }
+        .rarity-chip.active { opacity: 1; box-shadow: 0 0 8px currentColor; }
+
+        /* --- NEW: STAR / FAVORITE --- */
+        .fav-star {
+            position: absolute; top: 4px; left: 4px; z-index: 5; font-size: 0.9rem; cursor: pointer;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8)); transition: transform 0.15s;
+        }
+        .fav-star:hover { transform: scale(1.3); }
+        .new-badge {
+            position: absolute; top: 4px; left: 4px; background: var(--red); color: #fff; font-size: 0.55rem;
+            padding: 2px 5px; font-weight: 800; border-radius: 3px; z-index: 5; letter-spacing: 1px;
+        }
+        .card-fav-star {
+            position: absolute; top: 20px; right: 20px; font-size: 1.6rem; cursor: pointer; z-index: 6;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8)); transition: transform 0.15s;
+        }
+        .card-fav-star:hover { transform: scale(1.2); }
+        .sell-btn { margin-top: 10px; }
+
+        /* --- NEW: HOLO TILT --- */
+        .card { transition: transform 0.1s ease-out, box-shadow 0.4s ease; }
+        .card .holo-sheen {
+            position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: overlay;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), transparent 60%);
+            transition: opacity 0.2s;
+        }
+        .card:hover .holo-sheen { opacity: 0.5; }
+
+        /* --- NEW: PLACEHOLDER ART (for missing/broken photos) --- */
+        .placeholder-art {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            font-family: 'Teko', sans-serif; color: rgba(255,255,255,0.85); position: relative; overflow: hidden;
+        }
+        .placeholder-art .ph-initials { font-size: 5rem; line-height: 1; text-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        .placeholder-art .ph-mic { position: absolute; font-size: 6rem; opacity: 0.12; bottom: -10px; right: -10px; }
+        .inv-img.placeholder-art .ph-initials { font-size: 1.8rem; }
+        .inv-img.placeholder-art .ph-mic { font-size: 2.5rem; }
+
+        /* --- NEW: MODALS (Stats/Achievements/Shop) --- */
+        #statsModal, #achModal, #shopModal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none;
+            justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px);
+        }
+        .modal-wide { width: 420px; max-height: 80vh; overflow-y: auto; }
+        .vol-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; text-align: left; }
+        .vol-row label { font-size: 0.7rem; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
+        .stat-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+        .stat-box .sb-val { font-family: 'Teko'; font-size: 1.8rem; color: var(--gold); line-height: 1; }
+        .stat-box .sb-lbl { font-size: 0.6rem; color: var(--text-muted); letter-spacing: 1px; font-weight: 700; }
+        .rarity-bars { text-align: left; }
+        .rbar-row { margin-bottom: 8px; }
+        .rbar-lbl { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700; margin-bottom: 3px; }
+        .rbar-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+        .rbar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+        .ach-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+        .ach-item {
+            display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; opacity: 0.4;
+        }
+        .ach-item.unlocked { opacity: 1; border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.1); }
+        .ach-icon { font-size: 1.6rem; }
+        .ach-name { font-weight: 800; font-size: 0.9rem; }
+        .ach-desc { font-size: 0.7rem; color: var(--text-muted); }
+        .ach-reward { margin-left: auto; font-size: 0.75rem; color: var(--gold); font-weight: 700; white-space: nowrap; }
+
+        /* --- NEW: TOASTS --- */
+        #toastContainer { position: fixed; top: 90px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+        .toast {
+            background: rgba(10,10,10,0.95); border: 1px solid var(--gold); border-radius: 8px; padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); font-weight: 700; font-size: 0.85rem; color: var(--text-main);
+            animation: toastIn 0.3s ease, toastOut 0.4s ease 2.6s forwards; max-width: 280px;
+        }
+        .toast .t-title { color: var(--gold); font-size: 0.7rem; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+        @keyframes toastIn { from { opacity:0; transform: translateX(40px); } to { opacity:1; transform: translateX(0); } }
+        @keyframes toastOut { to { opacity:0; transform: translateX(40px); } }
+
+        /* --- NEW: CONFETTI --- */
+        #confettiCanvas { position: fixed; inset: 0; z-index: 250; pointer-events: none; display: none; }
+        body.screen-shake { animation: shake 0.4s ease; }
+        @keyframes shake {
+            0%, 100% { transform: translate(0,0); }
+            20% { transform: translate(-6px, 4px); }
+            40% { transform: translate(6px, -4px); }
+            60% { transform: translate(-4px, -4px); }
+            80% { transform: translate(4px, 6px); }
+        }
+
+        /* --- NEW: LOCKED VAULT PACK --- */
+        #packVault.locked .lock-overlay { display: flex; }
+        #packVault .lock-msg { color: var(--gold); }
+
         /* Mobile */
         @media (max-width: 768px) {
             .pack-results { flex-direction: column; justify-content: flex-start; padding-top: 60px; }
@@ -482,6 +601,10 @@
             .pack { width: 180px; height: 260px; }
             h1 { font-size: 2.2rem; }
             .stats-bar span { display: none; }
+            .pity-wrap { width: 90%; top: 6px; }
+            .inv-toggles { flex-wrap: wrap; gap: 6px; }
+            .search-box { width: 90px; }
+            .modal-wide { width: 90vw; }
         }
 
     </style>
@@ -498,13 +621,24 @@
         </div>
         <div class="stats-bar">
             <div class="stat-pill">
+                <span>OPENED</span>
                 <div id="totalOpenedDisplay" style="color:var(--text-main); font-size:1.2rem;">0</div>
             </div>
-            <button class="settings-btn" onclick="toggleSettings()">⚙</button>
+            <div class="stat-pill coin-pill" onclick="toggleShop()" title="Coin Shop">
+                <span>COINS</span>
+                <div id="coinDisplay" style="color:var(--gold); font-size:1.2rem;">🪙 0</div>
+            </div>
+            <button class="settings-btn" onclick="toggleStats()" title="Stats">📊</button>
+            <button class="settings-btn" onclick="toggleAchievements()" title="Achievements">🏆</button>
+            <button class="settings-btn" onclick="toggleSettings()" title="Settings">⚙</button>
         </div>
     </header>
 
     <div class="stage">
+        <div class="pity-wrap">
+            <div class="pity-label">LEGENDARY PITY <span id="pityCount">0</span>/40</div>
+            <div class="pity-track"><div class="pity-fill" id="pityFill"></div></div>
+        </div>
         <div class="pack-row">
             <!-- 1 Card Pack (Always Unlocked) -->
             <div class="pack" onclick="openPack(1)">
@@ -540,6 +674,19 @@
                     <div class="pack-sub">5 CARDS</div>
                 </div>
             </div>
+
+            <!-- Coin Vault Pack (Guaranteed Epic+) -->
+            <div class="pack" id="packVault" onclick="openVaultPack()" style="border-color: var(--c-epic);">
+                <div class="lock-overlay">
+                    <div style="font-size:2rem; margin-bottom:5px;">🪙</div>
+                    <div class="lock-msg">250 COINS</div>
+                </div>
+                <div class="pack-inner">
+                    <div class="pack-icon" style="color:var(--c-epic)">💎</div>
+                    <div class="pack-title" style="color:var(--c-epic)">VAULT</div>
+                    <div class="pack-sub">EPIC+ GUARANTEED</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -553,19 +700,64 @@
     <div id="settingsModal">
         <div class="modal-box">
             <div class="modal-title">SETTINGS</div>
+            <div class="vol-row">
+                <label for="volSlider">SFX VOLUME</label>
+                <input type="range" id="volSlider" min="0" max="100" value="70" oninput="setVolume(this.value)">
+            </div>
+            <button class="toggle-btn setting-btn" id="muteBtn" onclick="toggleMute()" style="width:100%;">🔊 SOUND ON</button>
             <button class="btn btn-red setting-btn" onclick="resetProgress()">RESET PROGRESS</button>
             <button class="btn setting-btn" onclick="toggleSettings()">CLOSE</button>
         </div>
     </div>
 
+    <div id="statsModal">
+        <div class="modal-box modal-wide">
+            <div class="modal-title">PROFILE STATS</div>
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="modal-title" style="font-size:1.4rem; margin-top:20px;">RARITY BREAKDOWN</div>
+            <div id="rarityBars" class="rarity-bars"></div>
+            <button class="btn setting-btn" onclick="toggleStats()">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="achModal">
+        <div class="modal-box modal-wide">
+            <div class="modal-title">ACHIEVEMENTS</div>
+            <div id="achList" class="ach-list"></div>
+            <button class="btn setting-btn" onclick="toggleAchievements()">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="shopModal">
+        <div class="modal-box">
+            <div class="modal-title">🪙 COIN VAULT</div>
+            <div class="lock-msg" style="margin-bottom:15px;">Sell duplicate cards for coins, then spend them on a guaranteed Epic+ VAULT pack. Open a card in your collection and hit SELL DUPLICATE.</div>
+            <div class="modal-title" style="font-size:1.4rem;">BALANCE: <span id="shopCoinDisplay" style="color:var(--gold)">0</span></div>
+            <button class="btn setting-btn" onclick="openVaultPack()">OPEN VAULT PACK (250)</button>
+            <button class="btn setting-btn" onclick="toggleShop()">CLOSE</button>
+        </div>
+    </div>
+
+    <canvas id="confettiCanvas"></canvas>
+    <div id="toastContainer"></div>
+
     <div class="inventory">
         <div class="inv-header">
             <div class="inv-title">COLLECTION <span id="clubCount" style="color:var(--text-muted); margin-left:5px;">(0)</span></div>
             <div class="inv-toggles">
+                <input type="text" id="searchBox" class="search-box" placeholder="Search..." oninput="updateInv()">
+                <select id="sortSelect" class="sort-select" onchange="updateInv()">
+                    <option value="rating">RATING</option>
+                    <option value="name">NAME</option>
+                    <option value="rarity">RARITY</option>
+                    <option value="country">COUNTRY</option>
+                </select>
+                <button class="toggle-btn" id="btnFav" onclick="toggleFavFilter()">★ FAVS</button>
                 <button class="toggle-btn active" id="btnOwned" onclick="setView('owned')">OWNED</button>
                 <button class="toggle-btn" id="btnIndex" onclick="setView('all')">INDEX</button>
             </div>
         </div>
+        <div class="rarity-chips" id="rarityChips"></div>
         <div class="inv-scroll" id="invList"></div>
     </div>
 
@@ -644,48 +836,115 @@
         { name: "Saro", rating: 96, country: "🇫🇷", rarity: "loop-master", type: "GOD", t:95, m:98, o:97, p:90, img: "aZ3-n-Hq-K0" },
         { name: "Bizkit", rating: 94, country: "🇺🇸", rarity: "loop-master", type: "LOOP", t:92, m:95, o:94, p:92, img: "CWwt5JLSpYw" },
         { name: "Frosty", rating: 95, country: "🇬🇧", rarity: "loop-master", type: "UK GOD", t:93, m:96, o:94, p:92, img: "wAm2AeJ4GVY" },
-        { name: "Rythmind", rating: 95, country: "🇫🇷", rarity: "loop-master", type: "RHYTHM", t:94, m:96, o:95, p:93, img: "9H2T2r_Cq3Y" },
+        { name: "Rythmind", rating: 95, country: "🇫🇷", rarity: "loop-master", type: "RHYTHM", t:94, m:96, o:95, p:93, img: null },
         { name: "BreZ", rating: 92, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:93, m:92, o:93, p:90, img: "uQ9rM7JtQ4w" },
         { name: "NME", rating: 91, country: "🇮🇹", rarity: "loop-master", type: "LOOP", t:90, m:93, o:91, p:89, img: "6W55Dk2Mvzo" },
         { name: "Dice", rating: 91, rarity: "loop-master", country: "🇺🇸", type: "LOOP", t:89, m:93, o:92, p:88, img: "3t2gKk7Zp4M" },
         { name: "Robin", rating: 90, country: "🇫🇷", rarity: "loop-master", type: "LOOP", t:91, m:92, o:90, p:87, img: "u_yW3v5_3wc" },
-        { name: "Contrix", rating: 89, country: "🇬🇧", rarity: "loop-master", type: "UK", t:88, m:90, o:89, p:88, img: "a2Jj1J5v5vM" },
+        { name: "Contrix", rating: 89, country: "🇬🇧", rarity: "loop-master", type: "UK", t:88, m:90, o:89, p:88, img: null },
         { name: "Milky", rating: 88, country: "🇬🇧", rarity: "uk-scene", type: "CHAMP", t:87, m:86, o:88, p:89, img: "sSs4cTrLs5o" }, 
         { name: "Bass Ventura", rating: 89, country: "🇬🇧", rarity: "uk-scene", type: "VET", t:88, m:89, o:90, p:91, img: "OVUGTVESNhg" },
         { name: "Epos", rating: 93, country: "🇬🇧", rarity: "uk-scene", type: "ELITE", t:94, m:90, o:89, p:93, img: "uxrsYP0sXqs" },
         { name: "Zak", rating: 95, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:93, m:88, o:89, p:93, img: "zak.png" }, 
         { name: "Whit", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "FLOW", t:85, m:86, o:82, p:83, img: "Z7k8Wf9Xy0U" },
-        { name: "OxBox", rating: 84, country: "🇬🇧", rarity: "uk-scene", type: "POWER", t:83, m:81, o:82, p:89, img: "A5q2J5v5vM" },
-        { name: "Hobbit", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:87, m:83, o:84, p:82, img: "g5q2J5v5vM" },
-        { name: "BeatFox", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:82, m:84, o:89, p:87, img: "b7q2J5v5vM" },
-        { name: "Tyla", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "DUB", t:84, m:81, o:83, p:86, img: "t8q2J5v5vM" },
-        { name: "Pye", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:83, m:83, o:81, p:80, img: "p9q2J5v5vM" },
-        { name: "M-Age", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "TECH", t:85, m:81, o:82, p:84, img: "m2q2J5v5vM" },
-        { name: "ABH", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:84, m:88, o:86, p:83, img: "a1q2J5v5vM" },
-        { name: "D-Koy", rating: 80, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:78, m:83, o:80, p:78, img: "d3q2J5v5vM" },
-        { name: "Fredy Beats", rating: 81, country: "🇪🇸", rarity: "uk-scene", type: "COMEDY", t:79, m:84, o:86, p:77, img: "f4q2J5v5vM" },
-        { name: "Izen", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:87, m:83, o:84, p:82, img: "sSs4cTrLs5o" }, 
-        { name: "Deity", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:82, m:84, o:89, p:87, img: "Z7k8Wf9Xy0U" },
+        { name: "OxBox", rating: 84, country: "🇬🇧", rarity: "uk-scene", type: "POWER", t:83, m:81, o:82, p:89, img: null },
+        { name: "Hobbit", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:87, m:83, o:84, p:82, img: null },
+        { name: "BeatFox", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:82, m:84, o:89, p:87, img: null },
+        { name: "Tyla", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "DUB", t:84, m:81, o:83, p:86, img: null },
+        { name: "Pye", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:83, m:83, o:81, p:80, img: null },
+        { name: "M-Age", rating: 83, country: "🇬🇧", rarity: "uk-scene", type: "TECH", t:85, m:81, o:82, p:84, img: null },
+        { name: "ABH", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "LEGEND", t:84, m:88, o:86, p:83, img: null },
+        { name: "D-Koy", rating: 80, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:78, m:83, o:80, p:78, img: null },
+        { name: "Fredy Beats", rating: 81, country: "🇪🇸", rarity: "uk-scene", type: "COMEDY", t:79, m:84, o:86, p:77, img: null },
+        { name: "Izen", rating: 85, country: "🇬🇧", rarity: "uk-scene", type: "RISING", t:87, m:83, o:84, p:82, img: null }, 
+        { name: "Deity", rating: 86, country: "🇬🇧", rarity: "uk-scene", type: "ORIG", t:82, m:84, o:89, p:87, img: null },
         { name: "Lucid", rating: 81, country: "🇬🇧", rarity: "uk-scene", type: "OG", t:79, m:84, o:81, p:79, img: "yqK8CjV1j28" },
         { name: "Chucid", rating: 82, country: "🇬🇧", rarity: "uk-scene", type: "COMEDY", t:80, m:85, o:87, p:78, img: "gQ1q8y6y6cI" },
         { name: "King Inertia", rating: 95, country: "🇺🇸", rarity: "epic", type: "BASS", t:89, m:90, o:92, p:98, img: "Mk7NUisssC8" },
-        { name: "Inkie", rating: 93, country: "🇷🇺", rarity: "epic", type: "BASS", t:94, m:88, o:91, p:96, img: "6W55Dk2Mvzo" },
+        { name: "Inkie", rating: 93, country: "🇷🇺", rarity: "epic", type: "BASS", t:94, m:88, o:91, p:96, img: null },
         { name: "Hiss", rating: 92, country: "🇰🇷", rarity: "epic", type: "TECH", t:96, m:88, o:90, p:92, img: "Pq12wPgWyAE" },
         { name: "Remix", rating: 88, country: "🇨🇦", rarity: "epic", type: "FLOW", t:89, m:91, o:88, p:89, img: "cvQHn-TUk-Q" },
         { name: "Antilt", rating: 90, country: "🇧🇪", rarity: "epic", type: "GLITCH", t:96, m:81, o:97, p:89, img: "VCl5LcFZnC4" },
         { name: "Osis", rating: 89, country: "🇮🇪", rarity: "epic", type: "TECH", t:93, m:86, o:90, p:87, img: "Jw3fOshpBUo" },
         { name: "J-Wobble", rating: 90, country: "🇺🇸", rarity: "epic", type: "BASS", t:87, m:89, o:90, p:95, img: "K1i7Wb8p6vM" },
         { name: "Improver", rating: 92, country: "🇷🇺", rarity: "epic", type: "UNIQUE", t:94, m:91, o:97, p:89, img: "QbOC9OGH45E" },
-        { name: "Abo Ice", rating: 89, country: "🇸🇦", rarity: "epic", type: "AGGRO", t:91, m:84, o:88, p:94, img: "a8q2J5v5vM" },
-        { name: "Helium", rating: 90, country: "🇷🇺", rarity: "epic", type: "DEEP", t:88, m:87, o:89, p:94, img: "h2q2J5v5vM" },
-        { name: "Zekka", rating: 91, country: "🇪🇸", rarity: "epic", type: "FAST", t:94, m:88, o:89, p:92, img: "z3q2J5v5vM" },
-        { name: "Vocodah", rating: 90, country: "🇺🇸", rarity: "discord-gem", type: "BASS", t:94, m:81, o:95, p:96, img: "v4q2J5v5vM" }
+        { name: "Abo Ice", rating: 89, country: "🇸🇦", rarity: "epic", type: "AGGRO", t:91, m:84, o:88, p:94, img: null },
+        { name: "Helium", rating: 90, country: "🇷🇺", rarity: "epic", type: "DEEP", t:88, m:87, o:89, p:94, img: null },
+        { name: "Zekka", rating: 91, country: "🇪🇸", rarity: "epic", type: "FAST", t:94, m:88, o:89, p:92, img: null },
+        { name: "Vocodah", rating: 90, country: "🇺🇸", rarity: "discord-gem", type: "BASS", t:94, m:81, o:95, p:96, img: null }
     ];
+
+    /* Coin value + XP per rarity (used by shop / stats / achievements) */
+    const RARITY_COIN = { legendary: 40, 'loop-master': 25, epic: 15, 'discord-gem': 15, 'uk-scene': 5, underground: 3, common: 2 };
+    const RARITY_ORDER = ['legendary','loop-master','epic','discord-gem','uk-scene','underground','common'];
+    const RARITY_LABEL = { legendary:'LEGENDARY', 'loop-master':'LOOP MASTER', epic:'EPIC', 'discord-gem':'DISCORD GEM', 'uk-scene':'UK SCENE', underground:'UNDERGROUND', common:'COMMON' };
 
     let myCollection = JSON.parse(localStorage.getItem('myCollection')) || {};
     let totalOpened = parseInt(localStorage.getItem('totalOpened')) || 0;
+    let coins = parseInt(localStorage.getItem('coins')) || 0;
+    let pityCount = parseInt(localStorage.getItem('pityCount')) || 0;
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || {};
+    let unlockedAch = JSON.parse(localStorage.getItem('unlockedAch')) || {};
+    let pullHistory = JSON.parse(localStorage.getItem('pullHistory')) || [];
+    let newCards = JSON.parse(localStorage.getItem('newCards')) || {};
+    let luckiest = JSON.parse(localStorage.getItem('luckiest')) || null;
     let viewMode = 'owned';
-    
+    let favFilterOn = false;
+    let activeRarityFilter = 'all';
+    const PITY_LIMIT = 40;
+
+    // --- SOUND SETTINGS ---
+    let sfxVolume = parseFloat(localStorage.getItem('sfxVolume'));
+    if (isNaN(sfxVolume)) sfxVolume = 0.7;
+    let sfxMuted = localStorage.getItem('sfxMuted') === 'true';
+
+    // --- DAILY STREAK ---
+    (function handleDailyStreak() {
+        const today = new Date().toDateString();
+        const lastVisit = localStorage.getItem('lastVisit');
+        let streak = parseInt(localStorage.getItem('streak')) || 0;
+        if (lastVisit !== today) {
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            streak = (lastVisit === yesterday) ? streak + 1 : 1;
+            localStorage.setItem('streak', streak);
+            localStorage.setItem('lastVisit', today);
+            const bonus = 10 + Math.min(streak, 10) * 5;
+            coins += bonus;
+            localStorage.setItem('coins', coins);
+            setTimeout(() => showToast(`DAY ${streak} STREAK 🔥`, `+${bonus} coins for logging in`), 800);
+        }
+    })();
+
+    // --- ACHIEVEMENTS DEFINITIONS ---
+    const ACHIEVEMENTS = [
+        { id: 'first_pack', icon: '📦', name: 'First Pull', desc: 'Open your first pack', reward: 20, check: () => totalOpened >= 1 },
+        { id: 'opened_10', icon: '📦', name: 'Getting Started', desc: 'Open 10 cards', reward: 30, check: () => totalOpened >= 10 },
+        { id: 'opened_50', icon: '📦', name: 'Regular', desc: 'Open 50 cards', reward: 60, check: () => totalOpened >= 50 },
+        { id: 'opened_100', icon: '📦', name: 'Dedicated', desc: 'Open 100 cards', reward: 120, check: () => totalOpened >= 100 },
+        { id: 'opened_250', icon: '📦', name: 'Obsessed', desc: 'Open 250 cards', reward: 250, check: () => totalOpened >= 250 },
+        { id: 'first_legendary', icon: '⭐', name: 'Legend Found', desc: 'Pull a Legendary card', reward: 50, check: () => Object.values(myCollection).some(c => c.rarity === 'legendary') },
+        { id: 'first_loop', icon: '🌀', name: 'Loop Master Found', desc: 'Pull a Loop Master card', reward: 30, check: () => Object.values(myCollection).some(c => c.rarity === 'loop-master') },
+        { id: 'got_dog', icon: '🐐', name: 'GOATED', desc: 'Pull the legendary DOG', reward: 100, check: () => !!myCollection['DOG'] },
+        { id: 'full_legendary', icon: '👑', name: 'Legendary Vault', desc: 'Collect every Legendary card', reward: 200, check: () => db.filter(c=>c.rarity==='legendary').every(c => myCollection[c.name]) },
+        { id: 'full_collection', icon: '🏆', name: 'Beatbox Historian', desc: 'Collect every card in the game', reward: 500, check: () => db.every(c => myCollection[c.name]) },
+        { id: 'coins_500', icon: '🪙', name: 'Coin Collector', desc: 'Hold 500 coins at once', reward: 0, check: () => coins >= 500 },
+        { id: 'streak_7', icon: '🔥', name: 'Week Streak', desc: 'Log in 7 days in a row', reward: 100, check: () => (parseInt(localStorage.getItem('streak'))||0) >= 7 },
+        { id: 'ten_favorites', icon: '★', name: 'Curator', desc: 'Favorite 10 different cards', reward: 40, check: () => Object.keys(favorites).length >= 10 },
+    ];
+
+    function checkAchievements() {
+        ACHIEVEMENTS.forEach(a => {
+            if (!unlockedAch[a.id] && a.check()) {
+                unlockedAch[a.id] = true;
+                coins += a.reward;
+                localStorage.setItem('unlockedAch', JSON.stringify(unlockedAch));
+                localStorage.setItem('coins', coins);
+                updateCoinDisplay();
+                showToast(`ACHIEVEMENT UNLOCKED 🏆`, `${a.name}${a.reward ? ' — +' + a.reward + ' coins' : ''}`);
+            }
+        });
+    }
+
     // --- ELEMENTS ---
     const overlay = document.getElementById('overlay');
     const resultsArea = document.getElementById('resultsArea');
@@ -701,6 +960,30 @@
         totalDisplay.innerText = totalOpened;
         checkUnlocks();
         updateInv();
+        updateCoinDisplay();
+        updatePityBar();
+        buildRarityChips();
+        const vs = document.getElementById('volSlider');
+        if (vs) vs.value = Math.round(sfxVolume * 100);
+        const mb = document.getElementById('muteBtn');
+        if (mb) mb.innerText = sfxMuted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+        checkAchievements();
+    }
+
+    function updateCoinDisplay() {
+        const d = document.getElementById('coinDisplay');
+        if (d) d.innerText = `🪙 ${coins}`;
+        const sd = document.getElementById('shopCoinDisplay');
+        if (sd) sd.innerText = coins;
+        const vault = document.getElementById('packVault');
+        if (vault) { if (coins >= 250) vault.classList.remove('locked'); else vault.classList.add('locked'); }
+    }
+
+    function updatePityBar() {
+        const fill = document.getElementById('pityFill');
+        const cnt = document.getElementById('pityCount');
+        if (fill) fill.style.width = Math.min(100, (pityCount / PITY_LIMIT) * 100) + '%';
+        if (cnt) cnt.innerText = pityCount;
     }
 
     function checkUnlocks() {
@@ -729,26 +1012,64 @@
         }, 600);
     }
 
-    function revealLogic(numCards) {
+    function openVaultPack() {
+        if (coins < 250) { showToast('NOT ENOUGH COINS', 'Sell duplicates or open packs to earn more.'); return; }
+        coins -= 250;
+        localStorage.setItem('coins', coins);
+        updateCoinDisplay();
+        SoundFX.play('click');
+        const vaultPack = document.getElementById('packVault');
+        if (vaultPack.classList.contains('opening')) return;
+        vaultPack.classList.add('opening');
+        SoundFX.play('charge');
+        setTimeout(() => {
+            vaultPack.classList.remove('opening');
+            SoundFX.play('burst');
+            revealLogic(1, true);
+        }, 600);
+        toggleShop(true);
+    }
+
+    function revealLogic(numCards, forceEpicPlus = false) {
         const openedCards = [];
         let hasSpecial = false;
         let hasDog = false;
 
         for(let i=0; i<numCards; i++) {
             totalOpened++;
-            const r = Math.random() * 100;
+            pityCount++;
+            let r = Math.random() * 100;
             let pool = [];
 
-            if(r < 1) pool = db.filter(x => x.name === 'DOG'); 
-            else if(r < 5) pool = db.filter(x => x.rarity === 'legendary');
+            // Pity system: guarantee a legendary if pity limit reached
+            const pityTriggered = pityCount >= PITY_LIMIT;
+
+            if (forceEpicPlus) {
+                r = Math.random() * 24; // forces legendary/loop-master/epic band
+            }
+
+            if(!forceEpicPlus && (r < 1 || pityTriggered)) pool = db.filter(x => x.name === 'DOG');
+            else if(r < 5 || pityTriggered) pool = db.filter(x => x.rarity === 'legendary');
             else if (r < 12) pool = db.filter(x => x.rarity === 'loop-master');
-            else if (r < 25) pool = db.filter(x => x.rarity === 'epic');
-            else if (r < 55) pool = db.filter(x => x.rarity === 'uk-scene'); 
-            else pool = db.filter(x => x.rarity === 'underground' || x.rarity === 'common');
+            else if (r < 25) pool = db.filter(x => x.rarity === 'epic' || x.rarity === 'discord-gem');
+            else pool = db.filter(x => x.rarity === 'uk-scene' || x.rarity === 'underground' || x.rarity === 'common');
 
             if(pool.length === 0) pool = db;
             const card = pool[Math.floor(Math.random() * pool.length)];
             openedCards.push(card);
+
+            if (card.rarity === 'legendary') pityCount = 0;
+
+            if (!myCollection[card.name]) newCards[card.name] = true;
+
+            if (!luckiest || (RARITY_ORDER.indexOf(card.rarity) < RARITY_ORDER.indexOf(luckiest.rarity))) {
+                luckiest = { name: card.name, rarity: card.rarity, rating: card.rating };
+            }
+
+            coins += RARITY_COIN[card.rarity] || 2;
+
+            pullHistory.unshift({ name: card.name, rarity: card.rarity, t: Date.now() });
+            if (pullHistory.length > 30) pullHistory.length = 30;
 
             if(myCollection[card.name]) myCollection[card.name].count++;
             else myCollection[card.name] = { ...card, count: 1 };
@@ -759,8 +1080,18 @@
 
         localStorage.setItem('myCollection', JSON.stringify(myCollection));
         localStorage.setItem('totalOpened', totalOpened);
+        localStorage.setItem('coins', coins);
+        localStorage.setItem('pityCount', pityCount);
+        localStorage.setItem('pullHistory', JSON.stringify(pullHistory));
+        localStorage.setItem('newCards', JSON.stringify(newCards));
+        localStorage.setItem('luckiest', JSON.stringify(luckiest));
         totalDisplay.innerText = totalOpened;
         checkUnlocks();
+        updateCoinDisplay();
+        updatePityBar();
+        checkAchievements();
+
+        if (openedCards.some(c => c.rarity === 'legendary')) launchConfetti();
 
         if(hasSpecial) {
             triggerScanner(openedCards, hasDog);
@@ -778,6 +1109,29 @@
         }, 1200);
     }
 
+    /* --- INITIALS-BASED PLACEHOLDER ART (used whenever a real photo isn't available) ---
+       Instead of ever showing a broken image icon, an unrelated stock photo, or two
+       different people sharing one photo, unresolved cards get an on-brand generated
+       card face: initials over a rarity-colored gradient. */
+    function initialsOf(name) {
+        return name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(w => w[0]).slice(0,2).join('').toUpperCase() || '?';
+    }
+    function placeholderArtHTML(card, small) {
+        const c1 = getBorderColor(card.rarity), c2 = getTxtColor(card.rarity);
+        return `<div class="placeholder-art" style="background:radial-gradient(circle at 30% 20%, ${c2}22, #0a0a0a 70%), linear-gradient(160deg, ${c1}33, #050505);">
+            <span class="ph-mic">🎤</span>
+            <span class="ph-initials" style="color:${c2};">${initialsOf(card.name)}</span>
+        </div>`;
+    }
+
+    /* --- SMART IMAGE ENGINE: multi-tier YouTube thumbnail fallback,
+       ending in the generated placeholder above rather than a random photo --- */
+    function resolveImgSrc(card) {
+        if (!card.img) return null;
+        if (card.img.includes('http') || card.img.includes('.png') || card.img.includes('.jpg')) return card.img;
+        return `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
+    }
+
     function createCardElement(card, index, isInspection = false) {
         const wrapper = document.createElement('div');
         wrapper.className = 'card-wrapper';
@@ -786,38 +1140,22 @@
         const cardDiv = document.createElement('div');
         cardDiv.className = isInspection ? `card inspect` : `card reveal`;
         cardDiv.style.borderColor = getBorderColor(card.rarity);
-        
-        // --- SMART IMAGE ENGINE ---
-        let imgSrc = '';
-        if (card.img && (card.img.includes('http') || card.img.includes('.png') || card.img.includes('.jpg'))) {
-            // Local file or direct full URL (e.g. Wiki or local)
-            if (card.img.includes('youtube.com')) {
-                // If it is a full URL to an image, use it.
-                imgSrc = card.img;
-            } else if (!card.img.includes('http')) {
-                // It is a video ID
-                imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
-            } else {
-                imgSrc = card.img; // Direct URL (Wiki or Local)
-            }
-        } else if (card.img && !card.img.includes('placeholder')) {
-             // It's a video ID
-             imgSrc = `https://img.youtube.com/vi/${card.img}/maxresdefault.jpg`;
-        } else {
-            // Placeholder fallback
-            imgSrc = `https://ui-avatars.com/api/?name=${card.name}&background=151515&color=fff&size=512&bold=true`;
-        }
 
+        const imgSrc = resolveImgSrc(card);
         const color = getTxtColor(card.rarity);
+        const isFav = !!favorites[card.name];
+        const showSell = isInspection && myCollection[card.name] && myCollection[card.name].count > 1;
 
         cardDiv.innerHTML = `
             <div class="foil-layer"></div>
+            <div class="holo-sheen"></div>
+            <span class="card-fav-star" onclick="toggleFavorite('${card.name.replace(/'/g,"\\'")}', this)">${isFav ? '★' : '☆'}</span>
             <div class="card-top">
                 <div class="rat-circle" style="color:${color}; border-color:${color}">${card.rating}</div>
                 <div class="flag">${card.country}</div>
             </div>
             <div class="img-mask">
-                <img src="${imgSrc}" class="hero-img" onerror="smartFallback(this, '${card.name}')">
+                ${imgSrc ? `<img src="${imgSrc}" class="hero-img" data-name="${card.name.replace(/"/g,'&quot;')}" data-rarity="${card.rarity}" onerror="smartFallback(this)">` : placeholderArtHTML(card)}
             </div>
             <div class="card-bottom">
                 <h2 class="card-name">${card.name}</h2>
@@ -828,8 +1166,24 @@
                     <div class="stat-item"><span class="stat-lbl">ORG</span><span class="stat-val">${card.o}</span></div>
                     <div class="stat-item"><span class="stat-lbl">PWR</span><span class="stat-val">${card.p}</span></div>
                 </div>
+                ${showSell ? `<button class="btn btn-red sell-btn" onclick="sellDuplicate('${card.name.replace(/'/g,"\\'")}')">SELL DUPLICATE (+${RARITY_COIN[card.rarity]||2} 🪙)</button>` : ''}
             </div>
         `;
+
+        // Holographic mouse-tilt effect
+        cardDiv.addEventListener('mousemove', (e) => {
+            const rect = cardDiv.getBoundingClientRect();
+            const px = (e.clientX - rect.left) / rect.width;
+            const py = (e.clientY - rect.top) / rect.height;
+            const rx = (py - 0.5) * -14;
+            const ry = (px - 0.5) * 14;
+            cardDiv.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+            const sheen = cardDiv.querySelector('.holo-sheen');
+            if (sheen) sheen.style.background = `radial-gradient(circle at ${px*100}% ${py*100}%, rgba(255,255,255,0.8), transparent 60%)`;
+        });
+        cardDiv.addEventListener('mouseleave', () => {
+            cardDiv.style.transform = isInspection ? 'rotateY(0deg) translateZ(0)' : '';
+        });
         
         if(!isInspection) {
             setTimeout(() => { SoundFX.play('reveal'); }, index * 100 + 200);
@@ -839,14 +1193,47 @@
         return wrapper;
     }
 
-    window.smartFallback = function(img, name) {
-        // Fallback chain: MaxRes -> HQ -> Avatar
-        if (img.src.includes('maxresdefault')) {
-            img.src = img.src.replace('maxresdefault', 'hqdefault');
+    window.smartFallback = function(img) {
+        // Fallback chain: maxres -> sd -> hq -> mq -> generated placeholder (never an unrelated stock photo)
+        const order = ['maxresdefault','sddefault','hqdefault','mqdefault'];
+        const hit = order.find(o => img.src.includes(o));
+        const next = hit ? order[order.indexOf(hit) + 1] : null;
+        if (next) {
+            img.src = img.src.replace(hit, next);
         } else {
             img.onerror = null;
-            img.src = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=600&auto=format&fit=crop";
+            const name = img.dataset.name, rarity = img.dataset.rarity;
+            const card = { name, rarity };
+            const wrap = document.createElement('div');
+            wrap.innerHTML = placeholderArtHTML(card);
+            img.replaceWith(wrap.firstElementChild);
         }
+    }
+
+    function toggleFavorite(name, el) {
+        SoundFX.play('click');
+        if (favorites[name]) delete favorites[name];
+        else favorites[name] = true;
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        if (el) el.innerText = favorites[name] ? '★' : '☆';
+        checkAchievements();
+        updateInv();
+    }
+
+    function sellDuplicate(name) {
+        const owned = myCollection[name];
+        if (!owned || owned.count <= 1) return;
+        SoundFX.play('burst');
+        owned.count--;
+        const reward = RARITY_COIN[owned.rarity] || 2;
+        coins += reward;
+        localStorage.setItem('myCollection', JSON.stringify(myCollection));
+        localStorage.setItem('coins', coins);
+        updateCoinDisplay();
+        checkAchievements();
+        showToast('DUPLICATE SOLD', `+${reward} coins for a spare ${name}`);
+        closeOverlay();
+        updateInv();
     }
 
     function showCards(cards, hasDog) {
@@ -899,23 +1286,60 @@
         updateInv();
     }
 
+    function buildRarityChips() {
+        const wrap = document.getElementById('rarityChips');
+        if (!wrap) return;
+        const rarities = ['all', ...new Set(db.map(c => c.rarity))];
+        wrap.innerHTML = rarities.map(r => {
+            const label = r === 'all' ? 'ALL' : RARITY_LABEL[r] || r.toUpperCase();
+            const color = r === 'all' ? '#fff' : getBorderColor(r);
+            return `<button class="rarity-chip${r===activeRarityFilter?' active':''}" style="color:${color}; border-color:${color};" onclick="setRarityFilter('${r}')">${label}</button>`;
+        }).join('');
+    }
+
+    function setRarityFilter(r) {
+        SoundFX.play('click');
+        activeRarityFilter = r;
+        buildRarityChips();
+        updateInv();
+    }
+
+    function toggleFavFilter() {
+        SoundFX.play('click');
+        favFilterOn = !favFilterOn;
+        document.getElementById('btnFav').className = favFilterOn ? 'toggle-btn active' : 'toggle-btn';
+        updateInv();
+    }
+
     function updateInv() {
         const list = document.getElementById('invList');
-        // Simple wipe is fine for this scale, can optimize if thousands of items
         list.innerHTML = '';
-        
+
         let cardsToShow = [];
         if (viewMode === 'owned') {
-            cardsToShow = Object.values(myCollection).sort((a,b) => b.rating - a.rating);
+            cardsToShow = Object.values(myCollection);
         } else {
             cardsToShow = db.map(card => {
                 const owned = myCollection[card.name];
                 return { ...card, count: owned ? owned.count : 0, isLocked: !owned };
-            }).sort((a,b) => b.rating - a.rating);
+            });
         }
 
+        const search = (document.getElementById('searchBox')?.value || '').toLowerCase().trim();
+        if (search) cardsToShow = cardsToShow.filter(c => c.name.toLowerCase().includes(search));
+        if (activeRarityFilter !== 'all') cardsToShow = cardsToShow.filter(c => c.rarity === activeRarityFilter);
+        if (favFilterOn) cardsToShow = cardsToShow.filter(c => favorites[c.name]);
+
+        const sortBy = document.getElementById('sortSelect')?.value || 'rating';
+        cardsToShow.sort((a,b) => {
+            if (sortBy === 'name') return a.name.localeCompare(b.name);
+            if (sortBy === 'country') return (a.country||'').localeCompare(b.country||'');
+            if (sortBy === 'rarity') return RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
+            return b.rating - a.rating;
+        });
+
         const totalOwned = Object.values(myCollection).length;
-        document.getElementById('clubCount').innerText = `(${totalOwned})`;
+        document.getElementById('clubCount').innerText = `(${totalOwned}/${db.length})`;
 
         const frag = document.createDocumentFragment();
         cardsToShow.forEach(c => {
@@ -923,35 +1347,41 @@
             div.className = c.isLocked ? 'inv-card locked' : 'inv-card';
             div.style.borderColor = getBorderColor(c.rarity);
             div.onclick = () => inspectCard(c.name);
-            
-            const img = document.createElement('img');
-            img.className = 'inv-img';
-            
-            // Image logic repeated for consistency
-            if (c.img && (c.img.includes('.png') || c.img.includes('.jpg'))) {
-                if (c.img.includes('http')) img.src = c.img; // Wiki/External
-                else img.src = c.img; // Local
-            } else if (c.img && !c.img.includes('placeholder')) {
-                img.src = `https://img.youtube.com/vi/${c.img}/mqdefault.jpg`;
-            } else {
-                img.src = `https://ui-avatars.com/api/?name=${c.name}&background=111&color=fff`;
-            }
-            img.onerror = function() {
-               if(this.src.includes('mqdefault')) this.src = this.src.replace('mqdefault', 'default');
-               else { this.onerror = null; this.src = "https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=200&auto=format&fit=crop"; }
-            };
 
-            const ratingDisplay = c.isLocked ? "??" : c.rating;
+            const imgSrc = c.isLocked ? null : resolveImgSrc(c);
             const badgeDisplay = c.count > 1 ? `<span class="inv-badge">${c.count}</span>` : '';
+            const favDisplay = (!c.isLocked && favorites[c.name]) ? `<span class="fav-star">★</span>` : '';
+            const newDisplay = (!c.isLocked && newCards[c.name] && !favorites[c.name]) ? `<span class="new-badge">NEW</span>` : '';
+            const ratingDisplay = c.isLocked ? "??" : c.rating;
 
             div.innerHTML = `
-                ${badgeDisplay}
+                ${badgeDisplay}${favDisplay}${newDisplay}
                 <div class="inv-info" style="color:${getTxtColor(c.rarity)}">${ratingDisplay}</div>
             `;
-            div.prepend(img);
+
+            if (imgSrc) {
+                const img = document.createElement('img');
+                img.className = 'inv-img';
+                img.src = imgSrc.replace('maxresdefault', 'mqdefault');
+                img.dataset.name = c.name;
+                img.dataset.rarity = c.rarity;
+                img.onerror = function() { smartFallback(this); };
+                div.prepend(img);
+            } else {
+                const ph = document.createElement('div');
+                ph.className = 'inv-img placeholder-art';
+                ph.innerHTML = placeholderArtHTML(c, true);
+                ph.style.background = 'transparent';
+                div.prepend(ph);
+            }
             frag.appendChild(div);
         });
         list.appendChild(frag);
+
+        if (viewMode === 'owned') {
+            Object.keys(newCards).forEach(n => delete newCards[n]);
+            localStorage.setItem('newCards', JSON.stringify(newCards));
+        }
     }
 
     function toggleSettings() {
@@ -960,12 +1390,131 @@
         settingsModal.style.display = d === 'flex' ? 'none' : 'flex';
     }
 
+    function setVolume(v) {
+        sfxVolume = v / 100;
+        localStorage.setItem('sfxVolume', sfxVolume);
+        SoundFX.play('click');
+    }
+
+    function toggleMute() {
+        sfxMuted = !sfxMuted;
+        localStorage.setItem('sfxMuted', sfxMuted);
+        document.getElementById('muteBtn').innerText = sfxMuted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+        if (!sfxMuted) SoundFX.play('click');
+    }
+
     function resetProgress() {
         SoundFX.play('click');
-        if(confirm('Reset entire collection?')) {
+        if(confirm('Reset entire collection? This clears cards, coins, achievements and stats.')) {
             localStorage.clear();
             location.reload();
         }
+    }
+
+    function toggleStats() {
+        SoundFX.play('click');
+        const m = document.getElementById('statsModal');
+        const opening = m.style.display !== 'flex';
+        m.style.display = opening ? 'flex' : 'none';
+        if (opening) renderStats();
+    }
+
+    function renderStats() {
+        const totalOwned = Object.values(myCollection).length;
+        const pct = Math.round((totalOwned / db.length) * 100);
+        const streak = parseInt(localStorage.getItem('streak')) || 0;
+        const grid = document.getElementById('statsGrid');
+        grid.innerHTML = `
+            <div class="stat-box"><div class="sb-val">${totalOpened}</div><div class="sb-lbl">CARDS OPENED</div></div>
+            <div class="stat-box"><div class="sb-val">${pct}%</div><div class="sb-lbl">COLLECTION COMPLETE</div></div>
+            <div class="stat-box"><div class="sb-val">${totalOwned}/${db.length}</div><div class="sb-lbl">UNIQUE OWNED</div></div>
+            <div class="stat-box"><div class="sb-val">${streak}🔥</div><div class="sb-lbl">DAY STREAK</div></div>
+            <div class="stat-box"><div class="sb-val">${coins}</div><div class="sb-lbl">COINS EARNED</div></div>
+            <div class="stat-box"><div class="sb-val">${luckiest ? luckiest.name : '—'}</div><div class="sb-lbl">LUCKIEST PULL</div></div>
+        `;
+        const rBars = document.getElementById('rarityBars');
+        rBars.innerHTML = RARITY_ORDER.filter(r => db.some(c => c.rarity === r)).map(r => {
+            const total = db.filter(c => c.rarity === r).length;
+            const owned = db.filter(c => c.rarity === r && myCollection[c.name]).length;
+            const pctR = total ? Math.round((owned/total)*100) : 0;
+            return `<div class="rbar-row">
+                <div class="rbar-lbl"><span style="color:${getTxtColor(r)}">${RARITY_LABEL[r]}</span><span>${owned}/${total}</span></div>
+                <div class="rbar-track"><div class="rbar-fill" style="width:${pctR}%; background:${getBorderColor(r)};"></div></div>
+            </div>`;
+        }).join('');
+    }
+
+    function toggleAchievements() {
+        SoundFX.play('click');
+        const m = document.getElementById('achModal');
+        const opening = m.style.display !== 'flex';
+        m.style.display = opening ? 'flex' : 'none';
+        if (opening) renderAchievements();
+    }
+
+    function renderAchievements() {
+        const list = document.getElementById('achList');
+        list.innerHTML = ACHIEVEMENTS.map(a => `
+            <div class="ach-item${unlockedAch[a.id] ? ' unlocked' : ''}">
+                <div class="ach-icon">${a.icon}</div>
+                <div>
+                    <div class="ach-name">${a.name}</div>
+                    <div class="ach-desc">${a.desc}</div>
+                </div>
+                <div class="ach-reward">${unlockedAch[a.id] ? '✓ DONE' : (a.reward ? '+'+a.reward+' 🪙' : '')}</div>
+            </div>
+        `).join('');
+    }
+
+    function toggleShop(forceClose) {
+        SoundFX.play('click');
+        const m = document.getElementById('shopModal');
+        if (forceClose) { m.style.display = 'none'; return; }
+        const opening = m.style.display !== 'flex';
+        m.style.display = opening ? 'flex' : 'none';
+        updateCoinDisplay();
+    }
+
+    function showToast(title, msg) {
+        const c = document.getElementById('toastContainer');
+        if (!c) return;
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.innerHTML = `<span class="t-title">${title}</span>${msg}`;
+        c.appendChild(t);
+        setTimeout(() => t.remove(), 3100);
+    }
+
+    function launchConfetti() {
+        const canvas = document.getElementById('confettiCanvas');
+        if (!canvas) return;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        const colors = ['#ffd700','#ffe57f','#ff1744','#00e676','#d500f9','#fff'];
+        const pieces = Array.from({length: 140}, () => ({
+            x: Math.random() * canvas.width, y: -20 - Math.random() * canvas.height * 0.5,
+            r: 4 + Math.random() * 6, c: colors[Math.floor(Math.random()*colors.length)],
+            vy: 2 + Math.random() * 4, vx: (Math.random()-0.5) * 3, rot: Math.random()*360, vr: (Math.random()-0.5) * 10
+        }));
+        let frame = 0;
+        function tick() {
+            frame++;
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            pieces.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+                ctx.save();
+                ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI/180);
+                ctx.fillStyle = p.c;
+                ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*1.6);
+                ctx.restore();
+            });
+            if (frame < 150) requestAnimationFrame(tick);
+            else canvas.style.display = 'none';
+        }
+        tick();
+        document.body.classList.add('screen-shake');
+        setTimeout(() => document.body.classList.remove('screen-shake'), 400);
     }
 
     function getBorderColor(r) {
@@ -973,7 +1522,9 @@
         if(r === 'loop-master') return '#00e676';
         if(r === 'uk-scene') return '#ff1744';
         if(r === 'epic') return '#d500f9';
-        return '#888';
+        if(r === 'discord-gem') return '#ff9100';
+        if(r === 'underground') return '#607d8b';
+        return '#9e9e9e';
     }
 
     function getTxtColor(r) {
@@ -981,6 +1532,8 @@
         if(r === 'loop-master') return '#b9f6ca';
         if(r === 'uk-scene') return '#ff8a80';
         if(r === 'epic') return '#ea80fc';
+        if(r === 'discord-gem') return '#ffcc80';
+        if(r === 'underground') return '#b0bec5';
         return '#bdbdbd';
     }
 
