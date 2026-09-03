@@ -37,7 +37,12 @@ nav{border-right:1px solid var(--line);background:rgba(5,6,8,.76);padding:12px;d
 @media(max-width:720px){header{height:68px;padding:8px 10px}main{height:calc(100vh - 68px)}.brand h1{font-size:1.5rem}.brand p{display:none}.pill{min-width:55px;padding:5px 7px}.hud .pill:nth-child(1){display:none}nav{width:64px;padding:8px 6px}.page{padding:14px 12px 34px}.hero h2{font-size:2.7rem}.grid3,.grid4,.grid2{grid-template-columns:1fr}.fighters{grid-template-columns:1fr;gap:15px;margin-top:22px}.versus{font-size:2rem}.fighter-avatar{width:110px;height:110px}.movebar{grid-template-columns:repeat(2,1fr)}.modal-grid{grid-template-columns:1fr}.rank-row{grid-template-columns:34px 1fr .7fr}.rank-row > *:nth-child(4),.rank-row > *:nth-child(5){display:none}}
 
 /* === V2 STABILITY / IMAGE / SYSTEM UPGRADES === */
-.cardlist{content-visibility:auto;contain-intrinsic-size:400px}.mini-card{contain:layout paint style}.mini-art{isolation:isolate}.mini-art img,.big-art img,.fighter-avatar img{background:#0b0d12}.mini-art.loading::after{content:"LOADING ART…";position:absolute;left:0;right:0;bottom:8px;text-align:center;color:#778096;font-size:.46rem;letter-spacing:1px}.mini-art.failed{background:radial-gradient(circle at 30% 25%,rgba(255,212,59,.12),transparent 45%),#0d1015}.mini-art.failed::after{content:"ADD PHOTO: " attr(data-filename);position:absolute;left:6px;right:6px;bottom:7px;text-align:center;color:#737d90;font-size:.43rem;letter-spacing:.7px}.big-art{min-height:330px;border:1px solid var(--line);border-radius:12px;background:#0d1015;overflow:hidden;display:grid;place-items:center}.big-art img{width:100%;height:100%;min-height:330px;object-fit:cover}.system-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.chip-live{border-color:#2d6345!important;color:#8df0b2!important}.market-grid{grid-template-columns:repeat(3,1fr)}.season-tier{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#11131a,#090a0d);padding:14px;display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center}.season-tier.locked{opacity:.45}.season-tier.claimed{border-color:#335d44}.tier-num{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:#171a20;color:var(--gold);font:600 1.6rem Teko}.season-reward{font-weight:800}.season-progress{height:12px;background:#151820;border:1px solid #2b3039;border-radius:99px;overflow:hidden}.season-progress span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan),var(--gold));transition:width .35s}.local-art-note{font-size:.58rem;color:#697387;line-height:1.4}.img-path-code{font-family:monospace;color:#dce1eb}.market-grid .mini-card{height:auto}.market-offer{display:flex;flex-direction:column;gap:9px}.market-offer .mini-card{flex:1}
+.cardlist{content-visibility:auto;contain-intrinsic-size:400px}.mini-card{contain:layout paint style}.mini-art{isolation:isolate}.mini-art img,.big-art img,.fighter-avatar img{background:#0b0d12}
+.mini-art img{contain:strict;will-change:transform;transition:opacity .18s ease}.mini-art.loading img{opacity:0}.mini-art.loaded img{opacity:1}
+/* Hide source-site branding embedded at the bottom of card/fighter artwork without altering local image files. */
+.mini-art::after,.big-art::after,.fighter-avatar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:linear-gradient(to top,#0d1015 0%,#0d1015 72%,rgba(13,16,21,.88) 88%,rgba(13,16,21,0) 100%);pointer-events:none;z-index:4}
+.mini-art,.big-art,.fighter-avatar{position:relative}
+.mini-art.loading::after{content:"LOADING ART…";position:absolute;left:0;right:0;bottom:8px;text-align:center;color:#778096;font-size:.46rem;letter-spacing:1px}.mini-art.failed{background:radial-gradient(circle at 30% 25%,rgba(255,212,59,.12),transparent 45%),#0d1015}.mini-art.failed::after{content:"ADD PHOTO: " attr(data-filename);position:absolute;left:6px;right:6px;bottom:7px;text-align:center;color:#737d90;font-size:.43rem;letter-spacing:.7px}.big-art{min-height:330px;border:1px solid var(--line);border-radius:12px;background:#0d1015;overflow:hidden;display:grid;place-items:center}.big-art img{width:100%;height:100%;min-height:330px;object-fit:cover}.system-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.chip-live{border-color:#2d6345!important;color:#8df0b2!important}.market-grid{grid-template-columns:repeat(3,1fr)}.season-tier{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#11131a,#090a0d);padding:14px;display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center}.season-tier.locked{opacity:.45}.season-tier.claimed{border-color:#335d44}.tier-num{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:#171a20;color:var(--gold);font:600 1.6rem Teko}.season-reward{font-weight:800}.season-progress{height:12px;background:#151820;border:1px solid #2b3039;border-radius:99px;overflow:hidden}.season-progress span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan),var(--gold));transition:width .35s}.local-art-note{font-size:.58rem;color:#697387;line-height:1.4}.img-path-code{font-family:monospace;color:#dce1eb}.market-grid .mini-card{height:auto}.market-offer{display:flex;flex-direction:column;gap:9px}.market-offer .mini-card{flex:1}
 @media(max-width:900px){.market-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:720px){.market-grid{grid-template-columns:1fr}.season-tier{grid-template-columns:42px 1fr}.season-tier .btn{grid-column:2}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
@@ -455,7 +460,7 @@ function localImageCandidates(c){
   return [...new Set(out)];
 }
 function fallbackImage(c,el){el.classList.remove('loading','loaded');el.classList.add('failed');el.dataset.filename=String(c.name)+'.png';el.innerHTML=`<div class="ph">${initials(c.name)}</div>`}
-function createImageElement(c,src){const img=new Image();img.alt=c.name;img.dataset.card=c.name;img.decoding='async';img.loading='eager';return img}
+function createImageElement(c,src,priority='auto'){const img=new Image();img.alt=c.name;img.dataset.card=c.name;img.decoding='async';img.loading=priority==='high'?'eager':'lazy';if('fetchPriority' in img)img.fetchPriority=priority;return img}
 const FACE_FOCUS={
   'DOG':'50% 42%','PACMax':'50% 28%','D-Low':'50% 28%','Alexinho':'50% 30%','NaPoM':'50% 30%',
   "River'":'50% 28%','Colaps':'50% 28%','B-Art':'50% 30%','FootboxG':'50% 27%','Saro':'50% 30%'
@@ -521,45 +526,79 @@ function youtubeCandidates(c){
 async function startImageLoad(c,el){
   if(!el||el.dataset.loading==='1'||el.classList.contains('loaded'))return;
   el.dataset.loading='1';el.classList.add('loading');
+
   const cached=imageCache.get(c.name);
-  if(cached){const img=createImageElement(c,cached);img.onload=()=>{};img.onerror=()=>{imageCache.delete(c.name);startImageLoad(c,el)};img.src=cached;el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';return}
+  if(cached){
+    const img=createImageElement(c,cached,'high');
+    let ok=false;
+    await new Promise(resolve=>{
+      const timer=setTimeout(()=>resolve(),900);
+      img.onload=()=>{clearTimeout(timer);ok=true;resolve()};
+      img.onerror=()=>{clearTimeout(timer);resolve()};
+      img.src=cached;
+    });
+    if(ok){el.innerHTML='';el.appendChild(img);applyFaceFocus(img,c);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';return}
+    imageCache.delete(c.name);
+  }
 
-  // GitHub Pages fix: try same-origin repository files first. This makes
-  // root files like "Alexinho.jpg" work without relying on the GitHub API.
   const localSources=localImageCandidates(c);
-  let i=0;
-  const tryLocal=()=>new Promise(resolve=>{
-    const nextLocal=()=>{
-      if(i>=localSources.length)return resolve(false);
-      const src=localSources[i++],img=createImageElement(c,src);
-      let settled=false;
-      const timer=setTimeout(()=>{if(settled)return;settled=true;try{img.src=''}catch(e){};nextLocal()},1200);
-      img.onload=()=>{if(settled)return;settled=true;clearTimeout(timer);img.loading='lazy';imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';resolve(true)};
-      img.onerror=()=>{if(settled)return;settled=true;clearTimeout(timer);nextLocal()};
-      img.src=src;
-    };
-    nextLocal();
-  });
-  if(await tryLocal())return;
+  // Fast path: root-level files are the user's normal GitHub layout. Try all
+  // root filename variants concurrently so one missing extension never stalls.
+  const rootSources=localSources.slice(0,localImageNames(c).length*LOCAL_IMAGE_EXTS.length);
+  const found=await firstWorkingImage(c,rootSources,900,'high');
+  if(found){commitImage(c,el,found.src,found.img);return}
 
-  // Only after local files fail do we ask GitHub's API for deeply nested art.
+  // Second fast path: common folders, still concurrent and capped.
+  const folderSources=localSources.slice(rootSources.length,rootSources.length+Math.min(72,localSources.length-rootSources.length));
+  const folderFound=await firstWorkingImage(c,folderSources,1000,'high');
+  if(folderFound){commitImage(c,el,folderFound.src,folderFound.img);return}
+
+  // Deep repository scan happens in the background. It is no longer on the
+  // critical path for cards stored beside index.html.
   let githubSources=[];
-  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),1800))]);}catch(e){githubSources=[]}
-  const sources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
-  let j=0;
-  const next=()=>{
-    if(j>=sources.length){Promise.race([findWiki(c,el),new Promise(r=>setTimeout(()=>r(false),2500))]).then(found=>{if(!found)fallbackImage(c,el);el.dataset.loading='0'});return}
-    const src=sources[j++],img=createImageElement(c,src);
-    let settled=false;
-    const timer=setTimeout(()=>{if(settled)return;settled=true;try{img.src=''}catch(e){};next()},2500);
-    img.onload=()=>{if(settled)return;settled=true;clearTimeout(timer);img.loading='lazy';imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0'};
-    img.onerror=()=>{if(settled)return;settled=true;clearTimeout(timer);next()};
-    img.src=src;
-  };
-  next();
+  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),1200))]);}catch(e){githubSources=[]}
+  const remoteSources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  const remoteFound=await firstWorkingImage(c,remoteSources,1800,'auto');
+  if(remoteFound){commitImage(c,el,remoteFound.src,remoteFound.img);return}
+
+  let foundWiki=false;
+  try{foundWiki=await Promise.race([findWiki(c,el),new Promise(r=>setTimeout(()=>r(false),1800))]);}catch(e){foundWiki=false}
+  if(!foundWiki)fallbackImage(c,el);
+  el.dataset.loading='0';
 }
 
-function observeImage(c,el,immediate=false){if(immediate){startImageLoad(c,el);return}if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}if(!imageObserver)imageObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const c=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);if(c)startImageLoad(c,e.target);imageObserver.unobserve(e.target)}}),{rootMargin:'900px 0px'});el.dataset.cardName=c.name;imageObserver.observe(el)}
+function commitImage(c,el,src,img){
+  imageCache.set(c.name,src);
+  img.loading='lazy';
+  if('fetchPriority' in img)img.fetchPriority='low';
+  applyFaceFocus(img,c);
+  el.innerHTML='';el.appendChild(img);
+  el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';
+}
+
+function firstWorkingImage(c,sources,timeout=1000,priority='auto'){
+  const list=[...new Set((sources||[]).filter(Boolean))];
+  if(!list.length)return Promise.resolve(null);
+  return new Promise(resolve=>{
+    let settled=false,remaining=list.length;
+    const done=v=>{if(settled)return;settled=true;resolve(v)};
+    list.forEach(src=>{
+      const img=createImageElement(c,src,priority);
+      let finished=false;
+      const finish=ok=>{
+        if(finished)return;finished=true;remaining--;
+        if(ok)done({src,img});
+        else if(remaining===0)done(null);
+      };
+      const timer=setTimeout(()=>{try{img.src=''}catch(e){};finish(false)},timeout);
+      img.onload=()=>{clearTimeout(timer);finish(true)};
+      img.onerror=()=>{clearTimeout(timer);finish(false)};
+      img.src=src;
+    });
+  });
+}
+
+function observeImage(c,el,immediate=false){if(immediate){startImageLoad(c,el);return}if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}if(!imageObserver)imageObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const c=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);if(c)startImageLoad(c,e.target);imageObserver.unobserve(e.target)}}),{rootMargin:'500px 0px'});el.dataset.cardName=c.name;imageObserver.observe(el)}
 async function findWiki(c,el){
   const endpoints=[
     'https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&origin=*&titles='+encodeURIComponent(c.name),
