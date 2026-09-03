@@ -519,7 +519,8 @@ async function getGithubArtIndex(){
   githubArtIndexTime=now;
   githubArtIndexPromise=(async()=>{
     const repos=githubRepoCandidates();
-    const map=new Map();
+    const rootMap=new Map();
+    const anyMap=new Map();
     for(const repo of repos){
       try{
         const meta=await fetch(`https://api.github.com/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`,{cache:'no-store',headers:{'Accept':'application/vnd.github+json'}}).then(r=>r.ok?r.json():null);
@@ -530,25 +531,37 @@ async function getGithubArtIndex(){
             if(!tree?.tree) continue;
             for(const item of tree.tree){
               if(item.type!=='blob') continue;
-              const m=item.path.match(/\.(png|jpe?g|webp|avif|gif)$/i); if(!m) continue;
-              const base=item.path.split('/').pop().replace(/\.(png|jpe?g|webp|avif|gif)$/i,'');
+              if(!/\.(png|jpe?g|webp|avif|gif)$/i.test(item.path)) continue;
+              const parts=item.path.split('/');
+              const base=parts[parts.length-1].replace(/\.(png|jpe?g|webp|avif|gif)$/i,'');
               const key=base.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'');
-              if(!key || map.has(key)) continue;
+              if(!key) continue;
               const encPath=item.path.split('/').map(encodeURIComponent).join('/');
-              map.set(key,`https://raw.githubusercontent.com/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/${encodeURIComponent(branch)}/${encPath}`);
+              const src=`https://raw.githubusercontent.com/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/${encodeURIComponent(branch)}/${encPath}`;
+              // Prefer a root-level image over every nested duplicate.
+              if(parts.length===1 && !rootMap.has(key)) rootMap.set(key,src);
+              if(!anyMap.has(key)) anyMap.set(key,src);
             }
-            if(!tree.truncated && map.size) break;
+            if(!tree.truncated && (rootMap.size||anyMap.size)) break;
           }catch(e){}
         }
       }catch(e){}
     }
-    return map;
+    return {root:rootMap,any:anyMap};
   })();
   return githubArtIndexPromise;
 }
+function githubRootIndexCandidates(c){
+  const keys=localImageNames(c).map(n=>n.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,''));
+  return getGithubArtIndex().then(index=>{
+    const out=[];
+    for(const k of keys){const src=index.root.get(k);if(src)out.push(src)}
+    return [...new Set(out)];
+  });
+}
 function githubIndexCandidates(c){
   const keys=localImageNames(c).map(n=>n.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,''));
-  return getGithubArtIndex().then(map=>keys.map(k=>map.get(k)).filter(Boolean));
+  return getGithubArtIndex().then(index=>keys.map(k=>index.any.get(k)).filter(Boolean));
 }
 function youtubeCandidates(c){
   if(!c.img || /^https?:\/\//i.test(String(c.img)) || /\.(png|jpe?g|webp|avif|gif)$/i.test(String(c.img))) return [];
@@ -572,30 +585,46 @@ async function startImageLoad(c,el){
     imageCache.delete(c.name);
   }
 
+  // 1) The user's own repository is authoritative. Try the repository-root
+  // filename first, before ANY external image source.
   const allLocal=localImageCandidates(c);
-  const rootCount=(c.name==='Loughneally'?4:localImageNames(c).length)*LOCAL_IMAGE_EXTS.length;
+  const rootNameCount=(c.name==='Loughneally'?4:localImageNames(c).length);
+  const rootCount=rootNameCount*LOCAL_IMAGE_EXTS.length;
   const rootSources=allLocal.slice(0,rootCount);
   const found=await firstWorkingImage(c,rootSources,IMAGE_LOAD_TIMEOUT,'high');
   if(found){commitImage(c,el,found.src,found.img);return}
 
+  // 2) Ask GitHub for the actual repository tree and use the exact root-level
+  // file if one exists. This handles case-sensitive GitHub filenames reliably.
+  let githubSources=[];
+  try{
+    githubSources=await Promise.race([
+      githubRootIndexCandidates(c),
+      new Promise(r=>setTimeout(()=>r([]),5000))
+    ]);
+  }catch(e){githubSources=[]}
+  const githubFound=await firstWorkingImage(c,githubSources,IMAGE_REMOTE_TIMEOUT,'high');
+  if(githubFound){commitImage(c,el,githubFound.src,githubFound.img);return}
+
+  // 3) Only use secondary local folders when the exact root image does not
+  // exist. Never use a generic web search to fill a card with the wrong person.
   const folderSources=allLocal.slice(rootCount);
   const folderFound=await firstWorkingImage(c,folderSources,IMAGE_LOAD_TIMEOUT,'high');
   if(folderFound){commitImage(c,el,folderFound.src,folderFound.img);return}
 
-  // The GitHub tree is an authoritative case-insensitive filename lookup.
-  // This catches JPG/PNG casing and nested-path situations without asking the
-  // user to rename hundreds of files.
-  let githubSources=[];
-  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),3500))]);}catch(e){githubSources=[]}
-  const remoteSources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
-  const remoteFound=await firstWorkingImage(c,remoteSources,IMAGE_REMOTE_TIMEOUT,'auto');
-  if(remoteFound){commitImage(c,el,remoteFound.src,remoteFound.img);return}
+  // 4) Preserve an explicitly supplied direct image URL/filename from the
+  // card data, but do NOT use bare YouTube IDs as image fallbacks. Those were
+  // the main source of visually incorrect cards.
+  const explicit=imgFor(c);
+  const explicitIsDirect=/^https?:\/\//i.test(String(explicit||'')) || /\.(png|jpe?g|webp|avif|gif)(?:[?#].*)?$/i.test(String(c.img||''));
+  if(explicit && explicitIsDirect){
+    const directFound=await firstWorkingImage(c,[explicit],IMAGE_REMOTE_TIMEOUT,'auto');
+    if(directFound){commitImage(c,el,directFound.src,directFound.img);return}
+  }
 
-  // Keep the existing wiki fallback as a final safety net, but never let a
-  // slow external lookup block the local GitHub image path.
-  let foundWiki=false;
-  try{foundWiki=await Promise.race([findWiki(c,el),new Promise(r=>setTimeout(()=>r(false),3500))]);}catch(e){foundWiki=false}
-  if(!foundWiki)fallbackImage(c,el);
+  // Do not substitute Wikipedia/Commons/YouTube search results. If the card
+  // has no correctly named local image, show a truthful missing-art state.
+  fallbackImage(c,el);
   el.dataset.loading='0';
 }
 function commitImage(c,el,src,img){
