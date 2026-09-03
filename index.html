@@ -433,7 +433,9 @@ function initials(n){return n.replace(/[^A-Za-z ]/g,'').split(/\s+/).filter(Bool
 function slug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function imgFor(c){if(!c.img)return null; if(/^https?:\/\//i.test(String(c.img)))return c.img; if(/\.(png|jpe?g|webp|avif|gif)$/i.test(String(c.img)))return c.img; return `https://img.youtube.com/vi/${c.img}/hqdefault.jpg`}
 const LOCAL_IMAGE_DIRS=['','images/','img/','assets/images/','assets/','cards/','card-art/','card_art/','portraits/','beatboxers/','beatboxer/','art/','artwork/','assets/art/','assets/cards/','assets/portraits/','pictures/','picture/','pics/','photos/','photo/','avatars/','avatar/','profiles/','profile/','assets/pictures/','assets/photos/','assets/avatars/','public/images/','public/assets/','public/'];
-const LOCAL_IMAGE_EXTS=['png','jpg','jpeg','webp','avif','gif','PNG','JPG','JPEG','WEBP','AVIF','GIF'];
+const LOCAL_IMAGE_EXTS=['jpg','jpeg','png','webp','avif','gif','JPG','JPEG','PNG','WEBP','AVIF','GIF'];
+const IMAGE_LOAD_TIMEOUT=6500;
+const IMAGE_REMOTE_TIMEOUT=9000;
 const imageCache=new Map();
 let imageObserver=null;
 let githubArtIndexPromise=null;
@@ -443,28 +445,55 @@ function localImageNames(c){
   const n=String(c.name).trim();
   const compact=n.replace(/[’']/g,'');
   const lower=n.toLowerCase(), lowerCompact=compact.toLowerCase();
-  const variants=[n,compact,n.replace(/\s+/g,'_'),slug(n),n.replace(/\s+/g,'-'),n.replace(/[^A-Za-z0-9]+/g,''),n.replace(/[’']/g,'').replace(/\s+/g,'-'),lower,lowerCompact];
+  const variants=[
+    n,compact,
+    n.replace(/\s+/g,'_'),
+    slug(n),
+    n.replace(/\s+/g,'-'),
+    n.replace(/[^A-Za-z0-9]+/g,''),
+    n.replace(/[’']/g,'').replace(/\s+/g,'-'),
+    lower,lowerCompact
+  ];
   return [...new Set(variants.filter(Boolean))];
+}
+function imageUrl(rel){
+  try{return new URL(rel,document.baseURI).href}catch(e){return rel}
 }
 function localImageCandidates(c){
   const out=[];
   const names=localImageNames(c);
+  // Repository-root cards are the primary source. Keep the exact card name
+  // first, then harmless filename variants and extension/case variants.
   const rootNames=c.name==='Loughneally'
     ? ['Loughneally','loughneally','LoughNeally','LOUGHNEALLY']
     : names;
-  // IMPORTANT: the user's GitHub layout keeps card photos in the repository root.
-  // Try those exact root files first, with every supported extension.
-  for(const name of rootNames) for(const ext of LOCAL_IMAGE_EXTS){
-    out.push(new URL(encodeURIComponent(name)+'.'+ext,document.baseURI).href);
+  for(const name of rootNames){
+    for(const ext of LOCAL_IMAGE_EXTS) out.push(imageUrl(encodeURIComponent(name)+'.'+ext));
   }
-  // Then search common folders.
-  for(const name of names) for(const dir of LOCAL_IMAGE_DIRS) for(const ext of LOCAL_IMAGE_EXTS){
-    out.push(new URL(dir+encodeURIComponent(name)+'.'+ext,document.baseURI).href);
+  // Only after root files do we try common image folders.
+  for(const name of names){
+    for(const dir of LOCAL_IMAGE_DIRS.slice(1)){
+      for(const ext of LOCAL_IMAGE_EXTS) out.push(imageUrl(dir+encodeURIComponent(name)+'.'+ext));
+    }
   }
   return [...new Set(out)];
 }
-function fallbackImage(c,el){el.classList.remove('loading','loaded');el.classList.add('failed');el.dataset.filename=String(c.name)+'.jpg / .jpeg / .png / .webp';el.innerHTML=`<div class="ph">${initials(c.name)}</div>`}
-function createImageElement(c,src,priority='auto'){const img=new Image();img.alt=c.name;img.dataset.card=c.name;img.decoding='async';img.loading=priority==='high'?'eager':'lazy';if('fetchPriority' in img)img.fetchPriority=priority;return img}
+function fallbackImage(c,el){
+  el.classList.remove('loading','loaded');
+  el.classList.add('failed');
+  el.dataset.filename=String(c.name)+'.jpg / .jpeg / .png / .webp';
+  el.dataset.error='No supported local image was found after all same-site/GitHub checks.';
+  el.innerHTML=`<div class="ph">${initials(c.name)}</div>`;
+}
+function createImageElement(c,src,priority='auto'){
+  const img=new Image();
+  img.alt=c.name;
+  img.dataset.card=c.name;
+  img.decoding='async';
+  img.loading=priority==='high'?'eager':'lazy';
+  if('fetchPriority' in img)img.fetchPriority=priority;
+  return img;
+}
 const FACE_FOCUS={
   'DOG':'50% 42%','PACMax':'50% 28%','D-Low':'50% 28%','Alexinho':'50% 30%','NaPoM':'50% 30%',
   "River'":'50% 28%','Colaps':'50% 28%','B-Art':'50% 30%','FootboxG':'50% 27%','Saro':'50% 30%'
@@ -480,7 +509,6 @@ function githubRepoCandidates(){
     if(pathParts.length) out.push({owner,repo:pathParts[0]});
     else out.push({owner,repo:`${owner}.github.io`});
   }
-  // Also accept an optional meta tag for custom domains without requiring JS edits.
   const meta=document.querySelector('meta[name="github-repo"]')?.content?.trim();
   if(meta && meta.includes('/')){const [owner,repo]=meta.split('/');if(owner&&repo)out.push({owner,repo});}
   return out.filter((x,i,a)=>a.findIndex(y=>y.owner.toLowerCase()===x.owner.toLowerCase()&&y.repo.toLowerCase()===x.repo.toLowerCase())===i);
@@ -507,8 +535,7 @@ async function getGithubArtIndex(){
               const key=base.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'');
               if(!key || map.has(key)) continue;
               const encPath=item.path.split('/').map(encodeURIComponent).join('/');
-              const bust=item.sha?`?v=${encodeURIComponent(item.sha.slice(0,12))}`:'';
-              map.set(key,`https://raw.githubusercontent.com/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/${encodeURIComponent(branch)}/${encPath}${bust}`);
+              map.set(key,`https://raw.githubusercontent.com/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/${encodeURIComponent(branch)}/${encPath}`);
             }
             if(!tree.truncated && map.size) break;
           }catch(e){}
@@ -529,80 +556,85 @@ function youtubeCandidates(c){
 }
 async function startImageLoad(c,el){
   if(!el||el.dataset.loading==='1'||el.classList.contains('loaded'))return;
-  el.dataset.loading='1';el.classList.add('loading');
+  el.dataset.loading='1';el.classList.add('loading');el.classList.remove('failed');
 
   const cached=imageCache.get(c.name);
   if(cached){
     const img=createImageElement(c,cached,'high');
     let ok=false;
     await new Promise(resolve=>{
-      const timer=setTimeout(()=>resolve(),900);
+      const timer=setTimeout(()=>resolve(),IMAGE_REMOTE_TIMEOUT);
       img.onload=()=>{clearTimeout(timer);ok=true;resolve()};
       img.onerror=()=>{clearTimeout(timer);resolve()};
       img.src=cached;
     });
-    if(ok){el.innerHTML='';el.appendChild(img);applyFaceFocus(img,c);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';return}
+    if(ok){commitImage(c,el,cached,img);return}
     imageCache.delete(c.name);
   }
 
-  const localSources=localImageCandidates(c);
-  // Fast path: root-level files are the user's normal GitHub layout. Try all
-  // root filename variants concurrently so one missing extension never stalls.
-  const rootSources=localSources.slice(0,localImageNames(c).length*LOCAL_IMAGE_EXTS.length);
-  const found=await firstWorkingImage(c,rootSources,900,'high');
+  const allLocal=localImageCandidates(c);
+  const rootCount=(c.name==='Loughneally'?4:localImageNames(c).length)*LOCAL_IMAGE_EXTS.length;
+  const rootSources=allLocal.slice(0,rootCount);
+  const found=await firstWorkingImage(c,rootSources,IMAGE_LOAD_TIMEOUT,'high');
   if(found){commitImage(c,el,found.src,found.img);return}
 
-  // Second fast path: common folders, still concurrent and capped.
-  const folderSources=localSources.slice(rootSources.length,rootSources.length+Math.min(72,localSources.length-rootSources.length));
-  const folderFound=await firstWorkingImage(c,folderSources,1000,'high');
+  const folderSources=allLocal.slice(rootCount);
+  const folderFound=await firstWorkingImage(c,folderSources,IMAGE_LOAD_TIMEOUT,'high');
   if(folderFound){commitImage(c,el,folderFound.src,folderFound.img);return}
 
-  // Deep repository scan happens in the background. It is no longer on the
-  // critical path for cards stored beside index.html.
+  // The GitHub tree is an authoritative case-insensitive filename lookup.
+  // This catches JPG/PNG casing and nested-path situations without asking the
+  // user to rename hundreds of files.
   let githubSources=[];
-  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),1200))]);}catch(e){githubSources=[]}
+  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),3500))]);}catch(e){githubSources=[]}
   const remoteSources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
-  const remoteFound=await firstWorkingImage(c,remoteSources,1800,'auto');
+  const remoteFound=await firstWorkingImage(c,remoteSources,IMAGE_REMOTE_TIMEOUT,'auto');
   if(remoteFound){commitImage(c,el,remoteFound.src,remoteFound.img);return}
 
+  // Keep the existing wiki fallback as a final safety net, but never let a
+  // slow external lookup block the local GitHub image path.
   let foundWiki=false;
-  try{foundWiki=await Promise.race([findWiki(c,el),new Promise(r=>setTimeout(()=>r(false),1800))]);}catch(e){foundWiki=false}
+  try{foundWiki=await Promise.race([findWiki(c,el),new Promise(r=>setTimeout(()=>r(false),3500))]);}catch(e){foundWiki=false}
   if(!foundWiki)fallbackImage(c,el);
   el.dataset.loading='0';
 }
-
 function commitImage(c,el,src,img){
   imageCache.set(c.name,src);
   img.loading='lazy';
   if('fetchPriority' in img)img.fetchPriority='low';
   applyFaceFocus(img,c);
+  img.draggable=false;
   el.innerHTML='';el.appendChild(img);
-  el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';
+  el.classList.remove('loading','failed');el.classList.add('loaded');
+  el.dataset.loading='0';
+  el.dataset.src=src;
 }
-
-function firstWorkingImage(c,sources,timeout=1000,priority='auto'){
+function firstWorkingImage(c,sources,timeout=IMAGE_LOAD_TIMEOUT,priority='auto'){
   const list=[...new Set((sources||[]).filter(Boolean))];
   if(!list.length)return Promise.resolve(null);
   return new Promise(resolve=>{
     let settled=false,remaining=list.length;
-    const done=v=>{if(settled)return;settled=true;resolve(v)};
+    const imgs=[];
+    const cleanup=winner=>{
+      imgs.forEach(x=>{if(x!==winner){try{x.src=''}catch(e){}}});
+    };
+    const done=v=>{if(settled)return;settled=true;cleanup(v?.img);resolve(v)};
     list.forEach(src=>{
-      const img=createImageElement(c,src,priority);
+      const img=createImageElement(c,src,priority);imgs.push(img);
       let finished=false;
       const finish=ok=>{
         if(finished)return;finished=true;remaining--;
         if(ok)done({src,img});
         else if(remaining===0)done(null);
       };
-      const timer=setTimeout(()=>{try{img.src=''}catch(e){};finish(false)},timeout);
+      const timer=setTimeout(()=>finish(false),timeout);
       img.onload=()=>{clearTimeout(timer);finish(true)};
       img.onerror=()=>{clearTimeout(timer);finish(false)};
       img.src=src;
     });
   });
 }
-
-function observeImage(c,el,immediate=false){if(immediate){startImageLoad(c,el);return}if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}if(!imageObserver)imageObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const c=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);if(c)startImageLoad(c,e.target);imageObserver.unobserve(e.target)}}),{rootMargin:'500px 0px'});el.dataset.cardName=c.name;imageObserver.observe(el)}
+function observeImage(c,el,immediate=false){if(immediate){startImageLoad(c,el);return}if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}if(!imageObserver)imageObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const c=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);if(c)startImageLoad(c,e.target);imageObserver.unobserve(e.target)}}),{rootMargin:'700px 0px'});el.dataset.cardName=c.name;imageObserver.observe(el)}
 async function findWiki(c,el){
   const endpoints=[
     'https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&origin=*&titles='+encodeURIComponent(c.name),
@@ -648,7 +680,7 @@ function canBuy(p){if(p.unlock && S.totalOpened<p.unlock){toast('LOCKED',`Open $
 function spend(p){if(p.currency==='coins')S.coins-=p.cost;if(p.currency==='gems')S.gems-=p.cost;if(p.currency==='tickets')S.tickets-=p.cost;if(p.currency==='free')localStorage.setItem('dailyPack',new Date().toDateString());if(p.id==='starter')localStorage.setItem('starterPackClaimed','1');}
 function openPackType(id){const p=PACKS.find(x=>x.id===id);if(!p||!canBuy(p))return;sfx('charge');spend(p);const cards=[];let earnedXP=0;for(let i=0;i<p.cards;i++){S.totalOpened++;S.pity++;let c=pickCard(p);if(S.pity>=PITY_LIMIT&&c.rarity!=='legendary'){c=rarityOf('legendary');S.pity=0}if(c.rarity==='legendary')S.pity=0;cards.push(c);const owned=S.collection[c.name];if(owned)owned.count++;else S.collection[c.name]={...c,count:1};earnedXP+=20;}S.coins+=cards.reduce((a,c)=>a+(c.rarity==='legendary'?40:c.rarity==='loop-master'?25:c.rarity==='epic'?15:c.rarity==='uk-scene'?5:2),0);questProgress('open',cards.length);addXP(earnedXP);addSeasonXP(15*p.cards);save();renderPage(activePage);showPackResults(p,cards);if(cards.some(c=>c.rarity==='legendary'))sfx('win');else sfx('click');}
 function showPackResults(p,cards){document.getElementById('packModalTitle').textContent=p.name+' // '+cards.length+' CARDS';const box=document.getElementById('packResults');box.innerHTML='';cards.forEach((c,i)=>box.appendChild(cardEl(c,true)));document.getElementById('packModal').classList.add('open')}
-function cardEl(c,large=false){const d=document.createElement('div');d.className='mini-card';d.style.borderColor=rarityColor(c.rarity);const art=document.createElement('div');art.className='mini-art';art.dataset.filename=String(c.name)+'.png';d.appendChild(art);const b=document.createElement('span');b.className='badge';b.style.color=rarityColor(c.rarity);b.textContent=RARITY_LABEL[c.rarity]||c.rarity.toUpperCase();d.appendChild(b);const info=document.createElement('div');info.className='mini-info';info.innerHTML=`<div class="mini-name">${escapeHtml(c.name)}</div><div class="mini-line"><span>${escapeHtml(c.type)}</span><strong>${c.rating}</strong></div>`;d.appendChild(info);d.onclick=()=>inspect(c.name);observeImage(c,art,!!large);return d}
+function cardEl(c,large=false){const d=document.createElement('div');d.className='mini-card';d.style.borderColor=rarityColor(c.rarity);const art=document.createElement('div');art.className='mini-art';art.dataset.filename=String(c.name)+'.jpg / .jpeg / .png / .webp';d.appendChild(art);const b=document.createElement('span');b.className='badge';b.style.color=rarityColor(c.rarity);b.textContent=RARITY_LABEL[c.rarity]||c.rarity.toUpperCase();d.appendChild(b);const info=document.createElement('div');info.className='mini-info';info.innerHTML=`<div class="mini-name">${escapeHtml(c.name)}</div><div class="mini-line"><span>${escapeHtml(c.type)}</span><strong>${c.rating}</strong></div>`;d.appendChild(info);d.onclick=()=>inspect(c.name);observeImage(c,art,!!large);return d}
 function inspect(name){const c=ALL_CARDS.find(x=>x.name===name);if(!c)return;document.getElementById('modalCardTitle').textContent=c.name;const art=document.getElementById('modalArt');art.innerHTML='';observeImage(c,art,true);const lvl=S.mastery[name]?.level||1,xp=S.mastery[name]?.xp||0;document.getElementById('modalDetail').innerHTML=`<h4>${escapeHtml(c.name)}</h4><div class="tiny" style="color:${rarityColor(c.rarity)}">${RARITY_LABEL[c.rarity]||c.rarity.toUpperCase()} // ${escapeHtml(c.country)} // ${escapeHtml(c.type)}</div><p class="muted">Overall rating: <b style="color:#fff">${c.rating}</b> · Owned: ${S.collection[name]?.count||0} · Mastery Lv.$lvl</p><div class="statbars">${[['TEC',c.t],['MUS',c.m],['ORG',c.o],['PWR',c.p]].map(x=>`<div class="statbar"><b>${x[0]}</b><i><span style="width:${x[1]}%"></span></i><strong>${x[1]}</strong></div>`).join('')}</div><div class="panel" style="margin-top:13px"><b>MASTERY</b><div class="progress" style="margin:8px 0"><span style="width:${Math.min(100,(xp/350)*100)}%"></span></div><span class="muted">${xp} / 350 XP</span></div><div class="actions"><button class="btn" onclick="favorite('${escapeHtml(name)}')">${S.fav[name]?'UNFAVOURITE':'FAVOURITE'}</button>${S.collection[name]&&S.collection[name].count>1?`<button class="btn red" onclick="sellDuplicate('${escapeHtml(name)}')">SELL DUPLICATE</button>`:''}</div>`;openModal('cardModal')}
 function favorite(name){S.fav[name]=!S.fav[name];localStorage.setItem('favorites',JSON.stringify(S.fav));questProgress('fav');inspect(name)}
 function sellDuplicate(name){const c=S.collection[name];if(!c||c.count<2)return;c.count--;S.coins+=c.rarity==='legendary'?40:c.rarity==='loop-master'?25:c.rarity==='epic'?15:c.rarity==='uk-scene'?5:2;save();toast('DUPLICATE SOLD',`Duplicate ${name} sold for coins.`);renderAll()}
