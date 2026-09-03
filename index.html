@@ -427,42 +427,81 @@ function rarityColor(r){return RARITY_COLOR[r]||'#aaa'}
 function initials(n){return n.replace(/[^A-Za-z ]/g,'').split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase()||'?'}
 function slug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function imgFor(c){if(!c.img)return null; if(/^https?:\/\//i.test(String(c.img)))return c.img; if(/\.(png|jpe?g|webp|avif|gif)$/i.test(String(c.img)))return c.img; return `https://img.youtube.com/vi/${c.img}/hqdefault.jpg`}
-const LOCAL_IMAGE_DIRS=['','images/','img/','assets/images/','assets/','cards/','card-art/','card_art/','portraits/','beatboxers/','beatboxer/','art/','artwork/','assets/art/','assets/cards/','assets/portraits/'];
-const LOCAL_IMAGE_EXTS=['png','jpg','jpeg','webp','avif','gif'];
+const LOCAL_IMAGE_DIRS=['','images/','img/','assets/images/','assets/','cards/','card-art/','card_art/','portraits/','beatboxers/','beatboxer/','art/','artwork/','assets/art/','assets/cards/','assets/portraits/','pictures/','picture/','pics/','photos/','photo/','avatars/','avatar/','profiles/','profile/','assets/pictures/','assets/photos/','assets/avatars/','public/images/','public/assets/','public/'];
+const LOCAL_IMAGE_EXTS=['png','jpg','jpeg','webp','avif','gif','PNG','JPG','JPEG','WEBP','AVIF','GIF'];
 const imageCache=new Map();
 let imageObserver=null;
 let githubArtIndexPromise=null;
-function localImageNames(c){const n=String(c.name).trim();const compact=n.replace(/[’']/g,'');const variants=[n,compact,n.replace(/\s+/g,'_'),slug(n),n.replace(/\s+/g,'-'),n.replace(/[^A-Za-z0-9]+/g,''),n.replace(/[’']/g,'').replace(/\s+/g,'-')];return [...new Set(variants.filter(Boolean))]}
-function localImageCandidates(c){const out=[];for(const name of localImageNames(c)){for(const dir of LOCAL_IMAGE_DIRS){for(const ext of LOCAL_IMAGE_EXTS)out.push(dir+encodeURIComponent(name)+'.'+ext)}}return out}
+let githubArtIndexTime=0;
+const GITHUB_ART_INDEX_TTL=5*60*1000;
+function localImageNames(c){
+  const n=String(c.name).trim();
+  const compact=n.replace(/[’']/g,'');
+  const lower=n.toLowerCase(), lowerCompact=compact.toLowerCase();
+  const variants=[n,compact,n.replace(/\s+/g,'_'),slug(n),n.replace(/\s+/g,'-'),n.replace(/[^A-Za-z0-9]+/g,''),n.replace(/[’']/g,'').replace(/\s+/g,'-'),lower,lowerCompact];
+  return [...new Set(variants.filter(Boolean))];
+}
+function localImageCandidates(c){
+  const out=[];
+  const names=localImageNames(c);
+  // Exact root filenames first: matches the user's GitHub layout.
+  for(const name of names) for(const ext of LOCAL_IMAGE_EXTS){
+    out.push('./'+encodeURIComponent(name)+'.'+ext);
+  }
+  // Then search common folders and the remaining name variants.
+  for(const name of names) for(const dir of LOCAL_IMAGE_DIRS) for(const ext of LOCAL_IMAGE_EXTS){
+    out.push('./'+dir+encodeURIComponent(name)+'.'+ext);
+  }
+  return [...new Set(out)];
+}
 function fallbackImage(c,el){el.classList.remove('loading','loaded');el.classList.add('failed');el.dataset.filename=String(c.name)+'.png';el.innerHTML=`<div class="ph">${initials(c.name)}</div>`}
 function createImageElement(c,src){const img=new Image();img.alt=c.name;img.decoding='async';img.loading='lazy';return img}
-function githubRepoGuess(){
-  const host=location.hostname;
-  const path=location.pathname.split('/').filter(Boolean);
-  if(!/github\.io$/i.test(host)) return null;
-  const owner=host.split('.')[0];
-  const repo=path.length ? path[0] : `${owner}.github.io`;
-  return {owner,repo};
+function githubRepoCandidates(){
+  const host=location.hostname.replace(/\.$/,'');
+  const pathParts=location.pathname.split('/').filter(Boolean);
+  const out=[];
+  // Standard GitHub Pages: owner.github.io/repository/
+  if(/^[^.]+\.github\.io$/i.test(host)){
+    const owner=host.split('.')[0];
+    if(pathParts.length) out.push({owner,repo:pathParts[0]});
+    else out.push({owner,repo:`${owner}.github.io`});
+  }
+  // Also accept an optional meta tag for custom domains without requiring JS edits.
+  const meta=document.querySelector('meta[name="github-repo"]')?.content?.trim();
+  if(meta && meta.includes('/')){const [owner,repo]=meta.split('/');if(owner&&repo)out.push({owner,repo});}
+  return out.filter((x,i,a)=>a.findIndex(y=>y.owner.toLowerCase()===x.owner.toLowerCase()&&y.repo.toLowerCase()===x.repo.toLowerCase())===i);
 }
 async function getGithubArtIndex(){
-  if(githubArtIndexPromise) return githubArtIndexPromise;
+  const now=Date.now();
+  if(githubArtIndexPromise && now-githubArtIndexTime<GITHUB_ART_INDEX_TTL) return githubArtIndexPromise;
+  githubArtIndexTime=now;
   githubArtIndexPromise=(async()=>{
-    try{
-      const repo=githubRepoGuess();
-      if(!repo) return new Map();
-      const meta=await fetch(`https://api.github.com/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`,{cache:'force-cache'}).then(r=>r.ok?r.json():null);
-      if(!meta?.default_branch) return new Map();
-      const tree=await fetch(`https://api.github.com/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/git/trees/${encodeURIComponent(meta.default_branch)}?recursive=1`,{cache:'force-cache'}).then(r=>r.ok?r.json():null);
-      const map=new Map();
-      (tree?.tree||[]).forEach(item=>{
-        if(item.type!=='blob') return;
-        const m=item.path.match(/\.(png|jpe?g|webp|avif|gif)$/i); if(!m) return;
-        const base=item.path.split('/').pop().replace(/\.(png|jpe?g|webp|avif|gif)$/i,'');
-        const key=base.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'');
-        if(key && !map.has(key)) map.set(key,`https://raw.githubusercontent.com/${repo.owner}/${repo.repo}/${meta.default_branch}/${item.path.split('/').map(encodeURIComponent).join('/')}`);
-      });
-      return map;
-    }catch(e){ return new Map(); }
+    const repos=githubRepoCandidates();
+    const map=new Map();
+    for(const repo of repos){
+      try{
+        const meta=await fetch(`https://api.github.com/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`,{cache:'no-store',headers:{'Accept':'application/vnd.github+json'}}).then(r=>r.ok?r.json():null);
+        const branches=[meta?.default_branch,'main','master','gh-pages'].filter(Boolean);
+        for(const branch of [...new Set(branches)]){
+          try{
+            const tree=await fetch(`https://api.github.com/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/git/trees/${encodeURIComponent(branch)}?recursive=1`,{cache:'no-store',headers:{'Accept':'application/vnd.github+json'}}).then(r=>r.ok?r.json():null);
+            if(!tree?.tree) continue;
+            for(const item of tree.tree){
+              if(item.type!=='blob') continue;
+              const m=item.path.match(/\.(png|jpe?g|webp|avif|gif)$/i); if(!m) continue;
+              const base=item.path.split('/').pop().replace(/\.(png|jpe?g|webp|avif|gif)$/i,'');
+              const key=base.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'');
+              if(!key || map.has(key)) continue;
+              const encPath=item.path.split('/').map(encodeURIComponent).join('/');
+              const bust=item.sha?`?v=${encodeURIComponent(item.sha.slice(0,12))}`:'';
+              map.set(key,`https://raw.githubusercontent.com/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/${encodeURIComponent(branch)}/${encPath}${bust}`);
+            }
+            if(!tree.truncated && map.size) break;
+          }catch(e){}
+        }
+      }catch(e){}
+    }
+    return map;
   })();
   return githubArtIndexPromise;
 }
@@ -478,25 +517,44 @@ async function startImageLoad(c,el){
   if(!el||el.dataset.loading==='1'||el.classList.contains('loaded'))return;
   el.dataset.loading='1';el.classList.add('loading');
   const cached=imageCache.get(c.name);
-  if(cached){const img=createImageElement(c,cached);img.src=cached;el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';return}
-  const githubSources=await githubIndexCandidates(c);
-  const sources=[...githubSources,...localImageCandidates(c),...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  if(cached){const img=createImageElement(c,cached);img.onload=()=>{};img.onerror=()=>{imageCache.delete(c.name);startImageLoad(c,el)};img.src=cached;el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';return}
+
+  // GitHub Pages fix: try same-origin repository files first. This makes
+  // root files like "Alexinho.jpg" work without relying on the GitHub API.
+  const localSources=localImageCandidates(c);
   let i=0;
+  const tryLocal=()=>new Promise(resolve=>{
+    const nextLocal=()=>{
+      if(i>=localSources.length)return resolve(false);
+      const src=localSources[i++],img=createImageElement(c,src);
+      img.onload=()=>{imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0';resolve(true)};
+      img.onerror=nextLocal;img.src=src;
+    };
+    nextLocal();
+  });
+  if(await tryLocal())return;
+
+  // Only after local files fail do we ask GitHub's API for deeply nested art.
+  let githubSources=[];
+  try{githubSources=await Promise.race([githubIndexCandidates(c),new Promise(r=>setTimeout(()=>r([]),2500))]);}catch(e){githubSources=[]}
+  const sources=[...githubSources,...youtubeCandidates(c),imgFor(c)].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  let j=0;
   const next=()=>{
-    if(i>=sources.length){findWiki(c,el).then(found=>{if(!found)fallbackImage(c,el);el.dataset.loading='0'});return}
-    const src=sources[i++],img=createImageElement(c,src);
+    if(j>=sources.length){findWiki(c,el).then(found=>{if(!found)fallbackImage(c,el);el.dataset.loading='0'});return}
+    const src=sources[j++],img=createImageElement(c,src);
     img.onload=()=>{imageCache.set(c.name,src);el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0'};
     img.onerror=next;img.src=src;
   };
   next();
 }
-function observeImage(c,el,immediate=false){if(immediate){startImageLoad(c,el);return}if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}if(!imageObserver)imageObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const c=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);if(c)startImageLoad(c,e.target);imageObserver.unobserve(e.target)}}),{rootMargin:'700px 0px'});el.dataset.cardName=c.name;imageObserver.observe(el)}
+
+function observeImage(c,el,immediate=false){if(immediate){startImageLoad(c,el);return}if(!('IntersectionObserver' in window)){startImageLoad(c,el);return}if(!imageObserver)imageObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const c=ALL_CARDS.find(x=>x.name===e.target.dataset.cardName);if(c)startImageLoad(c,e.target);imageObserver.unobserve(e.target)}}),{rootMargin:'900px 0px'});el.dataset.cardName=c.name;imageObserver.observe(el)}
 async function findWiki(c,el){
   const endpoints=[
     'https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&origin=*&titles='+encodeURIComponent(c.name),
     'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(c.name)+'&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&iiurlwidth=900&format=json&origin=*'
   ];
-  for(const url of endpoints){try{const j=await fetch(url,{cache:'force-cache'}).then(r=>r.ok?r.json():null);let src=null;if(j?.query?.pages){src=Object.values(j.query.pages)[0]?.original?.source || Object.values(j.query.pages)[0]?.imageinfo?.[0]?.thumburl || Object.values(j.query.pages)[0]?.imageinfo?.[0]?.url || null;}if(src){imageCache.set(c.name,src);const img=createImageElement(c,src);img.onerror=()=>fallbackImage(c,el);img.onload=()=>{el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0'};img.src=src;return true}}catch(e){}}
+  for(const url of endpoints){try{const j=await fetch(url,{cache:'force-cache'}).then(r=>r.ok?r.json():null);let src=null;if(j?.query?.pages){src=Object.values(j.query.pages)[0]?.original?.source || Object.values(j.query.pages)[0]?.imageinfo?.[0]?.thumburl || Object.values(j.query.pages)[0]?.imageinfo?.[0]?.url || null;}if(src){imageCache.set(c.name,src);const img=createImageElement(c,src);img.onerror=()=>{imageCache.delete(c.name);fallbackImage(c,el)};img.onload=()=>{el.innerHTML='';el.appendChild(img);el.classList.remove('loading','failed');el.classList.add('loaded');el.dataset.loading='0'};img.src=src;return true}}catch(e){}}
   return false;
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
