@@ -36,6 +36,8 @@ nav{border-right:1px solid var(--line);background:rgba(5,6,8,.76);padding:12px;d
 @media(max-width:1050px){main{grid-template-columns:72px 1fr}nav .navlabel,nav .navgroup{display:none}.navbtn{justify-content:center}.battle-wrap,.royale{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:720px){header{height:68px;padding:8px 10px}main{height:calc(100vh - 68px)}.brand h1{font-size:1.5rem}.brand p{display:none}.pill{min-width:55px;padding:5px 7px}.hud .pill:nth-child(1){display:none}nav{width:64px;padding:8px 6px}.page{padding:14px 12px 34px}.hero h2{font-size:2.7rem}.grid3,.grid4,.grid2{grid-template-columns:1fr}.fighters{grid-template-columns:1fr;gap:15px;margin-top:22px}.versus{font-size:2rem}.fighter-avatar{width:110px;height:110px}.movebar{grid-template-columns:repeat(2,1fr)}.modal-grid{grid-template-columns:1fr}.rank-row{grid-template-columns:34px 1fr .7fr}.rank-row > *:nth-child(4),.rank-row > *:nth-child(5){display:none}}
 
+/* === BETA GATE === */
+.beta-gate{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.86);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:20px}.beta-gate:not(.open){display:none}.beta-box{width:min(560px,94vw);padding:28px;border:1px solid #3a3f4b;border-radius:18px;background:linear-gradient(145deg,#12151b,#08090d);box-shadow:0 28px 80px rgba(0,0,0,.6);text-align:center}.beta-box h2{font:700 3rem/.9 Teko;margin:10px 0 12px}.beta-box p{color:#949daf;line-height:1.55;margin:0 auto 20px;max-width:460px}.beta-check{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 auto 16px;color:#dfe4ec;font-size:.78rem;cursor:pointer}.beta-check input{width:17px;height:17px;accent-color:#ffd43b}.beta-box .btn{min-width:190px}.beta-box .btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 /* === V2 STABILITY / IMAGE / SYSTEM UPGRADES === */
 .cardlist{content-visibility:auto;contain-intrinsic-size:400px}.mini-card{contain:layout paint style}.mini-art{isolation:isolate}.mini-art img,.big-art img,.fighter-avatar img{background:#0b0d12}
 .mini-art img{contain:strict;will-change:transform;transition:opacity .18s ease}.mini-art.loading img{opacity:0}.mini-art.loaded img{opacity:1}
@@ -57,6 +59,14 @@ nav{border-right:1px solid var(--line);background:rgba(5,6,8,.76);padding:12px;d
 .mp-pick{border:1px solid #2d323c;border-radius:10px;background:#0d1015;overflow:hidden;cursor:pointer;text-align:left}.mp-pick:hover{border-color:var(--gold);transform:translateY(-1px)}.mp-pick.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}.mp-pick .mini-art{height:115px}.mp-pick .mini-info{padding:8px}
 .mp-score{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid #2b3038;border-radius:11px;background:#0e1015}.mp-score b{font:600 1.7rem Teko}.mp-vs{font:700 1.1rem Teko;color:var(--red)}
 @media(max-width:720px){.mp-code{font-size:2.1rem;letter-spacing:5px}.mp-cards{grid-template-columns:repeat(2,1fr)}}
+
+#scMusic{position:fixed;right:16px;bottom:14px;z-index:35;width:min(360px,calc(100vw - 32px));display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+#scMusicFrame{width:1px;height:1px;opacity:.01;position:absolute;left:-9999px;top:-9999px}
+#scNowPlaying{max-width:100%;padding:6px 10px;border:1px solid var(--line);background:rgba(8,10,14,.9);backdrop-filter:blur(10px);border-radius:8px;color:#aeb6c7;font-size:.58rem;letter-spacing:1px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+#scNowPlaying span{color:var(--gold)}
+#scMusicToggle{pointer-events:auto;padding:7px 10px;font-size:.58rem;line-height:1;border-radius:8px;opacity:.86}
+#scMusicToggle.playing{border-color:#55491d;color:var(--gold)}
+@media(max-width:700px){#scMusic{right:9px;bottom:9px;width:min(290px,calc(100vw - 18px))}#scNowPlaying{font-size:.5rem;max-width:90vw}}
 </style>
 </head>
 <body>
@@ -125,13 +135,30 @@ nav{border-right:1px solid var(--line);background:rgba(5,6,8,.76);padding:12px;d
 <section class="page" id="page-season"><div class="hero"><div class="eyebrow">SEASON 01 // THE GOLDEN MIC</div><h2>PLAY THE GAME. LEVEL THE SEASON.</h2><p>Pack openings, battles, training and Royale wins all feed Season XP. Every tier contains a reward you can claim once.</p><div class="section-title" style="margin-top:18px"><h3 id="seasonTierLabel">TIER 0 / 10</h3><span id="seasonXpLabel">0 XP</span></div><div class="season-progress"><span id="seasonBar"></span></div></div><div class="section-title"><h3>REWARD TRACK</h3><span>SEASON 01</span></div><div id="seasonGrid" class="grid" style="gap:9px"></div></section>
 </div></main></div>
 
+<div class="beta-gate open" id="betaGate" aria-modal="true" role="dialog" aria-labelledby="betaTitle">
+  <div class="beta-box">
+    <div class="eyebrow">BEATBOX LEGENDS // BETA</div>
+    <h2 id="betaTitle">WELCOME TO THE BETA.</h2>
+    <p>This game is still in beta, so some features may not work perfectly and you may run into bugs.</p>
+    <label class="beta-check"><input type="checkbox" id="betaAgree"> <span>I understand and want to continue.</span></label>
+    <button class="btn" id="betaContinue" type="button" disabled>CONTINUE</button>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toastWrap"></div>
 <div class="modal" id="cardModal"><div class="modal-box"><div class="modal-head"><h3 id="modalCardTitle">CARD</h3><button class="close" onclick="closeModal('cardModal')">×</button></div><div class="modal-grid"><div class="big-art" id="modalArt"></div><div class="detail" id="modalDetail"></div></div></div></div>
 <div class="modal" id="settingsModal"><div class="modal-box"><div class="modal-head"><h3>SETTINGS</h3><button class="close" onclick="closeModal('settingsModal')">×</button></div><div class="grid grid2" style="margin-top:15px"><div class="panel"><b>Sound</b><p class="muted">Simple browser SFX are generated locally.</p><button class="btn dark" onclick="toggleMute()" id="muteBtn">SOUND ON</button></div><div class="panel"><b>Profile</b><p class="muted">Export your progress as JSON or restore it later.</p><div class="actions"><button class="btn" onclick="exportSave()">EXPORT</button><button class="btn dark" onclick="importSave()">IMPORT</button></div></div></div><div class="panel" style="margin-top:12px"><b>LOCAL CARD ART</b><p class="local-art-note">Drop a picture into <span class="img-path-code">images/</span> (or nearly any folder in the repository) named exactly like the beatboxer, such as <span class="img-path-code">PACMax.png</span>. The game can automatically scan your public GitHub Pages repository and find matching image files even when they are inside a folder.</p><p class="muted" style="margin-bottom:0">Local artwork is checked before remote artwork, so your GitHub files always win.</p></div><div class="panel" style="margin-top:12px"><b>Danger Zone</b><p class="muted">This permanently clears local progression.</p><button class="btn red" onclick="resetAll()">RESET EVERYTHING</button></div></div></div>
 <div class="modal" id="packModal"><div class="modal-box"><div class="modal-head"><h3 id="packModalTitle">PACK OPENING</h3><button class="close" onclick="closeModal('packModal')">×</button></div><div id="packResults" class="cardlist" style="margin-top:14px"></div></div></div>
 
+<div id="scMusic" aria-live="polite">
+  <iframe id="scMusicFrame" title="SoundCloud EP player" allow="autoplay" scrolling="no" frameborder="no"
+    src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/cesarean-247735252/sets/update&color=%23ffd43b&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false&show_artwork=false&sharing=true"></iframe>
+  <div id="scNowPlaying">SOUNDTRACK <span>— press play to start</span></div>
+  <button id="scMusicToggle" class="btn dark" type="button" aria-label="Toggle soundtrack">▶ SOUNDTRACK</button>
+</div>
 <audio id="dogAudio" src="1st take freestyle.mp3"></audio>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://w.soundcloud.com/player/api.js"></script>
 <script>
 // ===== EXISTING DATABASE: RATINGS PRESERVED EXACTLY =====
 const db = [
@@ -696,6 +723,87 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':
 function toast(title,msg){const w=document.getElementById('toastWrap');const d=document.createElement('div');d.className='toast';d.innerHTML=`<b>${title}</b><span>${msg}</span>`;w.appendChild(d);setTimeout(()=>d.remove(),3000)}
 function sfx(type='click'){if(S.muted)return;try{const C=audioEngine.ctx||(audioEngine.ctx=new (window.AudioContext||window.webkitAudioContext)());const o=C.createOscillator(),g=C.createGain();o.connect(g);g.connect(C.destination);const t=C.currentTime;o.type=type==='charge'?'triangle':'sine';o.frequency.setValueAtTime(type==='win'?360:type==='charge'?130:600,t);o.frequency.exponentialRampToValueAtTime(type==='win'?760:type==='charge'?740:220,t+.18);g.gain.setValueAtTime(.055,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.start(t);o.stop(t+.2)}catch(e){}}
 const audioEngine={ctx:null};
+// ===== SOUNDCLOUD EP BACKGROUND MUSIC =====
+const SC_EP_URL='https://soundcloud.com/cesarean-247735252/sets/update';
+const SC_MUSIC_VOLUME=10; // deliberately quiet background level (0-100)
+const SCMusic={widget:null,ready:false,playing:false,currentTitle:'',started:false,userStarted:false};
+let dogMusicActive=false;
+function scMusicLabel(title,artist){
+  const e=document.getElementById('scNowPlaying'); if(!e)return;
+  const t=(title||'SoundCloud EP').trim(); const a=(artist||'').trim();
+  e.innerHTML='SOUNDTRACK <span>— '+escapeHtml(a?a+' · '+t:t)+'</span>';
+}
+function scMusicUpdateButton(){
+  const b=document.getElementById('scMusicToggle'); if(!b)return;
+  b.textContent=SCMusic.playing?'⏸ SOUNDTRACK':'▶ SOUNDTRACK'; b.classList.toggle('playing',SCMusic.playing);
+}
+function scMusicBind(){
+  const frame=document.getElementById('scMusicFrame');
+  if(!frame||!window.SC||!SC.Widget)return false;
+  SCMusic.widget=SC.Widget(frame);
+  SCMusic.widget.bind(SC.Widget.Events.READY,()=>{
+    SCMusic.ready=true;
+    SCMusic.widget.setVolume(SC_MUSIC_VOLUME);
+    SCMusic.widget.getCurrentSound(sound=>{if(sound)scMusicLabel(sound.title,sound.user?.username);});
+  });
+  SCMusic.widget.bind(SC.Widget.Events.PLAY,()=>{
+    if(dogMusicActive){try{SCMusic.widget.pause();}catch(e){};return;}
+    SCMusic.playing=true; SCMusic.started=true; scMusicUpdateButton();
+    SCMusic.widget.setVolume(SC_MUSIC_VOLUME);
+    SCMusic.widget.getCurrentSound(sound=>{if(sound) {SCMusic.currentTitle=sound.title||'';scMusicLabel(sound.title,sound.user?.username);}});
+  });
+  SCMusic.widget.bind(SC.Widget.Events.PAUSE,()=>{SCMusic.playing=false;scMusicUpdateButton();});
+  SCMusic.widget.bind(SC.Widget.Events.FINISH,()=>{
+    SCMusic.playing=false; scMusicUpdateButton();
+    SCMusic.widget.getSounds(sounds=>{if(sounds&&sounds.length){SCMusic.widget.next();}});
+  });
+  return true;
+}
+function scMusicStop(){
+  try{if(SCMusic.widget)SCMusic.widget.pause();}catch(e){}
+  SCMusic.playing=false;scMusicUpdateButton();
+}
+function playDogMusic(){
+  dogMusicActive=true;
+  scMusicStop();
+  const dog=document.getElementById('dogAudio');
+  if(!dog)return;
+  dog.volume=0.9;
+  dog.currentTime=0;
+  const p=dog.play();
+  if(p?.catch)p.catch(()=>{});
+  dog.onended=()=>{dogMusicActive=false;};
+}
+function stopDogMusic(){
+  const dog=document.getElementById('dogAudio');
+  if(!dog)return;
+  try{dog.pause();dog.currentTime=0;}catch(e){}
+  dogMusicActive=false;
+}
+
+function scMusicToggle(){
+  if(dogMusicActive){stopDogMusic();return;}
+  if(!SCMusic.widget){if(!scMusicBind())return toast('SOUNDTRACK','SoundCloud player is still loading.');}
+  if(SCMusic.playing)SCMusic.widget.pause();
+  else {SCMusic.widget.setVolume(SC_MUSIC_VOLUME);SCMusic.widget.play();}
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const b=document.getElementById('scMusicToggle'); if(b)b.addEventListener('click',()=>{SCMusic.userStarted=true;scMusicToggle();});
+  let tries=0; const timer=setInterval(()=>{tries++; if(scMusicBind()||tries>40)clearInterval(timer);},250);
+  const gate=document.getElementById('betaGate');
+  const agree=document.getElementById('betaAgree');
+  const cont=document.getElementById('betaContinue');
+  if(gate&&agree&&cont){
+    agree.addEventListener('change',()=>{cont.disabled=!agree.checked;});
+    cont.addEventListener('click',()=>{if(!agree.checked)return;gate.classList.remove('open');document.body.classList.remove('beta-locked');});
+    // First user interaction after accepting can safely start the soundtrack.
+    document.addEventListener('pointerdown',()=>{
+      if(gate.classList.contains('open')||SCMusic.userStarted||dogMusicActive)return;
+      SCMusic.userStarted=true;
+      try{SCMusic.widget?.setVolume(SC_MUSIC_VOLUME);SCMusic.widget?.play();}catch(e){}
+    },{once:true,capture:true});
+  }
+});
 let activePage='home';
 function go(page){const next=document.getElementById('page-'+page);if(!next)return;document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));next.classList.add('active');document.querySelectorAll('.navbtn[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));activePage=page;renderPage(page);sfx('click')}
 document.querySelectorAll('.navbtn[data-page]').forEach(b=>b.onclick=()=>go(b.dataset.page));
@@ -727,7 +835,7 @@ function pickCard(pack){
 }
 function canBuy(p){if(p.unlock && S.totalOpened<p.unlock){toast('LOCKED',`Open ${p.unlock} cards first.`);return false}if(p.id==='starter'&&localStorage.getItem('starterPackClaimed')==='1'){toast('CLAIMED','Your starter pack has already been opened.');return false}if(p.currency==='free'){const t=new Date().toDateString();if(localStorage.getItem('dailyPack')===t){toast('CLAIMED','Come back tomorrow for the free drop.');return false}}if(p.currency==='coins'&&S.coins<p.cost)return toast('NOT ENOUGH COINS','Earn coins from packs, quests and battles.');if(p.currency==='gems'&&S.gems<p.cost)return toast('NOT ENOUGH GEMS','Premium currency required.');if(p.currency==='tickets'&&S.tickets<p.cost)return toast('NOT ENOUGH TICKETS','Win Battle Royale runs or daily missions.');return true}
 function spend(p){if(p.currency==='coins')S.coins-=p.cost;if(p.currency==='gems')S.gems-=p.cost;if(p.currency==='tickets')S.tickets-=p.cost;if(p.currency==='free')localStorage.setItem('dailyPack',new Date().toDateString());if(p.id==='starter')localStorage.setItem('starterPackClaimed','1');}
-function openPackType(id){const p=PACKS.find(x=>x.id===id);if(!p||!canBuy(p))return;sfx('charge');spend(p);const cards=[];let earnedXP=0;for(let i=0;i<p.cards;i++){S.totalOpened++;S.pity++;let c=pickCard(p);if(S.pity>=PITY_LIMIT&&c.rarity!=='legendary'){c=rarityOf('legendary');S.pity=0}if(c.rarity==='legendary')S.pity=0;cards.push(c);const owned=S.collection[c.name];if(owned)owned.count++;else S.collection[c.name]={...c,count:1};earnedXP+=20;}S.coins+=cards.reduce((a,c)=>a+(c.rarity==='legendary'?40:c.rarity==='loop-master'?25:c.rarity==='epic'?15:c.rarity==='uk-scene'?5:2),0);questProgress('open',cards.length);addXP(earnedXP);addSeasonXP(15*p.cards);save();renderPage(activePage);showPackResults(p,cards);if(cards.some(c=>c.rarity==='legendary'))sfx('win');else sfx('click');}
+function openPackType(id){const p=PACKS.find(x=>x.id===id);if(!p||!canBuy(p))return;sfx('charge');spend(p);const cards=[];let earnedXP=0;for(let i=0;i<p.cards;i++){S.totalOpened++;S.pity++;let c=pickCard(p);if(S.pity>=PITY_LIMIT&&c.rarity!=='legendary'){c=rarityOf('legendary');S.pity=0}if(c.rarity==='legendary')S.pity=0;cards.push(c);const owned=S.collection[c.name];if(owned)owned.count++;else S.collection[c.name]={...c,count:1};earnedXP+=20;}S.coins+=cards.reduce((a,c)=>a+(c.rarity==='legendary'?40:c.rarity==='loop-master'?25:c.rarity==='epic'?15:c.rarity==='uk-scene'?5:2),0);questProgress('open',cards.length);addXP(earnedXP);addSeasonXP(15*p.cards);save();renderPage(activePage);showPackResults(p,cards);if(cards.some(c=>c.rarity==='legendary'))sfx('win');else sfx('click');const dogPulled=cards.some(c=>c.name==='DOG');if(dogPulled){playDogMusic();}else if(!dogMusicActive&&SCMusic.userStarted){try{SCMusic.widget?.play();}catch(e){}}}
 function showPackResults(p,cards){document.getElementById('packModalTitle').textContent=p.name+' // '+cards.length+' CARDS';const box=document.getElementById('packResults');box.innerHTML='';cards.forEach((c,i)=>box.appendChild(cardEl(c,true)));document.getElementById('packModal').classList.add('open')}
 function cardEl(c,large=false){const d=document.createElement('div');d.className='mini-card';d.style.borderColor=rarityColor(c.rarity);const art=document.createElement('div');art.className='mini-art';art.dataset.filename=String(c.name)+'.jpg / .jpeg / .png / .webp';d.appendChild(art);const b=document.createElement('span');b.className='badge';b.style.color=rarityColor(c.rarity);b.textContent=RARITY_LABEL[c.rarity]||c.rarity.toUpperCase();d.appendChild(b);const info=document.createElement('div');info.className='mini-info';info.innerHTML=`<div class="mini-name">${escapeHtml(c.name)}</div><div class="mini-line"><span>${escapeHtml(c.type)}</span><strong>${c.rating}</strong></div>`;d.appendChild(info);d.onclick=()=>inspect(c.name);observeImage(c,art,!!large);return d}
 function inspect(name){const c=ALL_CARDS.find(x=>x.name===name);if(!c)return;document.getElementById('modalCardTitle').textContent=c.name;const art=document.getElementById('modalArt');art.innerHTML='';observeImage(c,art,true);const lvl=S.mastery[name]?.level||1,xp=S.mastery[name]?.xp||0;document.getElementById('modalDetail').innerHTML=`<h4>${escapeHtml(c.name)}</h4><div class="tiny" style="color:${rarityColor(c.rarity)}">${RARITY_LABEL[c.rarity]||c.rarity.toUpperCase()} // ${escapeHtml(c.country)} // ${escapeHtml(c.type)}</div><p class="muted">Overall rating: <b style="color:#fff">${c.rating}</b> · Owned: ${S.collection[name]?.count||0} · Mastery Lv.$lvl</p><div class="statbars">${[['TEC',c.t],['MUS',c.m],['ORG',c.o],['PWR',c.p]].map(x=>`<div class="statbar"><b>${x[0]}</b><i><span style="width:${x[1]}%"></span></i><strong>${x[1]}</strong></div>`).join('')}</div><div class="panel" style="margin-top:13px"><b>MASTERY</b><div class="progress" style="margin:8px 0"><span style="width:${Math.min(100,(xp/350)*100)}%"></span></div><span class="muted">${xp} / 350 XP</span></div><div class="actions"><button class="btn" onclick="favorite('${escapeHtml(name)}')">${S.fav[name]?'UNFAVOURITE':'FAVOURITE'}</button>${S.collection[name]&&S.collection[name].count>1?`<button class="btn red" onclick="sellDuplicate('${escapeHtml(name)}')">SELL DUPLICATE</button>`:''}</div>`;openModal('cardModal')}
